@@ -24,7 +24,8 @@ Mythic-Mons/
 │   │                          ShopClerk + clerk.tscn
 │   ├── maps/
 │   │   ├── world_map.gd       Root script of every map (terrain lookups, spawns, encounters)
-│   │   └── *.tscn             Emberfall, its house, Route 1, Tidewater, its MART
+│   │   └── *.tscn             Emberfall (home, lab, REN's house), Route 1, Tidewater
+│   │                          (MART, MONSTER CENTER, seaside house)
 │   ├── objects/               Warp, SpawnPoint, Signpost, CUT tree, ROCK SMASH boulder
 │   ├── battle/                BattleScene (menus + animation), BattlerPanel, StatBar
 │   └── ui/                    Dialogue box (autoload), choice box, map banner, party menu,
@@ -37,7 +38,8 @@ Mythic-Mons/
 │   ├── battle/                Battle (the rules) and Battler (a monster on the field)
 │   ├── art/                   pixel_art.gd (tiles, objects, monsters, sheets),
 │   │                          character_designs.gd (hand-drawn character parts) and
-│   │                          monster_designs.gd (hand-drawn battle sprites)
+│   │                          monster_designs.gd (hand-drawn battle sprites),
+│   │                          town_tiles.gd (TownTiles: the town atlas layout)
 │   └── audio/                 ChipSynth (SFX), Chiptune (sequencer), Songs (music data)
 ├── data/                      Game data as .tres, file name = id
 │   ├── species/               flamlet, aquapup, sproutle, pebblet, zapkit, shadeling
@@ -47,12 +49,13 @@ Mythic-Mons/
 ├── assets/
 │   ├── placeholder/           Generated PNGs: tiles, characters, objects, monsters
 │   ├── characters/townsfolk/  NPC sheets converted from a downloaded pack (source/)
-│   ├── tilesets/              overworld_tileset.tres (physics + terrain custom data)
+│   ├── tilesets/              overworld_tileset.tres (physics + terrain custom data),
+│   │                          town_tiles.png, source/ (ArMM1998's CC0 overworld sheet)
 │   ├── ui/theme.tres          Pixel font, text-box style
 │   ├── fonts/                 Press Start 2P (SIL OFL)
 │   └── audio/music, sfx/      Drop real audio here to replace the generated sounds
 ├── tools/                     Headless generators (art, TileSet, starter maps, game data)
-│                              and the townsfolk importer
+│                              and the town-tile and townsfolk importers
 ├── tests/                     battle_test, game_state_test (rules), smoke_test (plays the game)
 └── docs/                      This file, ASSETS.md
 ```
@@ -119,6 +122,7 @@ NPCs (`npc.tscn`) use the same layout without the camera and surf mount.
 TownEmberfall (Node2D)                   world_map.gd: display_name, is_town, allow_fly,
 │                                        music, encounter_rate, wild_monsters
 ├── Ground (TileMapLayer)                overworld_tileset.tres
+├── Buildings (TileMapLayer)             5 × 5 houses from TownTiles (towns only)
 ├── Entities (Node2D, Y Sort enabled)    NPCs, signs, field obstacles (+ the player at runtime)
 ├── Warps (Node2D)                       warp.tscn areas on doors and map edges
 └── Spawns (Node2D)                      SpawnPoint markers: "default", "fly", "from_route", …
@@ -290,12 +294,12 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
   `blocked_lines` until the flag is on. That's how Emberfall's north exit
   waits for `got_starter`. Use the same pattern for gyms, roadblocks, and
   so on.
-- **Starter.** `StarterGiver` (an NPC subclass, `professor.tscn`) offers
+- **Starter.** `StarterGiver` (an NPC subclass, `professor.tscn`, in the lab) offers
   each species in `starters` through `Dialogue.choose()` with a picture of
   the highlighted one. It then gives the monster plus a gift item and sets
   the flag. New games start with an empty party.
 - **Healing.** Any NPC with `heals_party` restores the party after talking
-  (MOM does). Whiting out also heals and respawns at
+  (MOM, and the nurse in the MONSTER CENTER, across the counter). Whiting out also heals and respawns at
   `GameState.respawn_map`.
 - **Start menu.** MONSTERS opens `PartyMenu.browse()`: a list with HP bars, a
   big picture of the highlighted monster, and SUMMARY (two pages: info and
@@ -339,7 +343,11 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
 ## Adding a map
 
 1. Duplicate a map scene (or extend `MAPS` in `tools/build_world.gd` and run it).
-2. Paint `Ground` with `overworld_tileset.tres`.
+2. Paint `Ground` with `overworld_tileset.tres`. Its source 1 holds the town
+   tiles (outdoors) and source 0 the generated ones (interiors). For
+   buildings, add a `Buildings` layer with houses from source 1 (in `MAPS`:
+   `houses`, as `[top-left cell, roof]`), and put a warp on each door, 2 tiles
+   right of and 4 below the house's top-left corner.
 3. Add `SpawnPoint` markers under `Spawns`, named by id.
 4. Add `warp.tscn` instances under `Warps`. Set `target_map` and `target_spawn`.
 5. Set `display_name`, `music`, `is_town`, and the encounter table in the inspector.
@@ -357,8 +365,8 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
   signs, NPCs, CUT, doors, the starter gate and PROF. ASTER's starter,
   ledges, ROCK SMASH, a won battle, a catch, a whiteout, MOM's healing, the
   party screen, summary and SWITCH, POTIONs from the BAG, SAVE, CONTINUE
-  from the title screen, SURF, buying and selling in the MART, and FLY
-  (51 checks). It uses its own save file.
+  from the title screen, SURF, buying and selling in the MART, healing at the
+  MONSTER CENTER, entering and leaving every building, and FLY (58 checks). It uses its own save file.
 
 ```sh
 godot --headless --path . --script res://tests/battle_test.gd

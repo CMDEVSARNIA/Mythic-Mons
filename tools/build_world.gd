@@ -11,6 +11,9 @@ extends SceneTree
 
 const TILESET_PATH := "res://assets/tilesets/overworld_tileset.tres"
 const TILE_TEXTURE := "res://assets/placeholder/tiles/overworld_tiles.png"
+## TileSet source ids: PixelArt's generated atlas, then TownTiles.
+const GENERATED := 0
+const TOWN := 1
 const CHARACTER_DIR := "res://assets/placeholder/characters/"
 ## Converted pack sprites (tools/import_townsfolk.gd), used before the cast.
 const TOWNSFOLK_DIR := "res://assets/characters/townsfolk/"
@@ -74,78 +77,95 @@ const LEGEND := {
 ## Turns the player back at Emberfall's north exit until they have a starter.
 const STARTER_GATE := {
 	"required_flag": "got_starter",
-	"blocked_lines": ["PROF. ASTER: Wait! Wild\nMONSTERS live in the\ntall grass up there!", "Come see me by my LAB\nfirst. It's just east!"],
+	"blocked_lines": ["PROF. ASTER: Wait! Wild\nMONSTERS live in the\ntall grass up there!", "Come see me in my LAB\nfirst. It's just east!"],
 }
 
 # Facing values for spawns and NPCs (match Grid.DIRECTIONS).
 const DOWN := 0
 const UP := 1
 
+## Shared by the small houses' interiors.
+const HOUSE_LAYOUT := [
+	"wwkkwwwwww",
+	"bbbbbbbbBb",
+	"bbbbbbbbbb",
+	"bbtbbbbbbb",
+	"bbtbbbbbbb",
+	"bbbbbbbbbb",
+	"bbbbmbbbbb",
+]
+
 # Map definitions. Entities are placed by cell.
 #   signs:     [cell, pages]
 #   npcs:      [cell, sprite id, wander radius, lines, {scene, property overrides}]
 #   warps:     [cell, map file, spawn, sfx, {property overrides}]
 #   obstacles: [cell, scene]
+#   houses:    [top-left cell, roof in TownTiles.HOUSES]; the door is at
+#              TownTiles.HOUSE_DOOR from the top-left, so put a warp there
 const MAPS := [
 	{
 		"file": "town_emberfall.tscn",
 		"node": "TownEmberfall",
 		"props": {"display_name": "EMBERFALL TOWN", "is_town": true, "music": &"town"},
 		"layout": [
-			"#########::#########",
-			"#*.......::.......*#",
-			"#..[===]..::.[===].#",
-			"#..[===]..::.[===].#",
-			"#..|oDo|..::.|ooo|.#",
-			"#....:....::.......#",
-			"#....::::::::......#",
-			"#.........::.......#",
-			"#..***....::.......#",
-			"#.........::.......#",
-			"####.###..::.......#",
-			"#**.**.#..::....**.#",
-			"#*....*#...........#",
-			"#**..**#...........#",
-			"####################",
+			"###########::###########",
+			"#*.........::.........*#",
+			"#..........::..........#",
+			"#..........::..........#",
+			"#..........::..........#",
+			"#..........::..........#",
+			"#..........::..........#",
+			"#....:.....::.....:....#",
+			"#....::::::::::::::::..#",
+			"#..........::..........#",
+			"#..***.....::..........#",
+			"#..........::..........#",
+			"#..........::..........#",
+			"####.####..::..........#",
+			"#**.**..#..::....:.....#",
+			"#*....*.#..::::::::....#",
+			"#**..**.#..............#",
+			"########################",
+		],
+		"houses": [
+			[Vector2i(3, 2), &"wood"],
+			[Vector2i(16, 2), &"slate"],
+			[Vector2i(15, 9), &"wood"],
 		],
 		"spawns": {
-			"default": [Vector2i(5, 5), DOWN],
-			"from_house": [Vector2i(5, 5), DOWN],
-			"from_route": [Vector2i(9, 1), DOWN],
-			"fly": [Vector2i(10, 7), DOWN],
+			"default": [Vector2i(5, 7), DOWN],
+			"from_house": [Vector2i(5, 7), DOWN],
+			"from_lab": [Vector2i(18, 7), DOWN],
+			"from_rival_house": [Vector2i(17, 14), DOWN],
+			"from_route": [Vector2i(11, 1), DOWN],
+			"fly": [Vector2i(11, 9), DOWN],
 		},
 		"warps": [
-			[Vector2i(5, 4), "house_emberfall.tscn", "entrance", &"door"],
-			[Vector2i(9, 0), "route_01.tscn", "south", &"", STARTER_GATE],
-			[Vector2i(10, 0), "route_01.tscn", "south", &"", STARTER_GATE],
+			[Vector2i(5, 6), "house_emberfall.tscn", "entrance", &"door"],
+			[Vector2i(18, 6), "lab_emberfall.tscn", "entrance", &"door"],
+			[Vector2i(17, 13), "house_rival.tscn", "entrance", &"door"],
+			[Vector2i(11, 0), "route_01.tscn", "south", &"", STARTER_GATE],
+			[Vector2i(12, 0), "route_01.tscn", "south", &"", STARTER_GATE],
 		],
 		"signs": [
-			[Vector2i(8, 7), ["EMBERFALL TOWN\nWhere every journey\nstarts with a spark."]],
-			[Vector2i(12, 5), ["PROF. ASTER's\nMONSTER LAB"]],
+			[Vector2i(9, 7), ["EMBERFALL TOWN\nWhere every journey\nstarts with a spark."]],
+			[Vector2i(20, 7), ["PROF. ASTER's\nMONSTER LAB"]],
+			[Vector2i(14, 14), ["REN's HOUSE"]],
 		],
 		"npcs": [
-			[Vector2i(15, 5), "professor", 0, [], {"scene": "professor"}],
-			[Vector2i(14, 8), "lass", 2, ["Hold SHIFT or X to run!", "Press ENTER for the menu.\nYou can FLY from there\nto towns you've visited."]],
-			[Vector2i(3, 12), "elder", 1, ["Oh! You CUT your way into\nmy secret garden?", "Flowers grow best where\nfew people can reach."]],
-			[Vector2i(6, 8), "gardener", 1, ["SPROUTLE's SUNSOAK\nheals it a little at\nthe end of each turn.", "Sunshine and patience.\nThat's all a garden\nneeds!"]],
+			[Vector2i(14, 16), "lass", 2, ["Hold SHIFT or X to run!", "Press ENTER for the menu.\nYou can FLY from there\nto towns you've visited."]],
+			[Vector2i(3, 15), "elder", 1, ["Oh! You CUT your way into\nmy secret garden?", "Flowers grow best where\nfew people can reach."]],
+			[Vector2i(6, 11), "gardener", 1, ["SPROUTLE's SUNSOAK\nheals it a little at\nthe end of each turn.", "Sunshine and patience.\nThat's all a garden\nneeds!"]],
 		],
 		"obstacles": [
-			[Vector2i(4, 10), "cut_tree"],
+			[Vector2i(4, 13), "cut_tree"],
 		],
 	},
 	{
 		"file": "house_emberfall.tscn",
 		"node": "HouseEmberfall",
 		"props": {"display_name": "YOUR HOUSE", "allow_fly": false, "music": &"town"},
-		"layout": [
-			"wwkkwwwwww",
-			"bbbbbbbbBb",
-			"bbbbbbbbbb",
-			"bbtbbbbbbb",
-			"bbtbbbbbbb",
-			"bbbbbbbbbb",
-			"bbbbmbbbbb",
-		],
+		"layout": HOUSE_LAYOUT,
 		"spawns": {
 			"default": [Vector2i(4, 5), UP],
 			"entrance": [Vector2i(4, 5), UP],
@@ -155,6 +175,48 @@ const MAPS := [
 		],
 		"npcs": [
 			[Vector2i(6, 3), "mom", 1, ["MOM: Welcome home! Rest\nhere whenever you need."], {"heals_party": true}],
+		],
+	},
+	{
+		"file": "lab_emberfall.tscn",
+		"node": "LabEmberfall",
+		"props": {"display_name": "MONSTER LAB", "allow_fly": false, "music": &"town"},
+		"layout": [
+			"wwkkwwwwkkww",
+			"bbbbbbbbbbbb",
+			"bbbbbbbbbbbb",
+			"bttbbbbbbttb",
+			"bbbbbbbbbbbb",
+			"kbbbbbbbbbbk",
+			"kbbbbbbbbbbk",
+			"bbbbbmbbbbbb",
+		],
+		"spawns": {
+			"default": [Vector2i(5, 6), UP],
+			"entrance": [Vector2i(5, 6), UP],
+		},
+		"warps": [
+			[Vector2i(5, 7), "town_emberfall.tscn", "from_lab", &"door"],
+		],
+		"npcs": [
+			[Vector2i(5, 2), "professor", 0, [], {"scene": "professor"}],
+		],
+	},
+	{
+		"file": "house_rival.tscn",
+		"node": "HouseRival",
+		"props": {"display_name": "REN's HOUSE", "allow_fly": false, "music": &"town"},
+		"layout": HOUSE_LAYOUT,
+		"spawns": {
+			"default": [Vector2i(4, 5), UP],
+			"entrance": [Vector2i(4, 5), UP],
+		},
+		"warps": [
+			[Vector2i(4, 6), "town_emberfall.tscn", "from_rival_house", &"door"],
+		],
+		"npcs": [
+			[Vector2i(6, 2), "rival", 1, ["REN: Hey, you're the\nnew kid! I'm REN.", "Got a MONSTER from PROF.\nASTER yet? Let's battle\nsomeday!"]],
+			[Vector2i(2, 5), "lass", 1, ["My brother REN wants to\ncatch every MONSTER on\nROUTE 1!"]],
 		],
 	},
 	{
@@ -219,45 +281,59 @@ const MAPS := [
 		"node": "TownTidewater",
 		"props": {"display_name": "TIDEWATER CITY", "is_town": true, "music": &"town"},
 		"layout": [
-			"####################",
-			"#~~~~~~~~~~~~~~~~~~#",
-			"#~~____~~~~~~~~~~~~#",
-			"#~~____~~~~~~~~~~~~#",
-			"#~~~~~~~~~~~~~~~~~~#",
-			"#~~~~~~~~~~~~~~~~~~#",
-			"#__________________#",
-			"#..................#",
-			"#..{---}....{---}..#",
-			"#..{---}....{---}..#",
-			"#..|oDo|....|ooo|..#",
-			"#..................#",
-			"#....::::::::::....#",
-			"#..**....::....**..#",
-			"#........::........#",
-			"#........::........#",
-			"#........::........#",
-			"#########::#########",
+			"########################",
+			"#~~~~~~~~~~~~~~~~~~~~~~#",
+			"#~~___~~~~~~~~~~~~~~~~~#",
+			"#~~___~~~~~~~~~~~~~~~~~#",
+			"#~~~~~~~~~~~~~~~~~~~~~~#",
+			"#______________________#",
+			"#..........::..........#",
+			"#..........::..........#",
+			"#..........::..........#",
+			"#..........::..........#",
+			"#..........::..........#",
+			"#..........::..........#",
+			"#...:......::......:...#",
+			"#...::::::::::::::::...#",
+			"#..**......::......**..#",
+			"#..........::..........#",
+			"#..........::..........#",
+			"#..........::..........#",
+			"#..........::..........#",
+			"#..........::..........#",
+			"#..........::::::::....#",
+			"###########::###########",
+		],
+		"houses": [
+			[Vector2i(2, 7), &"blue"],
+			[Vector2i(17, 7), &"red"],
+			[Vector2i(16, 15), &"wood"],
 		],
 		"spawns": {
-			"default": [Vector2i(9, 14), DOWN],
-			"fly": [Vector2i(9, 14), DOWN],
-			"from_route": [Vector2i(9, 16), UP],
-			"from_mart": [Vector2i(5, 11), DOWN],
+			"default": [Vector2i(11, 15), DOWN],
+			"fly": [Vector2i(19, 12), DOWN],
+			"from_route": [Vector2i(11, 20), UP],
+			"from_mart": [Vector2i(4, 12), DOWN],
+			"from_center": [Vector2i(19, 12), DOWN],
+			"from_house": [Vector2i(18, 20), DOWN],
 		},
 		"warps": [
-			[Vector2i(9, 17), "route_01.tscn", "north", &""],
-			[Vector2i(10, 17), "route_01.tscn", "north", &""],
-			[Vector2i(5, 10), "mart_tidewater.tscn", "entrance", &"door"],
+			[Vector2i(11, 21), "route_01.tscn", "north", &""],
+			[Vector2i(12, 21), "route_01.tscn", "north", &""],
+			[Vector2i(4, 11), "mart_tidewater.tscn", "entrance", &"door"],
+			[Vector2i(19, 11), "center_tidewater.tscn", "entrance", &"door"],
+			[Vector2i(18, 19), "house_tidewater.tscn", "entrance", &"door"],
 		],
 		"signs": [
-			[Vector2i(7, 11), ["TIDEWATER MART\nOrbs and medicine for\nevery trainer!"]],
-			[Vector2i(11, 14), ["TIDEWATER CITY\nWhere the sea meets\nthe sky."]],
+			[Vector2i(9, 14), ["TIDEWATER CITY\nWhere the sea meets\nthe sky."]],
 			[Vector2i(4, 2), ["TREASURE ISLE", "...There's nothing here\nyet. Maybe in a future\nupdate!"]],
+			[Vector2i(6, 12), ["TIDEWATER MART\nOrbs and medicine for\nevery trainer!"]],
+			[Vector2i(17, 12), ["MONSTER CENTER\nWe heal your MONSTERS\nfor free!"]],
 		],
 		"npcs": [
-			[Vector2i(14, 7), "swimmer", 2, ["See that island? Face the\nwater and press Z to SURF!"]],
-			[Vector2i(12, 15), "officer", 0, ["Welcome to TIDEWATER\nCITY! I keep the\npeace around here.", "Off on a trip? Open\nthe menu and SAVE\nbefore you go!"]],
-			[Vector2i(16, 15), "mystic", 1, ["I see... FIRE burns\nGRASS, GRASS drinks\nWATER...", "...and WATER douses\nFIRE. The spirits\nnever lie."]],
+			[Vector2i(15, 5), "swimmer", 2, ["See that island? Face the\nwater and press Z to SURF!"]],
+			[Vector2i(10, 19), "officer", 0, ["Welcome to TIDEWATER\nCITY! I keep the\npeace around here.", "Off on a trip? Open\nthe menu and SAVE\nbefore you go!"]],
+			[Vector2i(21, 13), "mystic", 1, ["I see... FIRE burns\nGRASS, GRASS drinks\nWATER...", "...and WATER douses\nFIRE. The spirits\nnever lie."]],
 		],
 	},
 	{
@@ -283,6 +359,48 @@ const MAPS := [
 		"npcs": [
 			[Vector2i(1, 2), "clerk", 0, [], {"scene": "clerk", "start_facing": 3}],
 			[Vector2i(8, 4), "hiker", 1, ["I always stock up on\nPOTIONs before a long\ntrip.", "BIG POTIONs heal even\nmore. They're worth it!"]],
+		],
+	},
+	{
+		"file": "center_tidewater.tscn",
+		"node": "CenterTidewater",
+		"props": {"display_name": "MONSTER CENTER", "allow_fly": false, "music": &"town"},
+		"layout": [
+			"wwwwwwwwwwww",
+			"bbbbbbbbbbbb",
+			"kkcccccccckk",
+			"bbbbbbbbbbbb",
+			"bbbbbbbbbbbb",
+			"btbbbbbbbbtb",
+			"bbbbbbbbbbbb",
+			"bbbbbmbbbbbb",
+		],
+		"spawns": {
+			"default": [Vector2i(5, 6), UP],
+			"entrance": [Vector2i(5, 6), UP],
+		},
+		"warps": [
+			[Vector2i(5, 7), "town_tidewater.tscn", "from_center", &"door"],
+		],
+		"npcs": [
+			[Vector2i(5, 1), "nurse", 0, ["Welcome to the MONSTER\nCENTER!", "We'll restore your\nMONSTERS to full health."], {"heals_party": true}],
+			[Vector2i(9, 4), "lass", 1, ["MONSTER CENTERs heal\nyour team for free.", "Come here whenever your\nMONSTERS are tired!"]],
+		],
+	},
+	{
+		"file": "house_tidewater.tscn",
+		"node": "HouseTidewater",
+		"props": {"display_name": "SEASIDE HOUSE", "allow_fly": false, "music": &"town"},
+		"layout": HOUSE_LAYOUT,
+		"spawns": {
+			"default": [Vector2i(4, 5), UP],
+			"entrance": [Vector2i(4, 5), UP],
+		},
+		"warps": [
+			[Vector2i(4, 6), "town_tidewater.tscn", "from_house", &"door"],
+		],
+		"npcs": [
+			[Vector2i(6, 2), "elder", 1, ["I've fished these waters\nfor fifty years.", "Someday I'll SURF out\nto that island myself!"]],
 		],
 	},
 ]
@@ -326,22 +444,45 @@ func _build_tile_set() -> TileSet:
 	source.texture_region_size = tile_set.tile_size
 	tile_set.add_source(source, 0)
 
-	var h := Grid.TILE_SIZE / 2.0
-	var square := PackedVector2Array([Vector2(-h, -h), Vector2(h, -h), Vector2(h, h), Vector2(-h, h)])
 	for tile_name: StringName in PixelArt.TILES:
 		var coords: Vector2i = PixelArt.TILES[tile_name]
-		var rule: Array = TILE_RULES[tile_name]
 		source.create_tile(coords)
 		if tile_name == &"water":
 			source.set_tile_animation_frames_count(coords, 2)
 			source.set_tile_animation_frame_duration(coords, 0, 0.6)
 			source.set_tile_animation_frame_duration(coords, 1, 0.6)
-		var data := source.get_tile_data(coords, 0)
-		data.set_custom_data("terrain", rule[1])
-		if rule[0] >= 0:
-			data.add_collision_polygon(rule[0])
-			data.set_collision_polygon_points(rule[0], 0, square)
+		_set_rule(source, coords, TILE_RULES[tile_name])
+
+	var town := TileSetAtlasSource.new()
+	town.texture = load(TownTiles.ATLAS)
+	town.texture_region_size = tile_set.tile_size
+	tile_set.add_source(town, TOWN)
+	for tile_name: StringName in TownTiles.TILES:
+		var water := tile_name in TownTiles.WATER_TILES
+		var rule: Array = TILE_RULES[&"water"] if water else TILE_RULES[tile_name]
+		var count := 4 if tile_name == &"water" else 1
+		for i in count:
+			var coords: Vector2i = TownTiles.TILES[tile_name] + Vector2i(i, 0)
+			town.create_tile(coords)
+			_set_rule(town, coords, rule)
+	# Houses are solid except for the door.
+	for roof: StringName in TownTiles.HOUSES:
+		for y in TownTiles.HOUSE_SIZE.y:
+			for x in TownTiles.HOUSE_SIZE.x:
+				var coords: Vector2i = TownTiles.HOUSES[roof] + Vector2i(x, y)
+				town.create_tile(coords)
+				_set_rule(town, coords, [-1 if Vector2i(x, y) == TownTiles.HOUSE_DOOR else 0, &""])
 	return tile_set
+
+
+## Applies a TILE_RULES entry, [physics layer or -1, terrain], to one tile.
+func _set_rule(source: TileSetAtlasSource, coords: Vector2i, rule: Array) -> void:
+	var h := Grid.TILE_SIZE / 2.0
+	var data := source.get_tile_data(coords, 0)
+	data.set_custom_data("terrain", rule[1])
+	if rule[0] >= 0:
+		data.add_collision_polygon(rule[0])
+		data.set_collision_polygon_points(rule[0], 0, PackedVector2Array([Vector2(-h, -h), Vector2(h, -h), Vector2(h, h), Vector2(-h, h)]))
 
 
 func _build_map(map: Dictionary, tile_set: TileSet) -> Node2D:
@@ -363,7 +504,16 @@ func _build_map(map: Dictionary, tile_set: TileSet) -> Node2D:
 		var row: String = layout[y]
 		assert(row.length() == layout[0].length(), "%s row %d has the wrong width" % [map.file, y])
 		for x in row.length():
-			ground.set_cell(Vector2i(x, y), 0, PixelArt.TILES[LEGEND[row[x]]])
+			_paint(ground, layout, Vector2i(x, y))
+	if map.has("houses"):
+		var buildings := TileMapLayer.new()
+		buildings.name = "Buildings"
+		buildings.tile_set = tile_set
+		_add(root, root, buildings)
+		for def: Array in map.houses:
+			for y in TownTiles.HOUSE_SIZE.y:
+				for x in TownTiles.HOUSE_SIZE.x:
+					buildings.set_cell(def[0] + Vector2i(x, y), TOWN, TownTiles.HOUSES[def[1]] + Vector2i(x, y))
 
 	var entities := Node2D.new()
 	entities.y_sort_enabled = true
@@ -402,6 +552,31 @@ func _build_map(map: Dictionary, tile_set: TileSet) -> Node2D:
 		marker.set(&"facing", map.spawns[id][1])
 		_add(root, spawns, marker, id)
 	return root
+
+
+## Paints one layout cell, preferring TownTiles over the generated atlas.
+## Water next to land gets a line of foam, and open water a ripple pattern.
+func _paint(ground: TileMapLayer, layout: Array, cell: Vector2i) -> void:
+	var tile_name: StringName = LEGEND[layout[cell.y][cell.x]]
+	if not TownTiles.TILES.has(tile_name):
+		ground.set_cell(cell, GENERATED, PixelArt.TILES[tile_name])
+		return
+	var coords: Vector2i = TownTiles.TILES[tile_name]
+	if tile_name == &"water":
+		if _is_shore(layout, cell + Vector2i.DOWN):
+			coords = TownTiles.TILES[&"shore_south"]
+		elif _is_shore(layout, cell + Vector2i.UP):
+			coords = TownTiles.TILES[&"shore_north"]
+		else:
+			coords = TownTiles.water_at(cell)
+	ground.set_cell(cell, TOWN, coords)
+
+
+## True if `cell` is land that water foams against (not water, trees or the edge).
+func _is_shore(layout: Array, cell: Vector2i) -> bool:
+	if cell.y < 0 or cell.y >= layout.size():
+		return false
+	return not LEGEND[layout[cell.y][cell.x]] in [&"water", &"tree"]
 
 
 func _sprite_path(id: String) -> String:

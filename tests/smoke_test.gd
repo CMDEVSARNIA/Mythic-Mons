@@ -39,21 +39,21 @@ func _run() -> void:
 
 	# --- Grid movement -------------------------------------------------------
 	_check(_map_name() == "EMBERFALL TOWN", "starts in Emberfall")
-	_check(_player.get_cell() == Vector2i(5, 5), "starts on the default spawn")
+	_check(_player.get_cell() == Vector2i(5, 7), "starts on the default spawn")
 	_check(_game_state.party.is_empty(), "a new game starts without monsters")
 	_shot("01_emberfall")
 	await _tap(&"move_left")
-	_check(_player.get_cell() == Vector2i(5, 5) and _player.facing == Vector2i.LEFT, "a tap on a new direction only turns")
+	_check(_player.get_cell() == Vector2i(5, 7) and _player.facing == Vector2i.LEFT, "a tap on a new direction only turns")
 	await _tap(&"move_left")
-	_check(_player.get_cell() == Vector2i(4, 5), "a tap in the facing direction walks one tile")
+	_check(_player.get_cell() == Vector2i(4, 7), "a tap in the facing direction walks one tile")
 	await _tap(&"move_up")
 	await _tap(&"move_up")
-	_check(_player.get_cell() == Vector2i(4, 5), "walls block movement (bump)")
+	_check(_player.get_cell() == Vector2i(4, 7), "houses block movement (bump)")
 	await _hold(&"move_down", 0.6)
-	_check(_player.get_cell().y >= Vector2i(4, 7).y, "holding a direction keeps walking")
+	_check(_player.get_cell().y >= 9, "holding a direction keeps walking")
 
 	# --- Talking -------------------------------------------------------------
-	await _place(Vector2i(8, 8), Vector2i.UP)
+	await _place(Vector2i(9, 8), Vector2i.UP)
 	await _tap(&"confirm")
 	_check(_dialogue.is_open, "pressing A on a sign opens the text box")
 	await _wait(0.8)
@@ -61,7 +61,7 @@ func _run() -> void:
 	await _close_dialogue()
 	_check(not _dialogue.is_open and not _player.is_locked(), "the text box closes and control returns")
 
-	var lass: Node2D = _main.current_map.entities.get_node(^"NPC_Lass2")
+	var lass: Node2D = _main.current_map.entities.get_node(^"NPC_Lass1")
 	lass.wander_radius = 0
 	lass.place_at(Vector2i(14, 9), Vector2i.DOWN)
 	await _place(Vector2i(13, 9), Vector2i.RIGHT)
@@ -70,7 +70,7 @@ func _run() -> void:
 	await _close_dialogue()
 
 	# --- CUT -----------------------------------------------------------------
-	await _place(Vector2i(4, 9), Vector2i.DOWN)
+	await _place(Vector2i(4, 12), Vector2i.DOWN)
 	await _tap(&"confirm")
 	await _wait(1.2)
 	_shot("03_cut_prompt")
@@ -78,10 +78,10 @@ func _run() -> void:
 	await _wait(1.0)
 	_check(_main.current_map.entities.get_node_or_null(^"CutTree1") == null, "CUT removes the tree")
 	await _tap(&"move_down")
-	_check(_player.get_cell() == Vector2i(4, 10), "the path through the cut tree is open")
+	_check(_player.get_cell() == Vector2i(4, 13), "the path through the cut tree is open")
 
 	# --- Warps ---------------------------------------------------------------
-	await _place(Vector2i(5, 5), Vector2i.UP)
+	await _place(Vector2i(5, 7), Vector2i.UP)
 	await _tap(&"move_up")
 	await _wait(1.0)
 	_check(_map_name() == "YOUR HOUSE" and _player.get_cell() == Vector2i(4, 5), "doors warp into the house")
@@ -89,17 +89,22 @@ func _run() -> void:
 	await _tap(&"move_down")
 	await _tap(&"move_down")
 	await _wait(1.0)
-	_check(_map_name() == "EMBERFALL TOWN" and _player.get_cell() == Vector2i(5, 5), "the exit mat warps back outside")
+	_check(_map_name() == "EMBERFALL TOWN" and _player.get_cell() == Vector2i(5, 7), "the exit mat warps back outside")
+	await _visit(Vector2i(17, 14), "REN's HOUSE", Vector2i(17, 14))
 
 	# --- Getting a starter ---------------------------------------------------
-	await _place(Vector2i(9, 1), Vector2i.UP)
+	await _place(Vector2i(11, 1), Vector2i.UP)
 	await _tap(&"move_up")
 	_check(_dialogue.is_open, "PROF. ASTER stops you at the edge of town")
 	await _close_dialogue()
 	await _wait(0.4)
-	_check(_map_name() == "EMBERFALL TOWN" and _player.get_cell() == Vector2i(9, 1), "...and turns you back until you have a MONSTER")
+	_check(_map_name() == "EMBERFALL TOWN" and _player.get_cell() == Vector2i(11, 1), "...and turns you back until you have a MONSTER")
 
-	await _place(Vector2i(15, 6), Vector2i.UP)
+	await _place(Vector2i(18, 7), Vector2i.UP)
+	await _tap(&"move_up")
+	await _wait(1.0)
+	_check(_map_name() == "MONSTER LAB", "the lab door leads inside")
+	await _place(Vector2i(5, 3), Vector2i.UP)
 	await _tap(&"confirm")
 	for i in 25: # Every A press takes the first option: FLAMLET, then YES.
 		if _game_state.has_flag(&"got_starter") and not _dialogue.is_open:
@@ -109,8 +114,12 @@ func _run() -> void:
 		await _tap(&"confirm")
 	_check(_game_state.party.size() == 1 and _game_state.party[0].species.display_name == "FLAMLET", "PROF. ASTER gives you a starter")
 	_check(_game_state.bag.get(&"mon_orb", 0) == 5, "...along with 5 MON ORBs")
+	await _place(Vector2i(5, 6), Vector2i.DOWN)
+	await _tap(&"move_down")
+	await _wait(1.0)
+	_check(_map_name() == "EMBERFALL TOWN" and _player.get_cell() == Vector2i(18, 7), "the lab mat leads back outside")
 
-	await _place(Vector2i(9, 1), Vector2i.UP)
+	await _place(Vector2i(11, 1), Vector2i.UP)
 	await _tap(&"move_up")
 	await _wait(1.0)
 	_check(_map_name() == "ROUTE 1" and _player.get_cell() == Vector2i(9, 22), "with a MONSTER, the town edge leads to Route 1")
@@ -250,22 +259,23 @@ func _run() -> void:
 	_main.change_map(MAPS + "town_tidewater.tscn", &"from_route")
 	await _wait(1.0)
 	_check(_map_name() == "TIDEWATER CITY", "Route 1 connects to Tidewater")
-	await _place(Vector2i(5, 6), Vector2i.UP)
+	await _place(Vector2i(6, 5), Vector2i.UP)
 	await _tap(&"confirm")
 	await _wait(1.6)
 	_shot("17_surf_prompt")
 	await _tap(&"confirm") # YES
 	await _wait(0.6)
-	_check(_player.is_surfing and _player.get_cell() == Vector2i(5, 5), "SURF hops onto the water")
+	_check(_player.is_surfing and _player.get_cell() == Vector2i(6, 4), "SURF hops onto the water")
 	await _tap(&"move_up")
 	await _wait(0.3)
 	_shot("18_surfing")
-	await _tap(&"move_up")
+	await _tap(&"move_left")
+	await _tap(&"move_left")
 	await _wait(0.6)
 	_check(not _player.is_surfing and _player.get_cell() == Vector2i(5, 3), "surfing into land dismounts")
 
 	# --- MART ----------------------------------------------------------------
-	await _place(Vector2i(5, 11), Vector2i.UP)
+	await _place(Vector2i(4, 12), Vector2i.UP)
 	await _tap(&"move_up")
 	await _wait(1.0)
 	_check(_map_name() == "TIDEWATER MART", "the MART door leads inside")
@@ -308,10 +318,27 @@ func _run() -> void:
 	await _place(Vector2i(4, 5), Vector2i.DOWN)
 	await _tap(&"move_down")
 	await _wait(1.0)
-	_check(_map_name() == "TIDEWATER CITY" and _player.get_cell() == Vector2i(5, 11), "the mat leads back out of the MART")
+	_check(_map_name() == "TIDEWATER CITY" and _player.get_cell() == Vector2i(4, 12), "the mat leads back out of the MART")
+
+	# --- MONSTER CENTER and the other houses -----------------------------------
+	await _place(Vector2i(19, 12), Vector2i.UP)
+	await _tap(&"move_up")
+	await _wait(1.0)
+	_check(_map_name() == "MONSTER CENTER", "the MONSTER CENTER door leads inside")
+	_shot("23_center")
+	_game_state.party[0].hp = 1
+	await _place(Vector2i(5, 3), Vector2i.UP)
+	await _tap(&"confirm")
+	await _close_dialogue()
+	_check(_game_state.party[0].hp == _game_state.party[0].max_hp(), "the nurse heals your MONSTERS across the counter")
+	await _place(Vector2i(5, 6), Vector2i.DOWN)
+	await _tap(&"move_down")
+	await _wait(1.0)
+	_check(_map_name() == "TIDEWATER CITY" and _player.get_cell() == Vector2i(19, 12), "the MONSTER CENTER mat leads back outside")
+	await _visit(Vector2i(18, 20), "SEASIDE HOUSE", Vector2i(18, 20))
 
 	# --- FLY -----------------------------------------------------------------
-	await _place(Vector2i(9, 14), Vector2i.DOWN)
+	await _place(Vector2i(11, 15), Vector2i.DOWN)
 	await _tap(&"menu")
 	_check(_main.start_menu.visible, "ENTER opens the start menu")
 	await _tap(&"move_down")
@@ -321,7 +348,7 @@ func _run() -> void:
 	_shot("19_fly_menu")
 	await _tap(&"confirm") # First visited town: Emberfall.
 	await _wait(1.2)
-	_check(_map_name() == "EMBERFALL TOWN" and _player.get_cell() == Vector2i(10, 7), "FLY returns to a visited town")
+	_check(_map_name() == "EMBERFALL TOWN" and _player.get_cell() == Vector2i(11, 9), "FLY returns to a visited town")
 
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SAVE))
 	print("\nSMOKE TEST %s (%d failed)" % ["PASSED" if _failures == 0 else "FAILED", _failures])
@@ -365,6 +392,20 @@ func _battle_scene() -> Control:
 		if not child.is_queued_for_deletion():
 			return child
 	return null
+
+
+## Walks in through the door above `outside`, checks the map name, and walks
+## back out through the mat, expecting to arrive at `back`.
+func _visit(outside: Vector2i, inside_name: String, back: Vector2i) -> void:
+	await _place(outside, Vector2i.UP)
+	await _tap(&"move_up")
+	await _wait(1.0)
+	var entered := _map_name() == inside_name
+	var mat: Vector2i = _player.get_cell() + Vector2i.DOWN
+	await _place(mat + Vector2i.UP, Vector2i.DOWN)
+	await _tap(&"move_down")
+	await _wait(1.0)
+	_check(entered and _player.get_cell() == back, "%s can be entered and left" % inside_name)
 
 
 func _map_name() -> String:

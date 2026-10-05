@@ -8,9 +8,10 @@ built with **Godot 4.7** and GDScript.
 So far: tile-locked movement, a multi-town world, dialogue, field moves,
 a starter from the local professor, turn-based wild battles with unique
 abilities, EXP and level-ups, catching, a party screen, and saving.
-Nearly everything is made in code: the art, the chiptune music and the sound
-effects. The exception is five townsfolk converted from a downloaded sprite
-sheet. Real assets slot in later without code changes.
+Most of it is made in code: the characters, monsters, interiors, chiptune
+music and sound effects. Towns and routes use ArMM1998's CC0 overworld
+tileset, and five townsfolk come from a CC0 character sheet. Real assets slot
+in later without code changes.
 
 ## Quick start
 
@@ -27,16 +28,21 @@ sheet. Real assets slot in later without code changes.
 
 ## What's in the prototype
 
-- **Emberfall Town.** PROF. ASTER outside the lab lets you choose FLAMLET,
-  AQUAPUP or SPROUTLE (and won't let you into the tall grass without one).
-  Your house has MOM, who heals your team. There's also a sign, NPCs, and a
-  secret garden behind a **CUT** tree.
+![Emberfall Town (left) and Tidewater City (right)](docs/images/towns.png)
+
+Two towns and one route so far, and every building can be entered.
+
+- **Emberfall Town.** Your house, where MOM heals your team; REN's house
+  next door; and PROF. ASTER's lab (slate roof), where you choose FLAMLET,
+  AQUAPUP or SPROUTLE. The professor won't let you into the tall grass
+  without one. There's also a secret garden behind a **CUT** tree.
 - **Route 1.** Tall grass with wild encounters, one-way **ledges**, and a
   hiker trapped behind a **ROCK SMASH** boulder.
-- **Tidewater City.** A beach and an island you reach with **SURF**, and
-  the **TIDEWATER MART**: talk to the clerk across the counter to BUY or
-  SELL. You start with $3000. Orbs and potions cost $200 to $700, and the
-  MART buys items back for half.
+- **Tidewater City.** A beach and an island you reach with **SURF**, a
+  seaside house, the **MONSTER CENTER** (red roof), where the nurse heals
+  your team for free, and the **TIDEWATER MART** (blue roof). At the MART,
+  talk to the clerk across the counter to BUY or SELL. You start with $3000.
+  Orbs and potions cost $200 to $700, and the MART buys items back for half.
 - **FLY** from the start menu (Enter) to any town you've visited.
 - Emerald-style feel: tap to turn in place, hold to walk, bump into walls,
   run at double speed, location banner on entering a map, typewriter text box.
@@ -72,7 +78,8 @@ scripts/       core/ (incl. GameData lookups), art/, audio/, items/ (ItemData),
                monsters/ (species, moves, abilities, Monster), battle/ (Battle rules)
 data/          species/, moves/, abilities/, items/ (.tres files, edit in the inspector)
 assets/        placeholder/ (generated PNGs), characters/townsfolk/ (converted pack
-               sprites), tilesets/, ui/, fonts/, audio/
+               sprites), tilesets/ (TileSet, town tiles + their source), ui/,
+               fonts/, audio/
 tools/         Headless generators for the art, TileSet, maps and monster data
 tests/         Rule tests (battles, game state/saves) and a smoke test that plays the game
 docs/          ARCHITECTURE.md, ASSETS.md
@@ -97,10 +104,12 @@ Set `GODOT=/path/to/godot` if the binary isn't on your `PATH`. Sound needs no
 build step: `Audio` synthesizes it at startup on a worker thread. Any file in
 `assets/audio/` with a matching name replaces the generated sound.
 
-The townsfolk aren't placeholders, so the script leaves them alone. After
-changing their colors in `tools/import_townsfolk.gd`, re-convert them with:
+The town tiles and townsfolk come from downloaded sheets, so the script
+leaves them alone. After changing which tiles or colors the importers use,
+re-convert them with:
 
 ```sh
+godot --headless --path . --script res://tools/import_town_tiles.gd
 godot --headless --path . --script res://tools/import_townsfolk.gd
 godot --headless --path . --import
 ```
@@ -112,7 +121,7 @@ godot --headless --path . --import
 godot --headless --path . --script res://tests/battle_test.gd
 # Party, BOX, BAG, money, flags and save/load round trips (27 checks)
 godot --headless --path . --script res://tests/game_state_test.gd
-# Plays the whole game by injecting input: starter, battles, menus, shop, save (51 checks)
+# Plays the whole game by injecting input: starter, battles, menus, buildings, shop (58 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
 ```
 
@@ -130,17 +139,21 @@ your real save.
    summary, BAG outside battle, MOM healing, save/load with a title screen.
 5. **Field-move gating.** Unlock CUT/SURF/FLY through party moves and badges
    instead of the prototype's all-unlocked default.
-6. **Content.** Trainers with line-of-sight battles (and prize money), a
-   Monster Center, a PC for the BOX, nicknames, more routes and towns, and
-   real art from the sources in ASSETS.md. ~~A mart~~ is done.
+6. **Content.** Trainers with line-of-sight battles (and prize money), a PC
+   for the BOX, nicknames, more routes and towns, and more real art from the
+   sources in ASSETS.md. ~~A mart~~, ~~a Monster Center~~ and ~~enterable
+   buildings~~ are done.
 
 ## Credits
 
 - Font: [Press Start 2P](https://fonts.google.com/specimen/Press+Start+2P) by
   CodeMan38, SIL Open Font License 1.1 (`assets/fonts/PressStart2P-OFL.txt`).
 - Palette: mostly [Sweetie 16](https://lospec.com/palette-list/sweetie-16) by GrafxKid.
+- Town and route tiles: [Zelda-like tilesets and sprites](https://opengameart.org/content/zelda-like-tilesets-and-sprites)
+  by ArMM1998, CC0 (`assets/tilesets/source/`), with recolored roofs and
+  tall grass and ledges redrawn in its greens.
 - Townsfolk (YOUNGSTER, OFFICER, MYSTIC, FIGHTER, GARDENER): recolored from
   [16x16 8-bit RPG character set](https://opengameart.org/content/16x16-8-bit-rpg-character-set)
   by devurandom, CC0 (`assets/characters/townsfolk/source/`).
-- Everything else (characters, tiles, monsters, music, SFX) was drawn or
-  generated by this project.
+- Everything else (characters, interior tiles, monsters, music, SFX) was
+  drawn or generated by this project.

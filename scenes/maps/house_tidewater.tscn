@@ -1,0 +1,46 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_dsl5j"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_8oy4c"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="3_sc62e"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_elder.png" id="4_jq2jd"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="5_qe76w"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="6_waq2j"]
+
+[node name="HouseTidewater" type="Node2D" unique_id=469321067]
+script = ExtResource("1_dsl5j")
+display_name = "SEASIDE HOUSE"
+allow_fly = false
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=301957012]
+tile_map_data = PackedByteArray("AAAAAAAAAAACAAIAAAABAAAAAAACAAIAAAACAAAAAAAGAAIAAAADAAAAAAAGAAIAAAAEAAAAAAACAAIAAAAFAAAAAAACAAIAAAAGAAAAAAACAAIAAAAHAAAAAAACAAIAAAAIAAAAAAACAAIAAAAJAAAAAAACAAIAAAAAAAEAAAABAAIAAAABAAEAAAABAAIAAAACAAEAAAABAAIAAAADAAEAAAABAAIAAAAEAAEAAAABAAIAAAAFAAEAAAABAAIAAAAGAAEAAAABAAIAAAAHAAEAAAABAAIAAAAIAAEAAAAFAAIAAAAJAAEAAAABAAIAAAAAAAIAAAABAAIAAAABAAIAAAABAAIAAAACAAIAAAABAAIAAAADAAIAAAABAAIAAAAEAAIAAAABAAIAAAAFAAIAAAABAAIAAAAGAAIAAAABAAIAAAAHAAIAAAABAAIAAAAIAAIAAAABAAIAAAAJAAIAAAABAAIAAAAAAAMAAAABAAIAAAABAAMAAAABAAIAAAACAAMAAAAEAAIAAAADAAMAAAABAAIAAAAEAAMAAAABAAIAAAAFAAMAAAABAAIAAAAGAAMAAAABAAIAAAAHAAMAAAABAAIAAAAIAAMAAAABAAIAAAAJAAMAAAABAAIAAAAAAAQAAAABAAIAAAABAAQAAAABAAIAAAACAAQAAAAEAAIAAAADAAQAAAABAAIAAAAEAAQAAAABAAIAAAAFAAQAAAABAAIAAAAGAAQAAAABAAIAAAAHAAQAAAABAAIAAAAIAAQAAAABAAIAAAAJAAQAAAABAAIAAAAAAAUAAAABAAIAAAABAAUAAAABAAIAAAACAAUAAAABAAIAAAADAAUAAAABAAIAAAAEAAUAAAABAAIAAAAFAAUAAAABAAIAAAAGAAUAAAABAAIAAAAHAAUAAAABAAIAAAAIAAUAAAABAAIAAAAJAAUAAAABAAIAAAAAAAYAAAABAAIAAAABAAYAAAABAAIAAAACAAYAAAABAAIAAAADAAYAAAABAAIAAAAEAAYAAAADAAIAAAAFAAYAAAABAAIAAAAGAAYAAAABAAIAAAAHAAYAAAABAAIAAAAIAAYAAAABAAIAAAAJAAYAAAABAAIAAAA=")
+tile_set = ExtResource("2_8oy4c")
+
+[node name="Entities" type="Node2D" parent="." unique_id=486976928]
+y_sort_enabled = true
+
+[node name="NPC_Elder1" parent="Entities" unique_id=2080461965 instance=ExtResource("3_sc62e")]
+position = Vector2(104, 40)
+sprite_sheet = ExtResource("4_jq2jd")
+lines = PackedStringArray("I\'ve fished these waters\nfor fifty years.", "Someday I\'ll SURF out\nto that island myself!")
+wander_radius = 1
+
+[node name="Warps" type="Node2D" parent="." unique_id=1995772734]
+
+[node name="Warp1" parent="Warps" unique_id=1985890402 instance=ExtResource("5_qe76w")]
+position = Vector2(72, 104)
+target_map = "res://scenes/maps/town_tidewater.tscn"
+target_spawn = &"from_house"
+blocked_lines = PackedStringArray()
+
+[node name="Spawns" type="Node2D" parent="." unique_id=1937319261]
+
+[node name="default" type="Marker2D" parent="Spawns" unique_id=2003514236]
+position = Vector2(72, 88)
+script = ExtResource("6_waq2j")
+facing = 1
+
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=853138892]
+position = Vector2(72, 88)
+script = ExtResource("6_waq2j")
+facing = 1

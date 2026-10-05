@@ -1,0 +1,53 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_6xun5"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_pxhxm"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="3_sdpvm"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_rival.png" id="4_eik0e"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_lass.png" id="5_01rs1"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="6_37jca"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="7_pns53"]
+
+[node name="HouseRival" type="Node2D" unique_id=2030510108]
+script = ExtResource("1_6xun5")
+display_name = "REN's HOUSE"
+allow_fly = false
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=102092805]
+tile_map_data = PackedByteArray("AAAAAAAAAAACAAIAAAABAAAAAAACAAIAAAACAAAAAAAGAAIAAAADAAAAAAAGAAIAAAAEAAAAAAACAAIAAAAFAAAAAAACAAIAAAAGAAAAAAACAAIAAAAHAAAAAAACAAIAAAAIAAAAAAACAAIAAAAJAAAAAAACAAIAAAAAAAEAAAABAAIAAAABAAEAAAABAAIAAAACAAEAAAABAAIAAAADAAEAAAABAAIAAAAEAAEAAAABAAIAAAAFAAEAAAABAAIAAAAGAAEAAAABAAIAAAAHAAEAAAABAAIAAAAIAAEAAAAFAAIAAAAJAAEAAAABAAIAAAAAAAIAAAABAAIAAAABAAIAAAABAAIAAAACAAIAAAABAAIAAAADAAIAAAABAAIAAAAEAAIAAAABAAIAAAAFAAIAAAABAAIAAAAGAAIAAAABAAIAAAAHAAIAAAABAAIAAAAIAAIAAAABAAIAAAAJAAIAAAABAAIAAAAAAAMAAAABAAIAAAABAAMAAAABAAIAAAACAAMAAAAEAAIAAAADAAMAAAABAAIAAAAEAAMAAAABAAIAAAAFAAMAAAABAAIAAAAGAAMAAAABAAIAAAAHAAMAAAABAAIAAAAIAAMAAAABAAIAAAAJAAMAAAABAAIAAAAAAAQAAAABAAIAAAABAAQAAAABAAIAAAACAAQAAAAEAAIAAAADAAQAAAABAAIAAAAEAAQAAAABAAIAAAAFAAQAAAABAAIAAAAGAAQAAAABAAIAAAAHAAQAAAABAAIAAAAIAAQAAAABAAIAAAAJAAQAAAABAAIAAAAAAAUAAAABAAIAAAABAAUAAAABAAIAAAACAAUAAAABAAIAAAADAAUAAAABAAIAAAAEAAUAAAABAAIAAAAFAAUAAAABAAIAAAAGAAUAAAABAAIAAAAHAAUAAAABAAIAAAAIAAUAAAABAAIAAAAJAAUAAAABAAIAAAAAAAYAAAABAAIAAAABAAYAAAABAAIAAAACAAYAAAABAAIAAAADAAYAAAABAAIAAAAEAAYAAAADAAIAAAAFAAYAAAABAAIAAAAGAAYAAAABAAIAAAAHAAYAAAABAAIAAAAIAAYAAAABAAIAAAAJAAYAAAABAAIAAAA=")
+tile_set = ExtResource("2_pxhxm")
+
+[node name="Entities" type="Node2D" parent="." unique_id=558430362]
+y_sort_enabled = true
+
+[node name="NPC_Rival1" parent="Entities" unique_id=1729186635 instance=ExtResource("3_sdpvm")]
+position = Vector2(104, 40)
+sprite_sheet = ExtResource("4_eik0e")
+lines = PackedStringArray("REN: Hey, you\'re the\nnew kid! I\'m REN.", "Got a MONSTER from PROF.\nASTER yet? Let\'s battle\nsomeday!")
+wander_radius = 1
+
+[node name="NPC_Lass2" parent="Entities" unique_id=966931705 instance=ExtResource("3_sdpvm")]
+position = Vector2(40, 88)
+sprite_sheet = ExtResource("5_01rs1")
+lines = PackedStringArray("My brother REN wants to\ncatch every MONSTER on\nROUTE 1!")
+wander_radius = 1
+
+[node name="Warps" type="Node2D" parent="." unique_id=1828446282]
+
+[node name="Warp1" parent="Warps" unique_id=1971871233 instance=ExtResource("6_37jca")]
+position = Vector2(72, 104)
+target_map = "res://scenes/maps/town_emberfall.tscn"
+target_spawn = &"from_rival_house"
+blocked_lines = PackedStringArray()
+
+[node name="Spawns" type="Node2D" parent="." unique_id=1185585133]
+
+[node name="default" type="Marker2D" parent="Spawns" unique_id=472413149]
+position = Vector2(72, 88)
+script = ExtResource("7_pns53")
+facing = 1
+
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=886121935]
+position = Vector2(72, 88)
+script = ExtResource("7_pns53")
+facing = 1
