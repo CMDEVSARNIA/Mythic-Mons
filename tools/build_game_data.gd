@@ -1,5 +1,5 @@
 extends SceneTree
-## Writes the starter game data (moves, abilities, species, items) to
+## Writes the starter game data (moves, abilities, species, items, trainers) to
 ## res://data/ as .tres files you can then tweak in the inspector.
 ##
 ## Usually run through tools/rebuild_placeholders.sh (it needs the monster PNGs
@@ -15,6 +15,8 @@ const SPECIES_DIR := "res://data/species/"
 const ITEM_DIR := "res://data/items/"
 const SPRITE_DIR := "res://assets/placeholder/monsters/"
 const ITEM_SPRITE_DIR := "res://assets/placeholder/items/"
+const TRAINER_DIR := "res://data/trainers/"
+const TRAINER_SPRITE_DIR := "res://assets/placeholder/trainers/"
 const ABILITY_SCRIPT_DIR := "res://scripts/monsters/abilities/"
 
 const PHYSICAL := MoveData.Category.PHYSICAL
@@ -146,6 +148,27 @@ const ITEMS := {
 	"dusk_stone": ["DUSK STONE", EVOLUTION, 0, 2100, "Makes certain MONSTERS\nevolve. It's cold to\nthe touch."],
 }
 
+## id: [class, name, battle sprite, payout, team as [species, level]...,
+##      intro (on the map), defeat (in battle), after (on the map once beaten),
+##      optional extra properties]
+## Prize money is payout x the last monster's level. "{PLAYER}" in a line
+## becomes the player's name.
+const TRAINERS := {
+	"lass_mia": ["LASS", "MIA", "lass", 16, [["sproutle", 4], ["zapkit", 5]],
+		["Oh! Did you just get\nyour first MONSTER?", "Mine are super cute.\nLet's battle!"],
+		["Aww... You won fair\nand square."],
+		["GRASS types like my\nSPROUTLE soak up the\nsun on this route."]],
+	"youngster_tim": ["YOUNGSTER", "TIM", "youngster", 16, [["zapkit", 4], ["pebblet", 6]],
+		["Hey! Our eyes met!\nThat means we have to\nbattle!"],
+		["What?! My PEBBLET is\nsupposed to be tough!"],
+		["I'll train in the tall\ngrass until my team\ngets stronger!"]],
+	"rival_ren": ["RIVAL", "REN", "rival", 60, [["flamlet", 5]],
+		["REN: Hey, {PLAYER}! You got\na MONSTER from PROF.\nASTER too?", "I picked mine to beat\nyours. Let's battle!"],
+		["Whoa... You're really\ngood!"],
+		["REN: I'm off to\nTIDEWATER to catch more\nMONSTERS.", "Next time, I'll win!"],
+		{"counters_starter": true}],
+}
+
 var _force := false
 
 
@@ -170,6 +193,8 @@ func _initialize() -> void:
 			_add_evolution(species[id], species[EVOLUTIONS[id][0]], EVOLUTIONS[id])
 	for id: String in ITEMS:
 		_save_or_keep(ITEM_DIR + id + ".tres", _build_item.bind(id, ITEMS[id]))
+	for id: String in TRAINERS:
+		_save_or_keep(TRAINER_DIR + id + ".tres", _build_trainer.bind(TRAINERS[id], species))
 	quit()
 
 
@@ -286,6 +311,26 @@ func _build_item(id: String, row: Array) -> ItemData:
 		else:
 			item.set(property, extras[property])
 	return item
+
+
+func _build_trainer(row: Array, species: Dictionary) -> TrainerData:
+	var trainer := TrainerData.new()
+	trainer.trainer_class = row[0]
+	trainer.trainer_name = row[1]
+	trainer.battle_sprite = load(TRAINER_SPRITE_DIR + row[2] + ".png")
+	trainer.payout = row[3]
+	for entry: Array in row[4]:
+		var member := TrainerMonster.new()
+		member.species = species[entry[0]]
+		member.level = entry[1]
+		trainer.party.append(member)
+	trainer.intro = PackedStringArray(row[5])
+	trainer.defeat = PackedStringArray(row[6])
+	trainer.after = PackedStringArray(row[7])
+	var extras: Dictionary = row[8] if row.size() > 8 else {}
+	for property: String in extras:
+		trainer.set(property, extras[property])
+	return trainer
 
 
 ## Saves a freshly built resource, or loads the existing file unless --force.

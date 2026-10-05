@@ -34,6 +34,8 @@ var current_map: WorldMap
 func _ready() -> void:
 	Events.warp_requested.connect(change_map)
 	Events.wild_encounter.connect(_on_wild_encounter)
+	Events.trainer_spotted.connect(_on_trainer_spotted)
+	Events.trainer_battle.connect(_on_trainer_battle)
 	player.lock()
 	var location := {}
 	if GameState.has_save():
@@ -283,12 +285,7 @@ func _on_wild_encounter(species_id: StringName) -> void:
 	GameState.mark_seen(species_id)
 	player.lock()
 	Audio.play_music(&"battle")
-	Audio.play_sfx(&"encounter")
-	for i in 3:
-		fade.color = Color(1.0, 1.0, 1.0, 0.8)
-		await get_tree().create_timer(0.07).timeout
-		fade.color = Color(1.0, 1.0, 1.0, 0.0)
-		await get_tree().create_timer(0.07).timeout
+	await _encounter_flash()
 	var levels := current_map.wild_levels
 	var wild := Monster.create(species, randi_range(levels.x, mini(levels.y, Monster.MAX_LEVEL)))
 	var outcome: Battle.Outcome = await _run_battle(wild, player.is_surfing)
@@ -297,16 +294,66 @@ func _on_wild_encounter(species_id: StringName) -> void:
 	player.unlock()
 
 
-## Covers the overworld with a battle, pausing the map underneath.
-## `in_water`: the wild monster was met while surfing (DIVE ORBs work best).
-func _run_battle(wild: Monster, in_water := false) -> Battle.Outcome:
+## A trainer saw the player: "!", the eyes-meet music, then they walk over
+## and talk, which starts the battle.
+func _on_trainer_spotted(trainer: Trainer) -> void: # Events passes it untyped.
+	player.lock()
+	Audio.play_music(&"spotted")
+	await trainer.notice(player)
+	player.face(-trainer.facing)
+	await trainer.interact(player)
+	player.unlock()
+
+
+func _on_trainer_battle(trainer: TrainerData) -> void:
+	if not GameState.has_healthy_monster():
+		return
+	player.lock()
+	Audio.play_music(&"trainer_battle")
+	await _encounter_flash()
+	var outcome: Battle.Outcome = await _run_battle(null, false, trainer)
+	if outcome == Battle.Outcome.WON:
+		GameState.set_flag(trainer.defeat_flag())
+	elif outcome == Battle.Outcome.LOST:
+		await _white_out()
+	player.unlock()
+
+
+func _encounter_flash() -> void:
+	Audio.play_sfx(&"encounter")
+	for i in 3:
+		fade.color = Color(1.0, 1.0, 1.0, 0.8)
+		await get_tree().create_timer(0.07).timeout
+		fade.color = Color(1.0, 1.0, 1.0, 0.0)
+		await get_tree().create_timer(0.07).timeout
+
+
+## The species id of the player's starter, which the rival's team counters.
+func _player_starter() -> StringName:
+	for id: StringName in TrainerData.STARTER_COUNTERS:
+		if GameState.has_flag(StringName("starter_" + id)):
+			return id
+	for id: StringName in TrainerData.STARTER_COUNTERS: # Saves from before the flag.
+		if GameState.caught.has(id):
+			return id
+	return &""
+
+
+## Covers the overworld with a battle, pausing the map underneath. Pass
+## `trainer` for a trainer battle (`wild` is then ignored). `in_water`: the
+## wild monster was met while surfing (DIVE ORBs work best).
+func _run_battle(wild: Monster, in_water := false, trainer: TrainerData = null) -> Battle.Outcome:
 	await _fade_to(1.0)
 	world.process_mode = Node.PROCESS_MODE_DISABLED
 	var battle: BattleScene = BATTLE_SCENE.instantiate()
 	battle.in_water = in_water
 	battle_layer.add_child(battle)
 	await _fade_to(0.0)
-	var outcome: Battle.Outcome = await battle.run(GameState.party, wild)
+	var outcome: Battle.Outcome
+	if trainer:
+		outcome = await battle.run_trainer(GameState.party, trainer, trainer.build_party(_player_starter()))
+	else:
+		outcome = await battle.run(GameState.party, wild)
 	var leveled_up: Array[Monster] = battle.leveled_up
 	await _fade_to(1.0)
 	battle.queue_free()

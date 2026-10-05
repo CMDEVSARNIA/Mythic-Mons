@@ -1,6 +1,6 @@
 class_name Battle
 extends RefCounted
-## The rules of a wild battle, with no visuals.
+## The rules of a battle, wild or against a trainer, with no visuals.
 ##
 ## Each call returns the events it produced, in order, as dictionaries.
 ## BattleScene plays them back as text and animation. Keeping the rules apart
@@ -14,16 +14,21 @@ extends RefCounted
 ##   hp        {side, hp}          animate the HP bar to this value
 ##   stat      {side, stat, stages}
 ##   faint     {side}
-##   withdraw  {side}, send_out {side}
+##   withdraw  {side}, send_out {side}   (the enemy side sends out a trainer's next monster)
 ##   flee      {}
 ##   restore   {side}             healing-item sparkle (before its hp event)
 ##   throw     {item}             a ball flies at the wild monster
+##   throw_blocked {item}         a trainer knocks the ball away
 ##   shake     {}                 the ball wobbles (0-3 times)
 ##   caught    {} / break_free {}
 ##
 ## Damage is the Generation 3 formula (STAB 1.5x, type matchups, 1/16 crits
 ## worth 2x, a random 85-100% roll), simplified to the five stats of Monster.
 ## Catching uses the Generation 3 formula too (see catch_shakes()).
+##
+## Trainer battles (against_trainer()) follow Gen 3 as well: the trainer sends
+## out its team one by one, you can't run, thrown balls are knocked away,
+## its monsters give 1.5x EXP, and beating it pays prize_money().
 
 enum Outcome { ONGOING, WON, LOST, FLED, CAUGHT }
 enum Action { FIGHT, SWITCH, RUN, ITEM }
@@ -54,6 +59,9 @@ var in_water := false
 var already_caught := false
 ## Turns played so far (TIMER ORB).
 var turns := 0
+## Trainer battles: who the foe is, and their whole team (enemy is the one out).
+var trainer: TrainerData
+var foe_party: Array[Monster] = []
 
 var _events: Array[Dictionary] = []
 var _after_hit: PackedStringArray = []
@@ -69,6 +77,20 @@ func _init(p_party: Array[Monster], wild: Monster, p_rng: RandomNumberGenerator 
 		rng.randomize()
 	player = Battler.new(first_healthy(), PLAYER)
 	enemy = Battler.new(wild, ENEMY, true)
+
+
+## A battle against `p_trainer`, whose team `foes` (from build_party()) is
+## sent out in order.
+static func against_trainer(p_party: Array[Monster], p_trainer: TrainerData, foes: Array[Monster], p_rng: RandomNumberGenerator = null) -> Battle:
+	var battle := Battle.new(p_party, foes[0], p_rng)
+	battle.trainer = p_trainer
+	battle.foe_party = foes
+	battle.enemy = Battler.new(foes[0], ENEMY)
+	return battle
+
+
+func is_trainer_battle() -> bool:
+	return trainer != null
 
 
 # --- Actions the player can choose ------------------------------------------
@@ -104,6 +126,10 @@ func take_turn(action: Dictionary) -> Array[Dictionary]:
 	assert(outcome == Outcome.ONGOING and not player.is_fainted(), "take_turn() needs an active battle")
 	match action.action:
 		Action.RUN:
+			if is_trainer_battle():
+				# Refused outright; it doesn't cost the turn.
+				message("No! There's no running\nfrom a TRAINER battle!", true)
+				return _flush()
 			if _try_run():
 				message("Got away safely!", true)
 				_push(&"flee", {})
@@ -135,6 +161,23 @@ func take_turn(action: Dictionary) -> Array[Dictionary]:
 ## True when the active monster fainted and another one has to be sent out.
 func player_must_switch() -> bool:
 	return outcome == Outcome.ONGOING and player.is_fainted()
+
+
+## True when the trainer's monster fainted and its next one is due. Award its
+## EXP first (exp_reward() still counts the fainted one), then call
+## send_next_foe().
+func foe_must_switch() -> bool:
+	return outcome == Outcome.ONGOING and enemy.is_fainted()
+
+
+func send_next_foe() -> Array[Dictionary]:
+	var next := _next_foe()
+	if next:
+		enemy = Battler.new(next, ENEMY)
+		message("%s sent\nout %s!" % [trainer.title(), next.get_display_name()])
+		_push(&"send_out", {"side": ENEMY})
+		_trigger_enter(enemy)
+	return _flush()
 
 
 func switch_after_faint(party_index: int) -> Array[Dictionary]:
@@ -183,9 +226,16 @@ func ball_multiplier(ball: ItemData) -> float:
 	return ball.catch_multiplier
 
 
-## EXP for defeating the wild monster: exp_yield * level / 7.
+## EXP for defeating the enemy monster: exp_yield * level / 7, and 1.5x for
+## a trainer's, as in Gen 3.
 func exp_reward() -> int:
-	return maxi(1, floori(enemy.monster.species.exp_yield * enemy.monster.level / 7.0))
+	var bonus := 1.5 if is_trainer_battle() else 1.0
+	return maxi(1, floori(enemy.monster.species.exp_yield * enemy.monster.level * bonus / 7.0))
+
+
+## Prize money for beating the trainer (0 in wild battles).
+func prize_money() -> int:
+	return trainer.prize_money() if is_trainer_battle() else 0
 
 
 func first_healthy() -> Monster:
@@ -324,6 +374,11 @@ func _use_item(item: ItemData) -> void:
 
 
 func _throw_ball(ball: ItemData) -> void:
+	if is_trainer_battle():
+		_push(&"throw_blocked", {"item": ball})
+		message("The TRAINER blocked\nthe ORB!")
+		message("Don't be a thief!")
+		return
 	_push(&"throw", {"item": ball})
 	var shakes := catch_shakes(enemy.monster, ball_multiplier(ball))
 	for i in mini(shakes, 3):
@@ -352,7 +407,8 @@ func _check_faint(battler: Battler) -> bool:
 	_push(&"faint", {"side": battler.side})
 	message("%s fainted!" % battler.name, true)
 	if battler == enemy:
-		outcome = Outcome.WON
+		if _next_foe() == null:
+			outcome = Outcome.WON
 	elif first_healthy() == null:
 		outcome = Outcome.LOST
 	return true
@@ -427,6 +483,14 @@ func _try_run() -> bool:
 		return true
 	var odds := (floori(mine * 128.0 / theirs) + 30 * _run_attempts) % 256
 	return rng.randi_range(0, 255) < odds
+
+
+## The trainer's next monster that can still fight, or null.
+func _next_foe() -> Monster:
+	for monster in foe_party:
+		if not monster.is_fainted():
+			return monster
+	return null
 
 
 func _by_speed() -> Array[Battler]:

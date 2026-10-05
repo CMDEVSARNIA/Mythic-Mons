@@ -96,6 +96,19 @@ const EFFECTS := {
 	&"arrow_down": {"A": SKY, "a": BLUE},
 	&"impact": {"W": WHITE, "Y": SAND},
 	&"slash": {"W": WHITE},
+	&"exclaim": {"K": INK, "W": WHITE, "R": RED},
+	&"party_ok": {"K": INK, "W": WHITE, "w": FOG, "R": RED, "L": PINK},
+	&"party_fainted": {"K": INK, "w": FOG, "s": SLATE},
+	&"party_empty": {"K": INK},
+}
+
+## Trainers you battle: class -> colors for the letters in
+## TrainerDesigns.FRONTS. tools/generate_placeholder_art.gd saves
+## trainers/<class>.png.
+const TRAINERS := {
+	&"youngster": {"H": ORANGE, "h": RED, "B": RED, "b": PLUM, "C": WHITE, "Y": SAND, "P": NIGHT, "F": WOOD_DARK},
+	&"lass": {"H": SAND, "h": ORANGE, "A": RED, "B": PINK, "b": PINK_DARK, "C": WHITE, "F": RED},
+	&"rival": {"H": WOOD, "h": WOOD_DARK, "B": PLUM, "b": NAVY, "C": WHITE, "P": NAVY, "F": SLATE},
 }
 
 ## Colors for the letters in TrainerDesigns.PLAYER_BACK: the player's cap,
@@ -221,6 +234,16 @@ static func trainer_back_sheet() -> Image:
 		_outline(frame, INK)
 		sheet.blit_rect(frame, Rect2i(0, 0, 32, 32), Vector2i(i * 32, 0))
 	return sheet
+
+
+## A 32x32 battle sprite of a trainer you face, from TrainerDesigns.FRONTS.
+static func trainer_front(trainer_class: StringName) -> Image:
+	var palette := {"S": SKIN, "s": SKIN_SHADE, "E": INK, "K": INK, "W": WHITE, "M": PINK_DARK}
+	palette.merge(TRAINERS[trainer_class], true)
+	var img := _new_image(32, 32)
+	_pattern(img, Vector2i.ZERO, TrainerDesigns.FRONTS[trainer_class], palette)
+	_outline(img, INK)
+	return img
 
 
 # =============================================================================

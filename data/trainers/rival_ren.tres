@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="TrainerData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/trainers/rival.png" id="1_xp8yn"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_monster.gd" id="2_r7sdh"]
+[ext_resource type="Resource" path="res://data/species/flamlet.tres" id="3_7klct"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_data.gd" id="4_a5bq1"]
+
+[sub_resource type="Resource" id="Resource_s58i2"]
+script = ExtResource("2_r7sdh")
+species = ExtResource("3_7klct")
+
+[resource]
+script = ExtResource("4_a5bq1")
+trainer_class = "RIVAL"
+trainer_name = "REN"
+battle_sprite = ExtResource("1_xp8yn")
+party = Array[ExtResource("2_r7sdh")]([SubResource("Resource_s58i2")])
+counters_starter = true
+payout = 60
+intro = PackedStringArray("REN: Hey, {PLAYER}! You got\na MONSTER from PROF.\nASTER too?", "I picked mine to beat\nyours. Let\'s battle!")
+defeat = PackedStringArray("Whoa... You\'re really\ngood!")
+after = PackedStringArray("REN: I\'m off to\nTIDEWATER to catch more\nMONSTERS.", "Next time, I\'ll win!")

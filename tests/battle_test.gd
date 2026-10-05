@@ -19,6 +19,7 @@ func _initialize() -> void:
 	_test_experience()
 	_test_catching()
 	_test_special_orbs()
+	_test_trainer_battles()
 	_test_items()
 	print("\nBATTLE TEST %s (%d failed)" % ["PASSED" if _failures == 0 else "FAILED", _failures])
 	quit(1 if _failures > 0 else 0)
@@ -218,6 +219,41 @@ func _test_special_orbs() -> void:
 	var turns_before := water.turns
 	water.take_turn(Battle.fight(0))
 	_check(water.turns == turns_before + 1, "each turn counts toward the TIMER ORB")
+
+
+func _test_trainer_battles() -> void:
+	var lass: TrainerData = load("res://data/trainers/lass_mia.tres")
+	var team := lass.build_party()
+	_check(team.size() == 2 and team[0].species == GameData.species(&"sproutle") and team[1].level == 5, "a trainer's team is built from its data")
+	_check(lass.build_party()[0].ivs == team[0].ivs, "...the same way every time")
+	var rival: TrainerData = load("res://data/trainers/rival_ren.tres")
+	_check(rival.build_party(&"flamlet")[0].species.display_name == "AQUAPUP" and rival.build_party(&"sproutle")[0].species.display_name == "FLAMLET", "the rival picks the starter that beats yours")
+	_check(lass.defeat_flag() == &"beat_lass_mia" and lass.title() == "LASS MIA", "trainers have a title and a defeat flag")
+
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 3
+	var hero := _monster(&"flamlet", 50)
+	_only_move(hero, &"scratch")
+	var battle := Battle.against_trainer([hero], lass, team, rng)
+	_check(battle.enemy.name == "Foe SPROUTLE", "a trainer's monsters are called Foe")
+	var events := battle.take_turn(Battle.run_away())
+	_check(_has_text(events, "no running") and not _used_move(events, "Foe SPROUTLE") and battle.turns == 0, "you can't run from a trainer, and trying doesn't cost the turn")
+	events = battle.take_turn(Battle.use_item(GameData.item(&"mon_orb")))
+	_check(_count(events, &"throw_blocked") == 1 and _has_text(events, "Don't be a thief!") and _count(events, &"caught") == 0, "the trainer blocks thrown orbs")
+	_check(_used_move(events, "Foe SPROUTLE") and battle.outcome == Battle.Outcome.ONGOING, "...and the throw still costs the turn")
+
+	team[0].hp = 1
+	events = battle.take_turn(Battle.fight(0))
+	_check(_count(events, &"faint") == 1 and battle.outcome == Battle.Outcome.ONGOING and battle.foe_must_switch(), "the battle goes on while the trainer has monsters left")
+	var sproutle := GameData.species(&"sproutle")
+	_check(battle.exp_reward() == floori(sproutle.exp_yield * 4 * 1.5 / 7.0), "a trainer's monsters give 1.5x EXP")
+	events = battle.send_next_foe()
+	_check(_has_text(events, "LASS MIA sent\nout ZAPKIT!") and _count(events, &"send_out") == 1 and battle.enemy.monster == team[1], "the trainer sends out its next monster")
+	_check(not battle.foe_must_switch(), "...and the battle carries on")
+	team[1].hp = 1
+	battle.take_turn(Battle.fight(0))
+	_check(battle.outcome == Battle.Outcome.WON, "beating the last one wins")
+	_check(battle.prize_money() == 16 * 5, "prize money is payout x the last monster's level")
 
 
 func _test_items() -> void:

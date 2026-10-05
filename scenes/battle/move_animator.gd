@@ -89,6 +89,11 @@ func orb_light(at: Vector2) -> void:
 	_burst(&"glint", at, 8, 22.0, 0.35, 1.0)
 
 
+## A hit spark where a trainer knocks a thrown orb away.
+func knock(at: Vector2) -> void:
+	_pop(&"impact", at, 0.2, 0.5, 1.5)
+
+
 ## Three stars that hop out of an orb as a catch clicks shut.
 func catch_stars(at: Vector2) -> void:
 	for i in 3:

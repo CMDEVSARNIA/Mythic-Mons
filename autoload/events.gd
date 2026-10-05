@@ -8,3 +8,7 @@ signal warp_requested(map_path: String, spawn_id: StringName)
 signal map_entered(map: WorldMap)
 ## The player stepped on encounter terrain and the encounter roll succeeded.
 signal wild_encounter(species_id: StringName)
+## An unbeaten trainer saw the player step into view. Main has them walk over.
+signal trainer_spotted(trainer: Node) # A Trainer (untyped: autoloads load first).
+## A trainer finished their intro lines. Main runs the battle.
+signal trainer_battle(trainer: TrainerData)

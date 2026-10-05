@@ -23,6 +23,7 @@ const SCENES := {
 	"npc": "res://scenes/actors/npc/npc.tscn",
 	"professor": "res://scenes/actors/npc/professor.tscn",
 	"clerk": "res://scenes/actors/npc/clerk.tscn",
+	"trainer": "res://scenes/actors/npc/trainer.tscn",
 	"sign": "res://scenes/objects/signpost.tscn",
 	"warp": "res://scenes/objects/warp.tscn",
 	"cut_tree": "res://scenes/objects/cut_tree.tscn",
@@ -274,6 +275,10 @@ const MAPS := [
 			[Vector2i(2, 13), "elder", 0, ["Phew! I was stuck behind\nthat boulder for days!", "ROCK SMASH breaks cracked\nrocks like that one."]],
 			[Vector2i(5, 4), "youngster", 1, ["My FLAMLET's KINDLE\nkicks in when its HP\nis low!", "Its fire moves hit way\nharder then. Never\ngive up!"]],
 			[Vector2i(16, 11), "fighter", 0, ["Hup! Hah! I train on\nthis route every day!", "LEER lowers a foe's\nDEFENSE. Then hit it\nwith everything!"]],
+			# Trainers watch `sight` tiles ahead (start_facing: 0 down, 1 up, 2 left, 3 right).
+			[Vector2i(7, 16), "lass", 0, [], {"scene": "trainer", "data": "lass_mia", "sight": 4, "start_facing": 3}],
+			[Vector2i(12, 7), "youngster", 0, [], {"scene": "trainer", "data": "youngster_tim", "sight": 5, "start_facing": 3}],
+			[Vector2i(12, 1), "rival", 0, [], {"scene": "trainer", "data": "rival_ren", "sight": 4, "start_facing": 2}],
 		],
 		"obstacles": [
 			[Vector2i(2, 15), "smash_rock"],
@@ -581,13 +586,16 @@ func _sprite_path(id: String) -> String:
 
 
 ## Sets extra properties from a map table; lists become PackedStringArrays,
-## except a clerk's "stock", which lists item ids.
+## except a clerk's "stock", which lists item ids. A trainer's "data" names
+## its file in data/trainers/.
 func _apply(node: Node, props: Dictionary) -> void:
 	for property: String in props:
 		if property == "scene":
 			continue
 		var value: Variant = props[property]
-		if property == "stock":
+		if property == "data":
+			node.set(property, load("res://data/trainers/%s.tres" % value))
+		elif property == "stock":
 			var items: Array[ItemData] = []
 			for id: String in value:
 				items.append(load("res://data/items/%s.tres" % id))

@@ -212,6 +212,71 @@ func _run() -> void:
 	await _close_dialogue()
 	_check(lead.hp == lead.max_hp(), "MOM heals your MONSTERS")
 
+	# --- Trainers --------------------------------------------------------------
+	# A borrowed champion, so the fights are quick and nothing evolves mid-test.
+	var team: Array = _game_state.party.duplicate()
+	var champ: Resource = load("res://scripts/monsters/monster.gd").create(load("res://data/species/blazard.tres"), 30)
+	_game_state.party.assign([champ])
+	_main.change_map(MAPS + "route_01.tscn", &"south")
+	await _wait(1.0)
+	var route_one: Node2D = _main.current_map
+	route_one.encounter_rate = 0.0
+	var mia: Node2D = route_one.entities.get_node(^"NPC_Lass5")
+	var money_before: int = _game_state.money
+	await _place(Vector2i(10, 17), Vector2i.UP)
+	await _tap(&"move_up") # Into LASS MIA's line of sight.
+	await _wait(0.2)
+	_check(_player.is_locked() and mia.visual.get_child_count() > 1, "stepping into a trainer's sight shows a \"!\"")
+	_shot("27_spotted")
+	await _wait(1.6)
+	_check(mia.get_cell() == Vector2i(9, 16) and _dialogue.is_open, "...and the trainer walks up and talks")
+	await _close_dialogue()
+	await _wait(2.0)
+	_check(_battle_scene() != null and _battle_scene().battle.is_trainer_battle(), "...then a trainer battle starts")
+	_shot("28_trainer_intro")
+	await _press_through_battle()
+	_check(_game_state.has_flag(&"beat_lass_mia") and _game_state.money == money_before + 80, "beating LASS MIA pays $80 (payout 16 x level 5)")
+	_check(_map_name() == "ROUTE 1" and not _player.is_locked(), "the trainer battle returns to the route")
+	await _place(Vector2i(10, 16), Vector2i.LEFT)
+	await _tap(&"confirm")
+	await _wait(0.3)
+	_check(_dialogue.is_open and "SPROUTLE" in _dialogue.get_node(^"Box/Text").text, "a beaten trainer just chats")
+	await _close_dialogue()
+	await _wait(0.5)
+	_check(_battle_scene() == null and not _player.is_locked(), "...and doesn't battle again")
+
+	await _place(Vector2i(11, 7), Vector2i.RIGHT) # Behind YOUNGSTER TIM: he can't see you.
+	await _tap(&"confirm")
+	await _close_dialogue()
+	await _wait(2.0)
+	await _until_action_menu()
+	await _tap(&"move_right")
+	await _tap(&"move_down")
+	await _tap(&"confirm") # RUN
+	await _wait(0.3)
+	_check(_dialogue.is_open and "no running" in _dialogue.get_node(^"Box/Text").text, "talking to a trainer battles too, and you can't run")
+	await _close_dialogue()
+	await _until_action_menu()
+	await _tap(&"move_up")
+	await _tap(&"move_left") # Back to FIGHT for the rest.
+	await _press_through_battle()
+	_check(_game_state.has_flag(&"beat_youngster_tim"), "YOUNGSTER TIM is beaten")
+
+	await _place(Vector2i(9, 2), Vector2i.UP)
+	await _tap(&"move_up") # REN guards the way north.
+	await _wait(2.4)
+	_check(route_one.entities.get_node(^"NPC_Rival7").get_cell() == Vector2i(10, 1), "the rival REN spots you and walks over")
+	await _close_dialogue()
+	await _wait(2.0)
+	await _until_action_menu()
+	var rival_battle: RefCounted = _battle_scene().battle
+	_check(rival_battle.enemy.monster.species.display_name == "AQUAPUP" and rival_battle.enemy.name == "Foe AQUAPUP", "REN leads with the starter that beats yours")
+	await _press_through_battle()
+	_check(_game_state.has_flag(&"beat_rival_ren"), "...and is beaten")
+	_game_state.party.assign(team)
+	_main.change_map(MAPS + "house_emberfall.tscn", &"entrance")
+	await _wait(1.0)
+
 	# --- Start menu: party, summary, BAG, save -------------------------------
 	var party_menu: Control = _main.party_menu
 	var dex_menu: Control = _main.dex_menu

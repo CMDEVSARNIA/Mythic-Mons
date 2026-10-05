@@ -128,6 +128,11 @@ func _on_step_finished(cell: Vector2i) -> void:
 		if area.has_method(&"on_player_entered"):
 			area.on_player_entered(self)
 			return
+	# Trainers spot you before wild monsters can jump out, as in Emerald.
+	for trainer: Trainer in get_tree().get_nodes_in_group(&"trainers"):
+		if trainer.can_see(self):
+			Events.trainer_spotted.emit(trainer)
+			return
 	var terrain := _map.get_terrain(cell) if _map else Terrain.NONE
 	if terrain == Terrain.TALL_GRASS or (terrain == Terrain.WATER and is_surfing):
 		var species := _map.roll_encounter(terrain)

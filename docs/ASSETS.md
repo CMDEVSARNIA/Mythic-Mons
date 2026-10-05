@@ -16,6 +16,8 @@ piece can be swapped for real assets independently.
 | Item icons and orbs | Hand-drawn in `ItemDesigns`, colored by `PixelArt.ITEMS` → `assets/placeholder/items/<id>.png`, plus `<id>_open.png` for orbs (see below) | 16 × 16 sprites, set on the item's `icon` (and `open_icon` for orbs) |
 | Battle effects | Hand-drawn in `EffectDesigns`, colored by `PixelArt.EFFECTS` → `assets/placeholder/effects/<id>.png` | Same-name PNGs (MoveAnimator draws them at 2×) |
 | The player in battle | Hand-drawn in `TrainerDesigns`, colored by `PixelArt.TRAINER_BACK` → `assets/placeholder/characters/player_back.png` | A 96 × 32 sheet of three 32 × 32 frames: stand, wind up, throw (drawn at 2×) |
+| Trainers in battle | Hand-drawn in `TrainerDesigns.FRONTS`, colored by `PixelArt.TRAINERS` → `assets/placeholder/trainers/<class>.png` | A 32 × 32 (or 64 × 64) front sprite, set on the TrainerData's `battle_sprite` |
+| "!" bubble, team markers | `EffectDesigns` → `assets/placeholder/effects/exclaim.png`, `party_*.png` | Same-size PNGs (drawn at 1×) |
 | Battle background | `tools/import_world_art.gd` → `assets/world/battle_background.png` (the sheet's grass and bushes) | A 240 × 160 image with the platforms in the same spots |
 | Sound effects | `ChipSynth.sfx(id)` at runtime | `assets/audio/sfx/<id>.ogg` / `.wav` (see `assets/audio/README.md`) |
 | Music | `Chiptune.render(Songs.*)` on a worker thread | `assets/audio/music/<id>.ogg`, with Loop enabled on import |

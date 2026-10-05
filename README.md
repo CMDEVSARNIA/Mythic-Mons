@@ -6,9 +6,10 @@ built with **Godot 4.7** and GDScript.
 ![The cast: player, professor, mom, rival, lass, elder, hiker, swimmer and nurse](docs/images/characters.png)
 
 So far: tile-locked movement, a multi-town world, dialogue, field moves,
-a starter from the local professor, animated turn-based wild battles with
-unique abilities, EXP and level-ups, evolution, catching with ten kinds of
-orb, a MONDEX, a MART, a party screen, and saving.
+a starter from the local professor, animated turn-based battles against
+wild monsters and trainers (including your rival), unique abilities, EXP and
+level-ups, evolution, catching with ten kinds of orb, a MONDEX, a MART, a
+party screen, and saving.
 The world (towns, routes, interiors, signs and the battle backdrop) is built
 from ArMM1998's CC0 overworld tileset, with matching pieces drawn for this
 project in its colors. The characters, monsters, items, battle effects,
@@ -41,8 +42,9 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   next door; and PROF. ASTER's lab (slate roof), where you choose FLAMLET,
   AQUAPUP or SPROUTLE. The professor won't let you into the tall grass
   without one. There's also a secret garden behind a **CUT** tree.
-- **Route 1.** Tall grass with wild encounters, one-way **ledges**, and a
-  hiker trapped behind a **ROCK SMASH** boulder.
+- **Route 1.** Tall grass with wild encounters, one-way **ledges**, a
+  hiker trapped behind a **ROCK SMASH** boulder, and three trainers: LASS
+  MIA, YOUNGSTER TIM, and your rival REN guarding the way north.
 - **Tidewater City.** A beach and an island you reach with **SURF**, a
   seaside house, the **MONSTER CENTER** (red roof), where the nurse heals
   your team for free, and the **TIDEWATER MART** (blue roof). Like a
@@ -65,6 +67,16 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   sink out of sight.
 
   ![Throwing an orb, catching, and the EMBER, WATER GUN, RAZOR LEAF, THUNDER and PHANTASM animations](docs/images/battle.png)
+- **Trainer battles**, Emerald style. Walk into a trainer's line of sight
+  and a "!" pops up. The eyes-meet music plays, and they walk over to
+  challenge you; talking to them works too. Both teams show as rows of orbs,
+  and the foe sends its monsters out one by one. You can't run, and a thrown
+  orb gets knocked away ("Don't be a thief!"). Their monsters give 1.5× EXP,
+  and winning pays prize money (payout × the last monster's level). Losing
+  costs half your money. Beaten trainers just chat afterwards. REN always
+  picks the starter that beats yours.
+
+  ![Spotted by LASS MIA, the battle intro, her send-out, a blocked orb, the win, and the three trainer sprites](docs/images/trainers.png)
 - **Catching.** Wild monsters appear in tall grass, and in the sea while you
   SURF. Open the BAG in battle and throw an orb. Weaken a monster first: the
   lower its HP, the better the odds (Emerald's formula). The orb pops open,
@@ -170,15 +182,15 @@ from their CC0 sheets in `assets/`.
 ## Tests
 
 ```sh
-# Battle rules: formulas, turn order, abilities, catching, special orbs, items, PP, EXP (61 checks)
+# Battle rules: formulas, turn order, abilities, catching, special orbs, trainers, items, PP, EXP (75 checks)
 godot --headless --path . --script res://tests/battle_test.gd
 # EXP curves, IVs, natures and evolution (20 checks)
 godot --headless --path . --script res://tests/monster_test.gd
 # Party, BOX, BAG, money, MONDEX, flags and save/load round trips (36 checks)
 godot --headless --path . --script res://tests/game_state_test.gd
-# Plays the whole game by injecting input: starter, battles, evolutions, MONDEX, buildings, shops (84 checks)
+# Plays the whole game by injecting input: starter, battles, trainers, evolutions, MONDEX, buildings, shops (96 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
-# Talks to every NPC and reads every sign on every map, from where a player can stand (29 checks)
+# Talks to every NPC and reads every sign on every map, from where a player can stand (32 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/npc_test.gd
 ```
 
@@ -190,17 +202,18 @@ your real save.
 
 1. ~~**Monster data.**~~ Done: species, moves, abilities and `Monster`
    instances, with IVs, natures, EXP curves and evolution.
-2. ~~**Battles.**~~ Done: wild battles with ability hooks, EXP and level-ups.
+2. ~~**Battles.**~~ Done: wild and trainer battles with ability hooks, EXP,
+   level-ups and prize money.
 3. ~~**Catching.**~~ Done: orbs and POTIONs in the BAG, Gen 3 catch odds, the
    shake animation, and caught monsters joining the party or BOX.
 4. ~~**Party & starter.**~~ Done: PROF. ASTER's starter, party screen and
    summary, BAG outside battle, MOM healing, save/load with a title screen.
 5. **Field-move gating.** Unlock CUT/SURF/FLY through party moves and badges
    instead of the prototype's all-unlocked default.
-6. **Content.** Trainers with line-of-sight battles (and prize money), a PC
-   for the BOX, nicknames, more routes and towns, and more real art from the
-   sources in ASSETS.md. ~~A mart~~, ~~a Monster Center~~ and ~~enterable
-   buildings~~ are done.
+6. **Content.** A PC for the BOX, nicknames, a GYM and badges, more routes,
+   towns and trainers, and more real art from the sources in ASSETS.md.
+   ~~A mart~~, ~~a Monster Center~~, ~~enterable buildings~~ and ~~trainers
+   with line-of-sight battles~~ are done.
 7. **Stat depth.** Split SPECIAL into SP. ATK and SP. DEF, and add EVs
    (effort points from each defeated monster), as in Gen 3.
 

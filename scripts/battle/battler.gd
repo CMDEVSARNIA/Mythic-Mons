@@ -12,10 +12,14 @@ var side: StringName
 var is_wild: bool
 var stages: Dictionary[StringName, int] = {}
 
-## Name used in battle text: "Wild SPROUTLE" for wild monsters.
+## Name used in battle text: "Wild SPROUTLE" for wild monsters, "Foe
+## SPROUTLE" for a trainer's.
 var name: String:
 	get:
-		return ("Wild " if is_wild else "") + monster.get_display_name()
+		var prefix := ""
+		if side == Battle.ENEMY:
+			prefix = "Wild " if is_wild else "Foe "
+		return prefix + monster.get_display_name()
 
 var element: String:
 	get:

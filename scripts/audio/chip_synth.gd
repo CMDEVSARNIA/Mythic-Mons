@@ -178,6 +178,8 @@ static func sfx(id: StringName) -> AudioStreamWAV:
 				fanfare.append(tone(Wave.PULSE_25, hz, hz, 0.09, 0.22, 0.18))
 			fanfare.append(tone(Wave.PULSE_25, 1318.51, 1318.51, 0.5, 0.22))
 			samples = sequence(fanfare)
+		&"exclaim":
+			samples = sequence([tone(Wave.PULSE_25, 1318.5, 1318.5, 0.05, 0.25, 0.2), tone(Wave.PULSE_25, 1975.5, 1975.5, 0.12, 0.25)])
 		&"orb_open":
 			samples = layer([tone(Wave.NOISE, 4000.0, 10000.0, 0.15, 0.3), tone(Wave.PULSE_25, 600.0, 1800.0, 0.15, 0.25)])
 		&"orb_bounce":

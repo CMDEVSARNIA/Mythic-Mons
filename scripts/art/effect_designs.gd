@@ -3,7 +3,9 @@ extends RefCounted
 ## Hand-drawn battle effect sprites (MoveAnimator draws them at 2x, like the
 ## monsters). Letters are colors from the effect's entry in PixelArt.EFFECTS;
 ## "." is transparent. Effects listed in OUTLINED get a 1px ink outline so
-## they read against both the sky and the monsters.
+## they read against both the sky and the monsters. The last few are marks
+## drawn at 1x: the "!" over a trainer who spots you, and the orbs that count
+## each side's team at the start of a trainer battle.
 
 const OUTLINED: Array[StringName] = [&"flame", &"drop", &"leaf", &"rock", &"spark", &"shadow", &"arrow_up", &"arrow_down", &"impact"]
 
@@ -156,5 +158,53 @@ const EFFECTS := {
 		"................",
 		"................",
 		"................",
+	],
+	&"exclaim": [
+		"................",
+		"...KKKKKKKKKK...",
+		"..KWWWWWWWWWWK..",
+		"..KWWWWRRWWWWK..",
+		"..KWWWWRRWWWWK..",
+		"..KWWWWRRWWWWK..",
+		"..KWWWWRRWWWWK..",
+		"..KWWWWRRWWWWK..",
+		"..KWWWWWWWWWWK..",
+		"..KWWWWRRWWWWK..",
+		"..KWWWWWWWWWWK..",
+		"...KKKWWWKKKK...",
+		"......KWK.......",
+		"......KK........",
+		"................",
+		"................",
+	],
+	&"party_ok": [
+		"..KKKK..",
+		".KRRRRK.",
+		"KRLRRRRK",
+		"KKKWWKKK",
+		"KWWWWWWK",
+		"KWWWWWwK",
+		".KWWWwK.",
+		"..KKKK..",
+	],
+	&"party_fainted": [
+		"..KKKK..",
+		".KssssK.",
+		"KssssssK",
+		"KKKwwKKK",
+		"KwwwwwwK",
+		"KwwwwwsK",
+		".KwwwsK.",
+		"..KKKK..",
+	],
+	&"party_empty": [
+		"..KKKK..",
+		".K....K.",
+		"K......K",
+		"K......K",
+		"K......K",
+		"K......K",
+		".K....K.",
+		"..KKKK..",
 	],
 }

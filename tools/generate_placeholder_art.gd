@@ -23,6 +23,8 @@ func _initialize() -> void:
 		_save(PixelArt.generated_monster(recipe[0], recipe[1]), "monsters/%s.png" % id)
 		_save(PixelArt.generated_monster(recipe[0], recipe[1], true), "monsters/%s_back.png" % id)
 	_save(PixelArt.trainer_back_sheet(), "characters/player_back.png")
+	for trainer_class: StringName in PixelArt.TRAINERS:
+		_save(PixelArt.trainer_front(trainer_class), "trainers/%s.png" % trainer_class)
 	for id: StringName in PixelArt.ITEMS:
 		_save(PixelArt.item(id), "items/%s.png" % id)
 		if String(id).ends_with("_orb"):

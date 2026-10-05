@@ -1,9 +1,11 @@
 class_name BattleScene
 extends Control
-## Plays out one wild battle on screen. The rules live in Battle; this scene
-## asks the player for actions and animates the events Battle returns.
+## Plays out one battle on screen, wild or against a trainer. The rules live
+## in Battle; this scene asks the player for actions and animates the events
+## Battle returns.
 ##
 ##     var outcome: Battle.Outcome = await battle_scene.run(GameState.party, wild)
+##     var outcome: Battle.Outcome = await battle_scene.run_trainer(GameState.party, trainer, foes)
 
 ## How long routine battle text stays up before advancing on its own.
 const MESSAGE_SECONDS := 1.0
@@ -14,8 +16,14 @@ const PLAYER_HOME := Vector2(64, 86)
 ## platform.
 const BALL_OPEN := Vector2(176, 42)
 const BALL_REST := Vector2(176, 64)
-## Orbs thrown mid-battle come in from off-screen, bottom left.
+## Orbs thrown mid-battle come in from off-screen, bottom left; a trainer's
+## from the top right.
 const THROW_FROM := Vector2(16, 112)
+const FOE_THROW_FROM := Vector2(252, 4)
+## Where each side's row of team markers starts (trainer battle intros).
+const FOE_MARKS_AT := Vector2(14, 16)
+const PLAYER_MARKS_AT := Vector2(150, 84)
+const MARK_DIR := "res://assets/placeholder/effects/"
 ## Where the trainer's hand lets go of the first orb, from the trainer's spot.
 const HAND_OFFSET := Vector2(26, -26)
 ## The white-hot, then red, glow of a monster turning into light.
@@ -36,11 +44,13 @@ var _last_action := 0
 var _last_move := 0
 ## The orb in flight, for break_free.
 var _thrown: ItemData
+var _marks: Array[Sprite2D] = []
 
 @onready var _enemy_sprite: Sprite2D = $EnemySprite
 @onready var _player_sprite: Sprite2D = $PlayerSprite
 @onready var _ball: Sprite2D = $Ball
 @onready var _trainer: Sprite2D = $Trainer
+@onready var _foe_trainer: Sprite2D = $FoeTrainer
 @onready var _effects: MoveAnimator = $Effects
 @onready var _enemy_panel: BattlerPanel = $EnemyPanel
 @onready var _player_panel: BattlerPanel = $PlayerPanel
@@ -62,13 +72,31 @@ func _ready() -> void:
 
 func run(party: Array[Monster], wild: Monster, rng: RandomNumberGenerator = null) -> Battle.Outcome:
 	battle = Battle.new(party, wild, rng)
-	battle.trainer_name = GameState.player_name
 	battle.in_water = in_water
 	battle.already_caught = GameState.caught.has(GameData.id_of(wild.species))
-	await _intro()
+	return await _fight()
+
+
+## A battle against `trainer`, whose team `foes` comes from
+## TrainerData.build_party(). Winning pays its prize money; losing costs half
+## the player's money.
+func run_trainer(party: Array[Monster], trainer: TrainerData, foes: Array[Monster], rng: RandomNumberGenerator = null) -> Battle.Outcome:
+	battle = Battle.against_trainer(party, trainer, foes, rng)
+	return await _fight()
+
+
+func _fight() -> Battle.Outcome:
+	battle.trainer_name = GameState.player_name
+	if battle.is_trainer_battle():
+		await _trainer_intro()
+	else:
+		await _intro()
 	await _play(battle.start())
 	while battle.outcome == Battle.Outcome.ONGOING:
-		if battle.player_must_switch():
+		if battle.foe_must_switch():
+			await _gain_exp()
+			await _play(battle.send_next_foe())
+		elif battle.player_must_switch():
 			var index: int = await _choose_party_member(true)
 			await _play(battle.switch_after_faint(index))
 		else:
@@ -80,8 +108,7 @@ func run(party: Array[Monster], wild: Monster, rng: RandomNumberGenerator = null
 		Battle.Outcome.CAUGHT:
 			await _add_caught_monster()
 		Battle.Outcome.LOST:
-			var trainer := GameState.player_name
-			await _say(["%s is out of\nusable MONSTERS!" % trainer, "%s whited out!" % trainer])
+			await _lose()
 	return battle.outcome
 
 
@@ -233,19 +260,72 @@ func _play(events: Array[Dictionary]) -> void:
 			&"withdraw":
 				await _withdraw()
 			&"send_out":
-				await _send_out()
+				if side == Battle.ENEMY:
+					await _foe_send_out()
+				else:
+					await _send_out()
 			&"flee":
 				Audio.play_sfx(&"flee")
 			&"restore":
 				await _restore(side)
 			&"throw":
 				await _throw(event.item)
+			&"throw_blocked":
+				await _throw_blocked(event.item)
 			&"shake":
 				await _shake()
 			&"caught":
 				await _seal()
 			&"break_free":
 				await _break_free()
+
+
+## The trainers slide in, each side's team shows as a row of orbs, then the
+## foe sends out its first monster and the player throws out the lead.
+func _trainer_intro() -> void:
+	var trainer := battle.trainer
+	_foe_trainer.texture = trainer.battle_sprite
+	_foe_trainer.position = ENEMY_HOME - Vector2(240.0, 0.0)
+	_foe_trainer.show()
+	_trainer.frame = 0
+	_trainer.position = PLAYER_HOME + Vector2(240.0, 0.0)
+	_trainer.show()
+	var tween := create_tween().set_parallel().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(_foe_trainer, "position", ENEMY_HOME, 0.8)
+	tween.tween_property(_trainer, "position", PLAYER_HOME, 0.8)
+	await tween.finished
+	_show_marks(battle.foe_party, FOE_MARKS_AT)
+	_show_marks(battle.party, PLAYER_MARKS_AT)
+	await _say(["%s\nwould like to battle!" % trainer.title()])
+	_clear_marks()
+	_say(["%s sent\nout %s!" % [trainer.title(), battle.enemy.monster.get_display_name()]], MESSAGE_SECONDS)
+	await _foe_send_out(true)
+	while Dialogue.is_open:
+		await get_tree().process_frame
+	_say(["Go! %s!" % battle.player.monster.get_display_name()], MESSAGE_SECONDS)
+	await _send_out(true)
+	while Dialogue.is_open:
+		await get_tree().process_frame
+
+
+## A row of six orbs: one per team member (grey once fainted), then empty
+## slots.
+func _show_marks(team: Array[Monster], at: Vector2) -> void:
+	for i in GameState.MAX_PARTY:
+		var mark := Sprite2D.new()
+		var state := "party_empty"
+		if i < team.size():
+			state = "party_fainted" if team[i].is_fainted() else "party_ok"
+		mark.texture = load(MARK_DIR + state + ".png")
+		mark.position = at + Vector2(10.0 * i, 0.0)
+		add_child(mark)
+		_marks.append(mark)
+
+
+func _clear_marks() -> void:
+	for mark in _marks:
+		mark.queue_free()
+	_marks.clear()
 
 
 ## The wild monster slides in from the left as the trainer slides in from
@@ -274,6 +354,43 @@ func _intro() -> void:
 
 func _victory() -> void:
 	Audio.play_music(&"victory")
+	await _gain_exp()
+	if battle.is_trainer_battle():
+		await _beat_trainer()
+
+
+## The trainer walks back in, concedes, and pays up.
+func _beat_trainer() -> void:
+	var trainer := battle.trainer
+	_foe_trainer.texture = trainer.battle_sprite
+	_foe_trainer.position = ENEMY_HOME + Vector2(120.0, 0.0)
+	_foe_trainer.show()
+	var tween := create_tween()
+	tween.tween_property(_foe_trainer, "position", ENEMY_HOME, 0.5).set_ease(Tween.EASE_OUT)
+	await tween.finished
+	await _say(["%s defeated\n%s!" % [GameState.player_name, trainer.title()]])
+	if not trainer.defeat.is_empty():
+		await _say(trainer.defeat)
+	var prize := battle.prize_money()
+	GameState.add_money(prize)
+	Audio.play_sfx(&"purchase")
+	await _say(["%s got $%d\nfor winning!" % [GameState.player_name, prize]])
+
+
+func _lose() -> void:
+	var player_name := GameState.player_name
+	var pages := PackedStringArray(["%s is out of\nusable MONSTERS!" % player_name])
+	if battle.is_trainer_battle():
+		# Losing to a trainer costs half your money.
+		var paid := floori(GameState.money / 2.0)
+		GameState.spend_money(paid)
+		pages.append("%s paid $%d\nto the winner." % [player_name, paid])
+	pages.append("%s whited out!" % player_name)
+	await _say(pages)
+
+
+## The active monster's EXP for the enemy that just fainted, with level-ups.
+func _gain_exp() -> void:
 	var monster := battle.player.monster
 	var amount := battle.exp_reward()
 	await _say(["%s gained\n%d EXP. Points!" % [monster.get_display_name(), amount]])
@@ -358,8 +475,7 @@ func _faint(side: StringName) -> void:
 	sprite.hide()
 	sprite.region_enabled = false
 	sprite.position = PLAYER_HOME if side == Battle.PLAYER else ENEMY_HOME
-	if side == Battle.PLAYER:
-		_player_panel.hide()
+	_panel(side).hide()
 
 
 func _restore(side: StringName) -> void:
@@ -426,6 +542,47 @@ func _break_free() -> void:
 	await _out_of_light(_enemy_sprite, _ball.position + Vector2(0, -10), ENEMY_HOME)
 	_ball.hide()
 	_ball.modulate = Color.WHITE
+
+
+## The trainer's monster comes out of its orb, thrown from the top right.
+## With `from_trainer` (the battle's start) the foe trainer steps away first.
+func _foe_send_out(from_trainer := false) -> void:
+	var monster := battle.enemy.monster
+	var orb := _orb_of(monster)
+	_enemy_sprite.hide() # Until it comes out of the light.
+	_enemy_sprite.texture = monster.species.front_texture
+	if from_trainer:
+		var leave := create_tween()
+		leave.tween_property(_foe_trainer, "position:x", 300.0, 0.4).set_ease(Tween.EASE_IN)
+		leave.tween_callback(_foe_trainer.hide)
+	Audio.play_sfx(&"throw")
+	var open_at := ENEMY_HOME + Vector2(0, 10)
+	await _toss(orb, FOE_THROW_FROM, open_at, 0.4, 20.0)
+	await _pop_open(orb)
+	var fade := create_tween()
+	fade.tween_property(_ball, "modulate:a", 0.0, 0.2)
+	await _out_of_light(_enemy_sprite, open_at + Vector2(0, -10), ENEMY_HOME)
+	_ball.hide()
+	_ball.modulate = Color.WHITE
+	_enemy_panel.show_monster(monster)
+	_enemy_panel.show()
+
+
+## In a trainer battle the orb gets knocked away before it reaches the foe.
+func _throw_blocked(item: ItemData) -> void:
+	Audio.play_sfx(&"throw")
+	await _toss(item, THROW_FROM, BALL_OPEN, 0.5, 46.0)
+	Audio.play_sfx(&"hit_weak")
+	_effects.knock(_ball.position + Vector2(0, -6))
+	var from := _ball.position
+	var knocked := func(t: float) -> void:
+		_ball.position = from + Vector2(-110.0 * t, -50.0 * sin(t * PI * 0.8) + 120.0 * t * t)
+		_ball.rotation = -t * TAU * 3.0
+	var tween := create_tween()
+	tween.tween_method(knocked, 0.0, 1.0, 0.6)
+	await tween.finished
+	_ball.hide()
+	_ball.rotation = 0.0
 
 
 ## The player's monster turns to red light and zips back into its orb.

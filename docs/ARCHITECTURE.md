@@ -21,7 +21,7 @@ Mythic-Mons/
 │   │   ├── grid_actor.gd      Shared tile-locked movement (player and NPCs)
 │   │   ├── player/            Player scene + input, interaction, surfing, ledges
 │   │   └── npc/               Wandering NPC (can heal), StarterGiver + professor.tscn,
-│   │                          ShopClerk + clerk.tscn
+│   │                          ShopClerk + clerk.tscn, Trainer + trainer.tscn
 │   ├── maps/
 │   │   ├── world_map.gd       Root script of every map (terrain lookups, spawns, encounters)
 │   │   └── *.tscn             Emberfall (home, lab, REN's house), Route 1, Tidewater
@@ -37,7 +37,8 @@ Mythic-Mons/
 │   ├── monsters/              MonsterSpecies, MoveData, LevelMove, Evolution, Monster,
 │   │                          TypeChart, Ability + abilities/ (one script per behavior)
 │   ├── items/                 ItemData (orbs, potions, evolution stones)
-│   ├── battle/                Battle (the rules) and Battler (a monster on the field)
+│   ├── battle/                Battle (the rules), Battler (a monster on the field),
+│   │                          TrainerData + TrainerMonster (who you battle)
 │   ├── art/                   pixel_art.gd (palettes; draws characters, monsters, items,
 │   │                          effects), hand-drawn designs: character_designs.gd,
 │   │                          monster_designs.gd, item_designs.gd (icons and orbs),
@@ -49,10 +50,11 @@ Mythic-Mons/
 │   ├── species/               flamlet, blazard, aquapup, tidehound, ... (12, in dex order)
 │   ├── moves/                 tackle, ember, water_gun, ...
 │   ├── abilities/             kindle, soak_up, sunsoak, sturdy_shell, jolt, dread
-│   └── items/                 ten orbs (mon_orb ... gala_orb), potion, big_potion, stones
+│   ├── items/                 ten orbs (mon_orb ... gala_orb), potion, big_potion, stones
+│   └── trainers/              lass_mia, youngster_tim, rival_ren
 ├── assets/
 │   ├── placeholder/           Generated PNGs: characters, objects, monsters, items,
-│   │                          effects
+│   │                          effects, trainers (battle sprites)
 │   ├── characters/townsfolk/  NPC sheets converted from a downloaded pack (source/)
 │   ├── world/                 world_tiles.png, signs, CUT tree, boulder, battle backdrop,
 │   │                          source/ (ArMM1998's CC0 overworld sheet)
@@ -320,6 +322,37 @@ party, or in
 `GameState.storage` (the BOX) when the party has six. A caught monster keeps
 its current HP and earns you no EXP, as in Gen 3.
 
+### Trainers
+
+A `TrainerData` (`data/trainers/*.tres`, built from `TRAINERS` in
+`tools/build_game_data.gd`) holds a trainer's class and name, 32 × 32 battle
+sprite, team (`TrainerMonster`: species + level), `payout`, and three sets
+of lines: `intro` (on the map), `defeat` (in battle) and `after` (on the map
+once beaten). `build_party()` makes fresh monsters with a fixed seed, so a
+rematch after a loss is the same fight. With `counters_starter` (the rival),
+the first monster becomes the starter that beats the player's, which
+StarterGiver records as a `starter_<id>` flag.
+
+On the map, a `Trainer` (an NPC subclass, `trainer.tscn`) points at its data
+and watches `sight` tiles straight ahead. After every step, the player asks
+each node in the `trainers` group `can_see()`: unbeaten, in a straight line,
+nothing in between. Trainers are checked before the wild-encounter roll. A
+hit emits `Events.trainer_spotted`, and Main plays the `spotted` music. The
+trainer's `notice()` shows the "!" bubble and walks up, then `interact()`
+says the intro and emits `Events.trainer_battle(data)`. Talking to an
+unbeaten trainer emits the same signal. Main then plays `trainer_battle`,
+runs `BattleScene.run_trainer()`, and on a win sets `data.defeat_flag()`
+(`beat_<id>`), after which the trainer only says its `after` lines.
+
+In battle, `Battle.against_trainer()` adds the rules: the enemy is "Foe X";
+`foe_must_switch()` / `send_next_foe()` bring out the next monster (award EXP
+first); RUN is refused without costing the turn; orbs raise `throw_blocked`;
+EXP is 1.5×; `prize_money()` is payout × the last monster's level. The scene
+slides both trainers in, shows each team as a row of orbs, and has the foe
+step away and throw. On a win, the foe walks back in, says its `defeat`
+lines and pays out. On a loss, the player pays half their money before
+whiting out.
+
 ### Abilities
 
 Each species has one ability. The battle calls these hooks on both monsters:
@@ -443,8 +476,9 @@ marks the new species as caught in the MONDEX.
 
 - **Events (signal bus):** `warp_requested(map_path, spawn_id)` is the only way
   maps change, used by warps and Fly. `wild_encounter(species_id)` is handled
-  by Main, which runs the battle. `map_entered(map)` is there for quests and
-  achievements.
+  by Main, which runs the battle; so are `trainer_spotted(trainer)` and
+  `trainer_battle(data)` (see Trainers). `map_entered(map)` is there for
+  quests and achievements.
 - **Interaction protocol:** anything with an `interact(player)` method on the
   `world`, `actors` or `obstacles` layer can be talked to. Anything with
   `on_player_entered(player)` on the `triggers` layer fires when stepped on.
@@ -471,8 +505,9 @@ marks the new species as caught in the MONDEX.
 - `tests/battle_test.gd` covers the battle rules with no scene: stat and
   damage formulas, type chart, stages, turn order and priority, all six
   abilities, winning, losing, forced switches, running, PP, STRUGGLE,
-  level-ups, catch odds, every special orb's bonus, orbs and POTIONs
-  (61 checks).
+  level-ups, catch odds, every special orb's bonus, trainer battles (teams,
+  the rival's counter-pick, no running, blocked orbs, sending out the next
+  monster, 1.5× EXP and prize money), orbs and POTIONs (75 checks).
 - `tests/monster_test.gd` covers the four EXP curves, IV ranges, every
   nature turning up, nature effects on stats, level and stone evolution
   (what's kept and what changes), and that evolutions share their
@@ -484,19 +519,22 @@ marks the new species as caught in the MONDEX.
 - `tests/smoke_test.gd` plays the real game by injecting input: movement,
   signs, NPCs, CUT, doors, the starter gate and PROF. ASTER's starter,
   ledges, ROCK SMASH, a won battle whose level-up evolution is stopped with
-  B, a catch (which remembers its orb), a whiteout, MOM's healing, the
+  B, a catch (which remembers its orb), a whiteout, MOM's healing, three
+  trainers (spotted and walked up to, talked to from behind with RUN
+  refused, and the rival's counter-pick), prize money and a beaten trainer
+  who just chats, the
   MONDEX list and page, party screen, summary and SWITCH, a scrolling BAG
   and POTIONs from it, SAVE, CONTINUE from the title screen, SURF and a
   battle at sea (SPROUTLE evolves into GROVETLE afterwards), buying 10 MON
   ORBs (and the free GALA ORB), selling, a DIVE ORB from the specialty
   counter, a BOLT STONE from the BAG (on the wrong monster, then on ZAPKIT),
   healing at the MONSTER CENTER, entering and leaving every building, and
-  FLY (84 checks).
+  FLY (96 checks).
   It uses its own save file.
 - `tests/npc_test.gd` visits every map and talks to every NPC and sign,
   standing where a player could (a reachable neighboring cell, counting CUT,
-  ROCK SMASH and SURF, or across a counter), then examines a bookshelf
-  (29 checks).
+  ROCK SMASH and SURF, or across a counter), then examines a bookshelf.
+  Trainers count as beaten, so they chat (32 checks).
 
 ```sh
 godot --headless --path . --script res://tests/battle_test.gd

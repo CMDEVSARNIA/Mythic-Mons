@@ -2,7 +2,8 @@ extends SceneTree
 ## Talks to every NPC and reads every sign on every map, the way a player
 ## would: standing on a neighboring cell the player can actually get to from
 ## the map's entrance, or across a counter. Fails for anyone who can't be
-## reached or doesn't answer. Also examines a bookshelf.
+## reached or doesn't answer. Trainers count as already beaten, so they chat
+## instead of battling. Also examines a bookshelf.
 ##
 ##   godot --headless --path . --fixed-fps 60 --script res://tests/npc_test.gd
 ##
@@ -37,6 +38,9 @@ func _run() -> void:
 	# After the intro, so PROF. ASTER chats instead of offering starters.
 	game_state.add_monster(Monster.create(GameData.species(&"flamlet"), 5))
 	game_state.set_flag(&"got_starter")
+	for trainer_file in DirAccess.get_files_at("res://data/trainers/"):
+		if trainer_file.ends_with(".tres"):
+			game_state.set_flag(StringName("beat_" + trainer_file.get_basename()))
 
 	var files := Array(DirAccess.get_files_at(MAPS)).filter(func(f: String) -> bool: return f.ends_with(".tscn"))
 	files.sort()

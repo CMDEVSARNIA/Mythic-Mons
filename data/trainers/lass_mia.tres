@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="TrainerData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/trainers/lass.png" id="1_4t2f7"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_monster.gd" id="2_4jny0"]
+[ext_resource type="Resource" path="res://data/species/sproutle.tres" id="3_gejvm"]
+[ext_resource type="Resource" path="res://data/species/zapkit.tres" id="4_6erjj"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_data.gd" id="5_5kppg"]
+
+[sub_resource type="Resource" id="Resource_txgtt"]
+script = ExtResource("2_4jny0")
+species = ExtResource("3_gejvm")
+level = 4
+
+[sub_resource type="Resource" id="Resource_w3aht"]
+script = ExtResource("2_4jny0")
+species = ExtResource("4_6erjj")
+
+[resource]
+script = ExtResource("5_5kppg")
+trainer_class = "LASS"
+trainer_name = "MIA"
+battle_sprite = ExtResource("1_4t2f7")
+party = Array[ExtResource("2_4jny0")]([SubResource("Resource_txgtt"), SubResource("Resource_w3aht")])
+intro = PackedStringArray("Oh! Did you just get\nyour first MONSTER?", "Mine are super cute.\nLet\'s battle!")
+defeat = PackedStringArray("Aww... You won fair\nand square.")
+after = PackedStringArray("GRASS types like my\nSPROUTLE soak up the\nsun on this route.")

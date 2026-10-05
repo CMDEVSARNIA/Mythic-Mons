@@ -45,6 +45,7 @@ func _talk() -> void:
 func _give(species: MonsterSpecies) -> void:
 	GameState.add_monster(Monster.create(species, starter_level))
 	GameState.set_flag(GameState.STARTER_FLAG)
+	GameState.set_flag(StringName("starter_" + GameData.id_of(species))) # The rival counters it.
 	GameState.add_item(gift_item, gift_count)
 	Audio.play_sfx(&"level_up")
 	var player_name := GameState.player_name
