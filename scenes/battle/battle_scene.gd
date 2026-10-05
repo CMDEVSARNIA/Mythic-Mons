@@ -11,7 +11,9 @@ const ENEMY_HOME := Vector2(176, 36)
 const PLAYER_HOME := Vector2(64, 86)
 ## Where a thrown orb lands: on the wild monster's platform.
 const BALL_REST := Vector2(176, 58)
-const SPRITE_SCALE := Vector2(2, 2)
+## On-screen height of a monster: 32x32 sprites are doubled, 64x64 sprites
+## (the size most monster packs use) are drawn as they are.
+const SPRITE_HEIGHT := 64.0
 ## _choose_move() result when the player backs out of the move list.
 const CANCELLED := -2
 
@@ -224,6 +226,7 @@ func _play(events: Array[Dictionary]) -> void:
 func _intro() -> void:
 	var wild := battle.enemy.monster
 	_enemy_sprite.texture = wild.species.front_texture
+	_enemy_sprite.scale = _full_scale(_enemy_sprite)
 	_enemy_sprite.position = ENEMY_HOME - Vector2(240.0, 0.0)
 	_enemy_panel.show_monster(wild)
 	var tween := create_tween()
@@ -405,7 +408,7 @@ func _break_free() -> void:
 	_enemy_sprite.scale = Vector2.ZERO
 	_enemy_sprite.show()
 	var tween := create_tween()
-	tween.tween_property(_enemy_sprite, "scale", SPRITE_SCALE, 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tween.tween_property(_enemy_sprite, "scale", _full_scale(_enemy_sprite), 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	await tween.finished
 
 
@@ -427,7 +430,7 @@ func _send_out() -> void:
 	_player_panel.show()
 	Audio.play_sfx(&"menu")
 	var tween := create_tween()
-	tween.tween_property(_player_sprite, "scale", SPRITE_SCALE, 0.25).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tween.tween_property(_player_sprite, "scale", _full_scale(_player_sprite), 0.25).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
 	await tween.finished
 
 
@@ -439,6 +442,10 @@ func _say(pages: PackedStringArray, auto_advance := 0.0) -> void:
 
 func _wait(seconds: float) -> void:
 	await get_tree().create_timer(seconds).timeout
+
+
+func _full_scale(sprite: Sprite2D) -> Vector2:
+	return Vector2.ONE * SPRITE_HEIGHT / sprite.texture.get_height()
 
 
 func _sprite(side: StringName) -> Sprite2D:

@@ -40,6 +40,7 @@ const SKIN_SHADE := Color("d9a07c")
 const HAIR := Color("4a2c2a")
 const PINK := Color("f29ab4")
 const PINK_DARK := Color("c45a7c")
+const MAUVE := Color("9a5aa0")
 const CLEAR := Color(0, 0, 0, 0)
 
 ## Where each tile lives in overworld_tiles.png (8 columns x 4 rows of 16x16).
@@ -103,18 +104,23 @@ const ELEMENT_COLORS := {
 	&"grass": [GREEN, DEEP, LIME],
 	&"rock": [FOG, SLATE, WHITE],
 	&"electric": [SAND, ORANGE, WHITE],
-	&"ghost": [PLUM, NAVY, Color("9a5aa0")],
+	&"ghost": [PLUM, NAVY, MAUVE],
 }
 
-## Placeholder species: id -> [generator seed, element].
+## Monster battle sprites: id -> colors for the letters in MonsterDesigns.
+## tools/generate_placeholder_art.gd saves monsters/<id>.png and <id>_back.png.
 const MONSTERS := {
-	&"flamlet": [11, &"fire"],
-	&"aquapup": [24, &"water"],
-	&"sproutle": [36, &"grass"],
-	&"pebblet": [43, &"rock"],
-	&"zapkit": [54, &"electric"],
-	&"shadeling": [69, &"ghost"],
+	&"flamlet": {"B": ORANGE, "b": RED, "L": SAND, "R": RED, "O": ORANGE, "Y": SAND},
+	&"aquapup": {"B": SKY, "b": BLUE, "L": CYAN, "A": CYAN, "a": BLUE, "m": FOG},
+	&"zapkit": {"B": SAND, "b": ORANGE, "L": WHITE, "A": NIGHT, "P": PINK, "Y": SAND, "y": ORANGE, "m": FOG},
+	&"sproutle": {"B": GREEN, "b": DEEP, "L": LIME, "S": WOOD, "s": WOOD_DARK, "T": SAND, "t": DIRT_DARK, "G": GREEN, "g": DEEP},
+	&"pebblet": {"B": FOG, "b": SLATE, "L": WHITE, "N": NIGHT, "G": GREEN, "g": DEEP},
+	&"shadeling": {"B": PLUM, "b": NAVY, "L": MAUVE, "C": CYAN, "c": SKY},
 }
+
+## Quick stand-ins for species nobody has drawn yet: id -> [seed, element],
+## e.g. `&"newmon": [7, &"fire"]`. Try seeds until one looks right.
+const GENERATED_MONSTERS := {}
 
 # 8x8 clump repeated four times to make the tall grass tile.
 const _TALL_GRASS := [
@@ -542,12 +548,24 @@ static func orb(top: Color, accent: Color) -> Image:
 # Monsters
 # =============================================================================
 
-## A symmetric 32x32 creature built from a seed: a body, an optional head,
-## then random ears or horns, legs, arms and a belly patch. Parts are drawn on
-## a 16x16 grid, mirrored, shaded, upscaled 2x and outlined. `back` draws the
-## same silhouette seen from behind (no face or belly) for the player's side
-## of a battle.
-static func monster(seed_value: int, element: StringName, back := false) -> Image:
+## A 32x32 battle sprite drawn in MonsterDesigns, with an ink outline added
+## around the silhouette. `back` is the view from behind, used for the
+## player's side of a battle.
+static func monster(id: StringName, back := false) -> Image:
+	var rows: Array = MonsterDesigns.MONSTERS[id]["back" if back else "front"]
+	var palette := {"K": INK, "E": INK, "W": WHITE}
+	palette.merge(MONSTERS[id], true)
+	var img := _new_image(rows[0].length(), rows.size())
+	_pattern(img, Vector2i.ZERO, rows, palette)
+	_outline(img, INK)
+	return img
+
+
+## A stand-in for GENERATED_MONSTERS: a symmetric 32x32 creature built from
+## a seed. A body, an optional head, then random ears or horns, legs, arms and
+## a belly patch, drawn on a 16x16 grid, mirrored, shaded, upscaled 2x and
+## outlined. `back` draws the same silhouette without the face or belly.
+static func generated_monster(seed_value: int, element: StringName, back := false) -> Image:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	var colors: Array = ELEMENT_COLORS.get(element, ELEMENT_COLORS[&"rock"])

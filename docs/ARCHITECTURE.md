@@ -34,8 +34,9 @@ Mythic-Mons/
 │   │                          Ability + abilities/ (one script per behavior)
 │   ├── items/                 ItemData (orbs, potions)
 │   ├── battle/                Battle (the rules) and Battler (a monster on the field)
-│   ├── art/                   pixel_art.gd (tiles, objects, monsters, sheets) and
-│   │                          character_designs.gd (hand-drawn character parts)
+│   ├── art/                   pixel_art.gd (tiles, objects, monsters, sheets),
+│   │                          character_designs.gd (hand-drawn character parts) and
+│   │                          monster_designs.gd (hand-drawn battle sprites)
 │   └── audio/                 ChipSynth (SFX), Chiptune (sequencer), Songs (music data)
 ├── data/                      Game data as .tres, file name = id
 │   ├── species/               flamlet, aquapup, sproutle, pebblet, zapkit, shadeling
@@ -272,8 +273,10 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
 
 1. Add a row to `tools/build_game_data.gd` and run it, or duplicate a
    `.tres` in `data/` and edit it in the inspector.
-2. Give it art: add a seed to `PixelArt.MONSTERS` and rerun the art tool,
-   or point `front_texture`/`back_texture` at real sprites.
+2. Give it art: draw it in `MonsterDesigns` and add its colors to
+   `PixelArt.MONSTERS` (or add a seed to `PixelArt.GENERATED_MONSTERS` for a
+   quick stand-in), then rerun the art tool. Or point
+   `front_texture`/`back_texture` at real 32 × 32 or 64 × 64 sprites.
 3. Add its id to a map's `wild_monsters`.
 
 ## Story, party & saving
