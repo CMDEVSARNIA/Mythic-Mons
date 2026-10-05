@@ -2,9 +2,10 @@ extends Node
 ## Root of the running game.
 ##
 ## Owns the active map (instanced under World), the persistent Player (moved
-## into each map's Entities node), battles, the start menu and the screen fade.
-## Maps never load each other: anything that wants a map change emits
-## Events.warp_requested and this script does the rest.
+## into each map's Entities node), battles, the title screen, the start menu
+## (party, BAG, Fly, save) and the screen fade. Maps never load each other:
+## anything that wants a map change emits Events.warp_requested and this
+## script does the rest.
 
 const FADE_SECONDS := 0.25
 const BATTLE_SCENE := preload("res://scenes/battle/battle_scene.tscn")
@@ -19,6 +20,11 @@ var current_map: WorldMap
 @onready var fade: ColorRect = $Transition/Fade
 @onready var start_menu: ChoiceBox = $UI/StartMenuArea/StartMenu
 @onready var map_banner: MapBanner = $UI/MapBanner
+@onready var party_menu: PartyMenu = $UI/PartyMenu
+@onready var hint_box: Control = $UI/HintBox
+@onready var hint_label: Label = $UI/HintBox/Label
+@onready var title_screen: Control = $UI/TitleScreen
+@onready var title_menu: ChoiceBox = $UI/TitleScreen/MenuArea/Menu
 @onready var battle_layer: CanvasLayer = $BattleLayer
 
 
@@ -26,8 +32,13 @@ func _ready() -> void:
 	Events.warp_requested.connect(change_map)
 	Events.wild_encounter.connect(_on_wild_encounter)
 	player.lock()
+	var location := {}
+	if GameState.has_save():
+		fade.color = Color(0.0, 0.0, 0.0, 0.0) # The title screen has its own backdrop.
+		location = await _title_screen()
 	fade.color = Color(0.0, 0.0, 0.0, 1.0)
-	_load_map(start_map, start_spawn)
+	if location.is_empty() or not _load_map_at(location):
+		_load_map(start_map, start_spawn)
 	await _fade_to(0.0)
 	player.unlock()
 
@@ -48,10 +59,31 @@ func change_map(map_path: String, spawn_id: StringName) -> void:
 
 
 func _load_map(map_path: String, spawn_id: StringName) -> void:
+	if not _swap_map(map_path):
+		return
+	var spawn := current_map.get_spawn(spawn_id)
+	if spawn:
+		player.arrive(spawn.get_cell(), spawn.get_direction())
+	_on_arrived()
+
+
+## Loads a map and puts the player on an exact cell (used by saved games).
+## `location` is what GameState.load_game() returns.
+func _load_map_at(location: Dictionary) -> bool:
+	if not ResourceLoader.exists(location.map) or not _swap_map(location.map):
+		return false
+	player.arrive(location.cell, location.facing)
+	if location.get("surfing", false):
+		player.set_surfing(true)
+	_on_arrived()
+	return true
+
+
+func _swap_map(map_path: String) -> bool:
 	var scene := load(map_path) as PackedScene
 	if scene == null:
 		push_error("Map not found: %s" % map_path)
-		return
+		return false
 	player.get_parent().remove_child(player)
 	if current_map:
 		world.remove_child(current_map)
@@ -59,9 +91,10 @@ func _load_map(map_path: String, spawn_id: StringName) -> void:
 	current_map = scene.instantiate() as WorldMap
 	world.add_child(current_map)
 	current_map.entities.add_child(player)
-	var spawn := current_map.get_spawn(spawn_id)
-	if spawn:
-		player.arrive(spawn.get_cell(), spawn.get_direction())
+	return true
+
+
+func _on_arrived() -> void:
 	player.set_camera_limits(current_map.get_camera_limits(get_viewport().get_visible_rect().size))
 
 	GameState.current_map_path = current_map.scene_file_path
@@ -72,20 +105,114 @@ func _load_map(map_path: String, spawn_id: StringName) -> void:
 	Events.map_entered.emit(current_map)
 
 
+## Shows CONTINUE / NEW GAME. Returns the saved location to resume, or {}.
+func _title_screen() -> Dictionary:
+	title_screen.show()
+	var choice := -1
+	while choice < 0:
+		choice = await title_menu.choose(["CONTINUE", "NEW GAME"])
+	title_screen.hide()
+	if choice != 0:
+		return {}
+	var location := GameState.load_game()
+	if location.is_empty():
+		await Dialogue.say(["The save file couldn't\nbe read. Starting a\nnew game."])
+	return location
+
+
 func _open_start_menu() -> void:
 	player.lock()
 	Audio.play_sfx(&"menu")
+	var last := 0
 	while true:
-		var choice: int = await start_menu.choose(["FLY", "EXIT"])
-		if choice != 0:
+		var actions: Array[StringName] = []
+		if not GameState.party.is_empty():
+			actions.append(&"MONSTERS")
+		actions.append_array([&"BAG", &"FLY", &"SAVE", &"EXIT"])
+		var choice: int = await start_menu.choose(PackedStringArray(actions), mini(last, actions.size() - 1))
+		if choice < 0 or actions[choice] == &"EXIT":
 			break
-		var destination: String = await _choose_fly_destination()
-		if not destination.is_empty():
-			player.unlock()
-			Audio.play_sfx(&"fly")
-			change_map(destination, &"fly")
-			return
+		last = choice
+		match actions[choice]:
+			&"MONSTERS":
+				await party_menu.browse()
+			&"BAG":
+				await _open_bag()
+			&"SAVE":
+				await _save()
+			&"FLY":
+				var destination: String = await _choose_fly_destination()
+				if not destination.is_empty():
+					player.unlock()
+					Audio.play_sfx(&"fly")
+					change_map(destination, &"fly")
+					return
 	player.unlock()
+
+
+## The BAG outside battle: POTIONs can be used on any party member.
+func _open_bag() -> void:
+	while true:
+		var ids: Array[StringName] = []
+		var items: Array[ItemData] = []
+		var options := PackedStringArray()
+		for id: StringName in GameState.bag:
+			var item := GameData.item(id)
+			if item:
+				ids.append(id)
+				items.append(item)
+				options.append("%-10s x%2d" % [item.display_name, GameState.bag[id]])
+		if ids.is_empty():
+			await Dialogue.say(["Your BAG is empty."])
+			return
+		options.append("CANCEL")
+		var describe := func(index: int) -> void:
+			hint_label.text = items[index].description if index < items.size() else "Close the BAG."
+		start_menu.cursor_moved.connect(describe)
+		hint_box.show()
+		var index: int = await start_menu.choose(options)
+		hint_box.hide()
+		start_menu.cursor_moved.disconnect(describe)
+		if index < 0 or index >= ids.size():
+			return
+		await _use_item(ids[index], items[index])
+
+
+func _use_item(id: StringName, item: ItemData) -> void:
+	if item.kind != ItemData.Kind.HEAL:
+		await Dialogue.say(["There's a time and place\nfor that... This isn't it."])
+		return
+	if GameState.party.is_empty():
+		await Dialogue.say(["You don't have any\nMONSTERS yet."])
+		return
+	var target: int = await party_menu.pick("Use on which MONSTER?")
+	if target < 0:
+		return
+	var monster := GameState.party[target]
+	if monster.is_fainted() or monster.hp >= monster.max_hp():
+		await Dialogue.say(["It won't have any effect."])
+		return
+	var healed := mini(item.heal_amount, monster.max_hp() - monster.hp)
+	monster.hp += healed
+	GameState.remove_item(id)
+	Audio.play_sfx(&"heal")
+	await Dialogue.say(["%s's HP was\nrestored by %d points." % [monster.get_display_name(), healed]])
+
+
+func _save() -> void:
+	if await Dialogue.ask("Would you like to\nsave the game?") != 0:
+		return
+	var error := GameState.save_game({
+		"map": current_map.scene_file_path,
+		"cell": player.get_cell(),
+		"facing": player.facing,
+		"surfing": player.is_surfing,
+	})
+	if error == OK:
+		Audio.play_sfx(&"level_up")
+		await Dialogue.say(["%s saved the game." % GameState.player_name])
+	else:
+		await Dialogue.say(["The game couldn't be\nsaved. (%s)" % error_string(error)])
 
 
 ## Lists visited towns. Returns the chosen map path, or "" if Fly can't be

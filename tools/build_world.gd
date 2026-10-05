@@ -18,6 +18,7 @@ const WORLD_MAP_SCRIPT := "res://scenes/maps/world_map.gd"
 const SPAWN_POINT_SCRIPT := "res://scenes/objects/spawn_point.gd"
 const SCENES := {
 	"npc": "res://scenes/actors/npc/npc.tscn",
+	"professor": "res://scenes/actors/npc/professor.tscn",
 	"sign": "res://scenes/objects/signpost.tscn",
 	"warp": "res://scenes/objects/warp.tscn",
 	"cut_tree": "res://scenes/objects/cut_tree.tscn",
@@ -64,11 +65,21 @@ const LEGEND := {
 	"b": &"floor", "w": &"indoor_wall", "m": &"mat", "t": &"table", "B": &"bed", "k": &"shelf", "x": &"void",
 }
 
+## Turns the player back at Emberfall's north exit until they have a starter.
+const STARTER_GATE := {
+	"required_flag": "got_starter",
+	"blocked_lines": ["PROF. ASTER: Wait! Wild\nMONSTERS live in the\ntall grass up there!", "Come see me by my LAB\nfirst. It's just east!"],
+}
+
 # Facing values for spawns and NPCs (match Grid.DIRECTIONS).
 const DOWN := 0
 const UP := 1
 
-# Map definitions. Entities are placed by cell; warps are [cell, map file, spawn, sfx].
+# Map definitions. Entities are placed by cell.
+#   signs:     [cell, pages]
+#   npcs:      [cell, sprite, wander radius, lines, {scene, property overrides}]
+#   warps:     [cell, map file, spawn, sfx, {property overrides}]
+#   obstacles: [cell, scene]
 const MAPS := [
 	{
 		"file": "town_emberfall.tscn",
@@ -99,13 +110,15 @@ const MAPS := [
 		},
 		"warps": [
 			[Vector2i(5, 4), "house_emberfall.tscn", "entrance", &"door"],
-			[Vector2i(9, 0), "route_01.tscn", "south", &""],
-			[Vector2i(10, 0), "route_01.tscn", "south", &""],
+			[Vector2i(9, 0), "route_01.tscn", "south", &"", STARTER_GATE],
+			[Vector2i(10, 0), "route_01.tscn", "south", &"", STARTER_GATE],
 		],
 		"signs": [
 			[Vector2i(8, 7), ["EMBERFALL TOWN\nWhere every journey\nstarts with a spark."]],
+			[Vector2i(12, 5), ["PROF. ASTER's\nMONSTER LAB"]],
 		],
 		"npcs": [
+			[Vector2i(15, 5), "professor", 0, [], {"scene": "professor"}],
 			[Vector2i(14, 8), "lass", 2, ["Hold SHIFT or X to run!", "Press ENTER for the menu.\nYou can FLY from there\nto towns you've visited."]],
 			[Vector2i(3, 12), "elder", 1, ["Oh! You CUT your way into\nmy secret garden?", "Flowers grow best where\nfew people can reach."]],
 		],
@@ -134,7 +147,7 @@ const MAPS := [
 			[Vector2i(4, 6), "town_emberfall.tscn", "from_house", &"door"],
 		],
 		"npcs": [
-			[Vector2i(6, 3), "mom", 1, ["MOM: Off exploring again?\nBe careful out there!", "Step on the mat by the\ndoor to head outside."]],
+			[Vector2i(6, 3), "mom", 1, ["MOM: Welcome home! Rest\nhere whenever you need."], {"heals_party": true}],
 		],
 	},
 	{
@@ -322,10 +335,13 @@ func _build_map(map: Dictionary, tile_set: TileSet) -> Node2D:
 		sign.set(&"lines", PackedStringArray(def[1]))
 	for i in map.get("npcs", []).size():
 		var def: Array = map.npcs[i]
-		var npc := _instance("npc", def[0], entities, root, "NPC_%s%d" % [def[1].capitalize(), i + 1])
+		var props: Dictionary = def[4] if def.size() > 4 else {}
+		var npc := _instance(props.get("scene", "npc"), def[0], entities, root, "NPC_%s%d" % [def[1].capitalize(), i + 1])
 		npc.set(&"sprite_sheet", load(CHARACTER_DIR + "npc_%s.png" % def[1]))
 		npc.set(&"wander_radius", def[2])
-		npc.set(&"lines", PackedStringArray(def[3]))
+		if not def[3].is_empty():
+			npc.set(&"lines", PackedStringArray(def[3]))
+		_apply(npc, props)
 	for i in map.get("obstacles", []).size():
 		var def: Array = map.obstacles[i]
 		_instance(def[1], def[0], entities, root, "%s%d" % [def[1].to_pascal_case(), i + 1])
@@ -337,6 +353,7 @@ func _build_map(map: Dictionary, tile_set: TileSet) -> Node2D:
 		warp.set(&"target_map", MAP_DIR + def[1])
 		warp.set(&"target_spawn", StringName(def[2]))
 		warp.set(&"sfx", def[3])
+		_apply(warp, def[4] if def.size() > 4 else {})
 
 	var spawns := _add(root, root, Node2D.new(), "Spawns")
 	for id: String in map.spawns:
@@ -346,6 +363,15 @@ func _build_map(map: Dictionary, tile_set: TileSet) -> Node2D:
 		marker.set(&"facing", map.spawns[id][1])
 		_add(root, spawns, marker, id)
 	return root
+
+
+## Sets extra properties from a map table; lists become PackedStringArrays.
+func _apply(node: Node, props: Dictionary) -> void:
+	for property: String in props:
+		if property == "scene":
+			continue
+		var value: Variant = props[property]
+		node.set(property, PackedStringArray(value) if value is Array else value)
 
 
 func _instance(kind: String, cell: Vector2i, parent: Node, root: Node, node_name: String) -> Node:

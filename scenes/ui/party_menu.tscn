@@ -1,0 +1,86 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/party_menu.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/ui/choice_box.tscn" id="2_choices"]
+[ext_resource type="PackedScene" path="res://scenes/ui/monster_summary.tscn" id="3_summary"]
+
+[node name="PartyMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.145, 0.443, 0.475, 1)
+
+[node name="List" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 152.0
+offset_bottom = 128.0
+
+[node name="Rows" type="VBoxContainer" parent="List"]
+layout_mode = 2
+
+[node name="Preview" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 156.0
+offset_top = 4.0
+offset_right = 236.0
+offset_bottom = 128.0
+
+[node name="Info" type="VBoxContainer" parent="Preview"]
+layout_mode = 2
+alignment = 1
+
+[node name="Art" type="TextureRect" parent="Preview/Info"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Details" type="Label" parent="Preview/Info"]
+layout_mode = 2
+text = "1/1
+NORMAL"
+horizontal_alignment = 1
+
+[node name="Hint" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 132.0
+offset_right = 236.0
+offset_bottom = 156.0
+
+[node name="Label" type="Label" parent="Hint"]
+layout_mode = 2
+text = "Choose a MONSTER."
+
+[node name="ActionArea" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 30
+
+[node name="Actions" parent="ActionArea" instance=ExtResource("2_choices")]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+
+[node name="Summary" parent="." instance=ExtResource("3_summary")]
+layout_mode = 1

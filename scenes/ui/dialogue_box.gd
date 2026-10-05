@@ -8,6 +8,7 @@ extends CanvasLayer
 ## A page holds three lines of about 27 characters; use "\n" to break lines.
 ## Confirm (A) or cancel (B) finishes the typewriter effect, then turns the page.
 ## Pass `auto_advance` (seconds) to turn pages on their own, as battle text does.
+## show_picture() puts an image (e.g. a monster) in a frame above the text box.
 
 signal _page_typed
 signal _confirmed
@@ -20,17 +21,22 @@ var _typing := false
 var _waiting := false
 var _auto_left := 0.0
 var _shown := 0.0
+var _choice_pictures: Array[Texture2D] = []
 
 @onready var _box: PanelContainer = $Box
 @onready var _text: Label = $Box/Text
 @onready var _arrow: Label = $Arrow
 @onready var _choices: ChoiceBox = $ChoiceArea/Choices
+@onready var _picture_frame: Control = $Picture
+@onready var _picture: TextureRect = $Picture/Texture
 
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_box.hide()
 	_arrow.hide()
+	_picture_frame.hide()
+	_choices.cursor_moved.connect(_on_choice_hovered)
 
 
 ## Shows each page in turn and returns once the last one is dismissed. With
@@ -50,13 +56,27 @@ func ask(prompt: String, options: PackedStringArray = ["YES", "NO"]) -> int:
 	return choice if choice >= 0 else options.size() - 1
 
 
-## Like ask(), but returns -1 when the player cancels.
-func choose(prompt: String, options: PackedStringArray) -> int:
+## Like ask(), but returns -1 when the player cancels. With `pictures`, the
+## picture for the highlighted option is shown while choosing.
+func choose(prompt: String, options: PackedStringArray, pictures: Array[Texture2D] = []) -> int:
 	_open()
 	await _show_page(prompt)
+	_choice_pictures = pictures
 	var choice: int = await _choices.choose(options)
+	if not _choice_pictures.is_empty():
+		_choice_pictures = []
+		hide_picture()
 	_close()
 	return choice
+
+
+func show_picture(texture: Texture2D) -> void:
+	_picture.texture = texture
+	_picture_frame.show()
+
+
+func hide_picture() -> void:
+	_picture_frame.hide()
 
 
 func _process(delta: float) -> void:
@@ -85,6 +105,13 @@ func _input(event: InputEvent) -> void:
 		_confirmed.emit()
 
 
+func _on_choice_hovered(index: int) -> void:
+	if index < _choice_pictures.size():
+		show_picture(_choice_pictures[index])
+	elif not _choice_pictures.is_empty():
+		hide_picture()
+
+
 func _open() -> void:
 	is_open = true
 	_box.show()
@@ -94,6 +121,7 @@ func _close() -> void:
 	is_open = false
 	_box.hide()
 	_arrow.hide()
+	_picture_frame.hide()
 
 
 func _show_page(text: String) -> void:

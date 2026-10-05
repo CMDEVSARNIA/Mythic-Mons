@@ -79,6 +79,7 @@ const NPC_COLORS := {
 	&"hiker": {"H": WOOD, "h": WOOD_DARK, "A": HAIR, "B": GREEN, "b": TEAL, "P": WOOD_DARK},
 	&"mom": {"H": ORANGE, "h": RED, "A": ORANGE, "B": SKY, "b": BLUE, "P": NAVY},
 	&"swimmer": {"H": SKY, "h": BLUE, "A": SAND, "B": CYAN, "b": SKY, "P": BLUE},
+	&"professor": {"H": HAIR, "h": INK, "A": HAIR, "B": WHITE, "b": FOG, "P": SLATE},
 }
 
 ## Catching orbs: id -> [top color, accent color].

@@ -39,6 +39,23 @@ grow_horizontal = 0
 grow_vertical = 0
 text = "▼"
 
+[node name="Picture" type="PanelContainer" parent="."]
+visible = false
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = -126.0
+offset_right = 88.0
+offset_bottom = -48.0
+grow_vertical = 0
+
+[node name="Texture" type="TextureRect" parent="Picture"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
 [node name="ChoiceArea" type="MarginContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0

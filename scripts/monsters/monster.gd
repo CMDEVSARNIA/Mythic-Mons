@@ -89,6 +89,47 @@ func replace_move(index: int, move: MoveData) -> void:
 	pp[index] = move.max_pp
 
 
+## Plain data for save files. Species and moves are stored by id.
+func to_dict() -> Dictionary:
+	var move_ids: Array[String] = []
+	for move in moves:
+		move_ids.append(String(GameData.id_of(move)))
+	return {
+		"species": String(GameData.id_of(species)),
+		"nickname": nickname,
+		"level": level,
+		"experience": experience,
+		"hp": hp,
+		"ivs": ivs,
+		"moves": move_ids,
+		"pp": Array(pp),
+	}
+
+
+## Rebuilds a monster saved with to_dict(). Returns null if its species no
+## longer exists; unknown moves are dropped.
+static func from_dict(data: Dictionary) -> Monster:
+	var saved_species := GameData.species(StringName(data.get("species", "")))
+	if saved_species == null:
+		return null
+	var monster := Monster.new()
+	monster.species = saved_species
+	monster.nickname = data.get("nickname", "")
+	monster.level = clampi(int(data.get("level", 1)), 1, MAX_LEVEL)
+	monster.experience = int(data.get("experience", exp_for_level(monster.level)))
+	var saved_ivs: Dictionary = data.get("ivs", {})
+	for stat in STATS:
+		monster.ivs[stat] = clampi(int(saved_ivs.get(stat, 0)), 0, MAX_IV)
+	var saved_pp: Array = data.get("pp", [])
+	var saved_moves: Array = data.get("moves", [])
+	for i in saved_moves.size():
+		var move := GameData.move(StringName(saved_moves[i]))
+		if move and monster.learn(move):
+			monster.pp[-1] = clampi(int(saved_pp[i]) if i < saved_pp.size() else move.max_pp, 0, move.max_pp)
+	monster.hp = clampi(int(data.get("hp", monster.max_hp())), 0, monster.max_hp())
+	return monster
+
+
 ## Progress through the current level, 0..1 (for the EXP bar).
 func exp_progress() -> float:
 	if level >= MAX_LEVEL:

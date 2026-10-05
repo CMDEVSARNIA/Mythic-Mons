@@ -6,5 +6,5 @@
 script = ExtResource("1_0jtar")
 display_name = "POTION"
 description = "Restores 20 HP to
-the active MONSTER."
+one MONSTER."
 kind = 1

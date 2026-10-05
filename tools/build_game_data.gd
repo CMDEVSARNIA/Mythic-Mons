@@ -86,7 +86,7 @@ const ITEMS := {
 	"mon_orb": ["MON ORB", BALL, 1.0, "A device for catching\nwild MONSTERS."],
 	"super_orb": ["SUPER ORB", BALL, 1.5, "A better orb with a\nhigher catch rate."],
 	"master_orb": ["MASTER ORB", BALL, 255.0, "Catches any wild\nMONSTER without fail."],
-	"potion": ["POTION", HEAL, 20, "Restores 20 HP to\nthe active MONSTER."],
+	"potion": ["POTION", HEAL, 20, "Restores 20 HP to\none MONSTER."],
 }
 
 var _force := false

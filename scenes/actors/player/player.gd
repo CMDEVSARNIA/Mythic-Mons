@@ -51,7 +51,7 @@ func is_idle() -> bool:
 func arrive(cell: Vector2i, dir: Vector2i) -> void:
 	place_at(cell, dir)
 	if is_surfing and (_map == null or _map.get_terrain(cell) != Terrain.WATER):
-		_set_surfing(false)
+		set_surfing(false)
 
 
 func set_camera_limits(limits: Rect2) -> void:
@@ -116,7 +116,7 @@ func _try_step(dir: Vector2i) -> void:
 		bump(dir)
 		return
 	if is_surfing and terrain != Terrain.WATER:
-		_set_surfing(false) # Hop back onto land.
+		set_surfing(false) # Hop back onto land.
 		start_step(dir, 1, walk_speed, true)
 		return
 	var running := Input.is_action_pressed(&"run")
@@ -155,15 +155,15 @@ func _offer_surf() -> void:
 		return
 	if await Dialogue.ask("The water is dyed a deep blue...\nWould you like to SURF?") != 0:
 		return
-	_set_surfing(true)
+	set_surfing(true)
 	if not can_step(facing): # Something else is already on that water tile.
-		_set_surfing(false)
+		set_surfing(false)
 		return
 	Audio.play_sfx(&"surf")
 	start_step(facing, 1, walk_speed, true)
 
 
-func _set_surfing(on: bool) -> void:
+func set_surfing(on: bool) -> void:
 	is_surfing = on
 	surf_mount.visible = on
 	if on:

@@ -20,6 +20,12 @@ static func item(id: StringName) -> ItemData:
 	return _load(ITEMS_DIR, id, "item")
 
 
+## The id of a data resource: its file name without extension
+## (res://data/species/zapkit.tres -> &"zapkit").
+static func id_of(resource: Resource) -> StringName:
+	return StringName(resource.resource_path.get_file().get_basename())
+
+
 static func _load(dir: String, id: StringName, kind: String) -> Resource:
 	var path := "%s%s.tres" % [dir, id]
 	if not ResourceLoader.exists(path):

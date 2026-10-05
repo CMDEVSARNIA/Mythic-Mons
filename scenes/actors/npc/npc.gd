@@ -8,6 +8,8 @@ extends GridActor
 @export_range(0, 8) var wander_radius := 2
 ## Random pause between wander decisions, in seconds (min, max).
 @export var wander_interval := Vector2(1.0, 3.0)
+## After talking, restore the player's whole party (e.g. MOM).
+@export var heals_party := false
 
 var _home := Vector2i.ZERO
 var _timer := 0.0
@@ -25,8 +27,17 @@ func _ready() -> void:
 func interact(player: GridActor) -> void:
 	_talking = true
 	face(-player.facing)
-	await Dialogue.say(lines)
+	await _talk()
 	_talking = false
+
+
+## What happens when the player talks to this NPC. Override for story NPCs.
+func _talk() -> void:
+	await Dialogue.say(lines)
+	if heals_party and not GameState.party.is_empty():
+		GameState.heal_party()
+		Audio.play_sfx(&"heal")
+		await Dialogue.say(["Your MONSTERS are\nfully rested!"])
 
 
 func _idle_update(delta: float, _just_stepped: bool) -> void:

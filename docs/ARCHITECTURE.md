@@ -13,20 +13,21 @@ Mythic-Mons/
 ├── icon.png                   Generated (a monster at 4x)
 ├── autoload/                  Global singletons (Project Settings > Globals)
 │   ├── events.gd              Events: signal bus (warp_requested, wild_encounter, map_entered)
-│   ├── game_state.gd          GameState: party, respawn point, field moves, visited towns, flags
+│   ├── game_state.gd          GameState: party, BOX, BAG, flags, Fly towns, respawn, save/load
 │   └── audio.gd               Audio: music + SFX, real files first, chiptune fallback
 ├── scenes/
-│   ├── main/                  Main scene: owns the current map, player, UI, fades
+│   ├── main/                  Main scene: current map, player, title, start menu, battles, fades
 │   ├── actors/
 │   │   ├── grid_actor.gd      Shared tile-locked movement (player and NPCs)
 │   │   ├── player/            Player scene + input, interaction, surfing, ledges
-│   │   └── npc/               Wandering, talking NPC
+│   │   └── npc/               Wandering NPC (can heal), StarterGiver + professor.tscn
 │   ├── maps/
 │   │   ├── world_map.gd       Root script of every map (terrain lookups, spawns, encounters)
 │   │   └── *.tscn             Emberfall, its house, Route 1, Tidewater
 │   ├── objects/               Warp, SpawnPoint, Signpost, CUT tree, ROCK SMASH boulder
 │   ├── battle/                BattleScene (menus + animation), BattlerPanel, StatBar
-│   └── ui/                    Dialogue box (autoload), choice box, map-name banner
+│   └── ui/                    Dialogue box (autoload), choice box, map banner, party menu,
+│                              monster summary
 ├── scripts/                   Non-scene code (class_name utilities)
 │   ├── core/                  Grid, PhysicsLayers, Terrain, GameData (id → resource lookups)
 │   ├── monsters/              MonsterSpecies, MoveData, LevelMove, Monster, TypeChart,
@@ -46,8 +47,8 @@ Mythic-Mons/
 │   ├── ui/theme.tres          Pixel font, text-box style
 │   ├── fonts/                 Press Start 2P (SIL OFL)
 │   └── audio/music, sfx/      Drop real audio here to replace the generated sounds
-├── tools/                     Headless generators (art, TileSet, starter maps, monster data)
-├── tests/                     battle_test.gd (rules) and smoke_test.gd (plays the game)
+├── tools/                     Headless generators (art, TileSet, starter maps, game data)
+├── tests/                     battle_test, game_state_test (rules), smoke_test (plays the game)
 └── docs/                      This file, ASSETS.md
 ```
 
@@ -76,8 +77,11 @@ Main (Node)                              main.gd
 ├── Player (player.tscn)                 persistent; moved into each map's Entities
 ├── UI (CanvasLayer, layer 5)
 │   ├── MapBanner (PanelContainer)       location name that slides in
-│   └── StartMenuArea (MarginContainer)
-│       └── StartMenu (choice_box.tscn)
+│   ├── StartMenuArea (MarginContainer)
+│   │   └── StartMenu (choice_box.tscn)  MONSTERS / BAG / FLY / SAVE / EXIT
+│   ├── HintBox (PanelContainer)         item descriptions while browsing the BAG
+│   ├── PartyMenu (party_menu.tscn)      party list + MonsterSummary
+│   └── TitleScreen (Control)            CONTINUE / NEW GAME when a save exists
 ├── BattleLayer (CanvasLayer, layer 8)   a BattleScene is added here during battles
 └── Transition (CanvasLayer, layer 20)
     └── Fade (ColorRect)                 fades and encounter flashes
@@ -271,6 +275,34 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
    or point `front_texture`/`back_texture` at real sprites.
 3. Add its id to a map's `wild_monsters`.
 
+## Story, party & saving
+
+- **Story flags.** `GameState.flags` holds progress switches (`has_flag()`,
+  `set_flag()`). A Warp with `required_flag` set turns the player back with
+  `blocked_lines` until the flag is on. That's how Emberfall's north exit
+  waits for `got_starter`. Use the same pattern for gyms, roadblocks, and
+  so on.
+- **Starter.** `StarterGiver` (an NPC subclass, `professor.tscn`) offers
+  each species in `starters` through `Dialogue.choose()` with a picture of
+  the highlighted one. It then gives the monster plus a gift item and sets
+  the flag. New games start with an empty party.
+- **Healing.** Any NPC with `heals_party` restores the party after talking
+  (MOM does). Whiting out also heals and respawns at
+  `GameState.respawn_map`.
+- **Start menu.** MONSTERS opens `PartyMenu.browse()`: a list with HP bars, a
+  big picture of the highlighted monster, and SUMMARY (two pages: info and
+  ability, then stats and moves) or SWITCH to reorder; the first healthy one
+  leads in battle. BAG uses `PartyMenu.pick()` to choose who gets a POTION.
+- **Saving.** SAVE writes `user://save.json`: the player's map, cell,
+  facing and surf state, plus the party, BOX, BAG, flags, Fly towns and
+  respawn. Monsters store species and move *ids*, not resource paths. A
+  save survives refactors as long as ids stay the same, and unknown species
+  or moves are skipped rather than crashing. It's JSON because loading a
+  `.tres` can run scripts embedded in it, and players edit and share save
+  files. When a save exists, the game opens on a title screen with
+  CONTINUE / NEW GAME. A save with a different `version` is ignored, so
+  bump `SAVE_VERSION` and convert old data when the format changes.
+
 ## Communication
 
 - **Events (signal bus):** `warp_requested(map_path, spawn_id)` is the only way
@@ -300,14 +332,18 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
 - `tests/battle_test.gd` covers the battle rules with no scene: stat and
   damage formulas, type chart, stages, turn order and priority, all six
   abilities, winning, losing, forced switches, running, PP, STRUGGLE,
-  level-ups, catch odds, orbs, POTIONs, and the party/BOX/BAG helpers
-  (51 checks).
-- `tests/smoke_test.gd` plays the real game by injecting input: turning,
-  walking, bumping, signs, NPCs, CUT, doors, map edges, ledges, ROCK SMASH,
-  a won battle, a catch through the BAG menu, a lost battle with whiteout,
-  SURF and FLY (29 checks).
+  level-ups, catch odds, orbs and POTIONs (47 checks).
+- `tests/game_state_test.gd` covers the party, BOX, BAG, flags, monster
+  serialization, a full save/load round trip, and corrupt or newer-version
+  saves (19 checks). It uses its own save file.
+- `tests/smoke_test.gd` plays the real game by injecting input: movement,
+  signs, NPCs, CUT, doors, the starter gate and PROF. ASTER's starter,
+  ledges, ROCK SMASH, a won battle, a catch, a whiteout, MOM's healing, the
+  party screen, summary and SWITCH, POTIONs from the BAG, SAVE, CONTINUE
+  from the title screen, SURF and FLY (44 checks). It uses its own save file.
 
 ```sh
 godot --headless --path . --script res://tests/battle_test.gd
+godot --headless --path . --script res://tests/game_state_test.gd
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
 ```

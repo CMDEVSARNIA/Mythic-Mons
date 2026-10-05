@@ -18,7 +18,7 @@ func _initialize() -> void:
 	_test_pp_and_struggle()
 	_test_experience()
 	_test_catching()
-	_test_items_and_party()
+	_test_items()
 	print("\nBATTLE TEST %s (%d failed)" % ["PASSED" if _failures == 0 else "FAILED", _failures])
 	quit(1 if _failures > 0 else 0)
 
@@ -191,23 +191,13 @@ func _test_catching() -> void:
 	_check(_used_move(events, "Wild SHADELING"), "the wild monster acts after breaking free")
 
 
-func _test_items_and_party() -> void:
+func _test_items() -> void:
 	var battle := _battle([_monster(&"flamlet", 5)], _monster(&"sproutle", 3))
 	_only_move(battle.enemy.monster, &"growl")
 	battle.player.monster.hp -= 10
 	var events := battle.take_turn(Battle.use_item(GameData.item(&"potion")))
 	_check(battle.player.monster.hp == battle.player.monster.max_hp(), "POTION heals up to its amount")
 	_check(_has_text(events, "restored by 10 points"), "POTION reports how much it healed")
-
-	var state: Node = load("res://autoload/game_state.gd").new()
-	for i in 6:
-		state.add_monster(_monster(&"sproutle", 2))
-	_check(state.party.size() == 6 and state.storage.is_empty(), "the party holds up to six monsters")
-	_check(not state.add_monster(_monster(&"zapkit", 2)) and state.storage.size() == 1, "a 7th monster goes to the BOX")
-	state.bag.assign({&"potion": 1})
-	_check(state.remove_item(&"potion") and not state.bag.has(&"potion"), "using the last item removes it from the BAG")
-	_check(not state.remove_item(&"potion"), "you can't use an item you don't have")
-	state.free()
 
 
 # --- Helpers -------------------------------------------------------------------

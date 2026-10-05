@@ -4,6 +4,8 @@
 [ext_resource type="PackedScene" path="res://scenes/actors/player/player.tscn" id="2_player"]
 [ext_resource type="PackedScene" path="res://scenes/ui/choice_box.tscn" id="3_choices"]
 [ext_resource type="Script" path="res://scenes/ui/map_banner.gd" id="4_banner"]
+[ext_resource type="PackedScene" path="res://scenes/ui/party_menu.tscn" id="5_party"]
+[ext_resource type="Texture2D" path="res://icon.png" id="6_icon"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_main")
@@ -39,6 +41,79 @@ theme_override_constants/margin_right = 2
 [node name="StartMenu" parent="UI/StartMenuArea" instance=ExtResource("3_choices")]
 layout_mode = 2
 size_flags_horizontal = 8
+size_flags_vertical = 0
+
+[node name="HintBox" type="PanelContainer" parent="UI"]
+visible = false
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = -46.0
+offset_right = -2.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Label" type="Label" parent="UI/HintBox"]
+layout_mode = 2
+size_flags_vertical = 1
+autowrap_mode = 3
+
+[node name="PartyMenu" parent="UI" instance=ExtResource("5_party")]
+
+[node name="TitleScreen" type="Control" parent="UI"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Backdrop" type="ColorRect" parent="UI/TitleScreen"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.102, 0.11, 0.173, 1)
+
+[node name="Logo" type="TextureRect" parent="UI/TitleScreen"]
+layout_mode = 0
+offset_left = 88.0
+offset_top = 8.0
+offset_right = 152.0
+offset_bottom = 72.0
+texture = ExtResource("6_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Title" type="Label" parent="UI/TitleScreen"]
+layout_mode = 0
+offset_top = 76.0
+offset_right = 240.0
+offset_bottom = 92.0
+theme_override_colors/font_color = Color(1, 0.804, 0.459, 1)
+theme_override_font_sizes/font_size = 16
+text = "MYTHIC MONS"
+horizontal_alignment = 1
+
+[node name="MenuArea" type="MarginContainer" parent="UI/TitleScreen"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_top = 100
+
+[node name="Menu" parent="UI/TitleScreen/MenuArea" instance=ExtResource("3_choices")]
+layout_mode = 2
+size_flags_horizontal = 4
 size_flags_vertical = 0
 
 [node name="BattleLayer" type="CanvasLayer" parent="."]
