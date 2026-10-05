@@ -45,11 +45,13 @@ Mythic-Mons/
 │   └── items/                 mon_orb, super_orb, master_orb, potion
 ├── assets/
 │   ├── placeholder/           Generated PNGs: tiles, characters, objects, monsters
+│   ├── characters/townsfolk/  NPC sheets converted from a downloaded pack (source/)
 │   ├── tilesets/              overworld_tileset.tres (physics + terrain custom data)
 │   ├── ui/theme.tres          Pixel font, text-box style
 │   ├── fonts/                 Press Start 2P (SIL OFL)
 │   └── audio/music, sfx/      Drop real audio here to replace the generated sounds
 ├── tools/                     Headless generators (art, TileSet, starter maps, game data)
+│                              and the townsfolk importer
 ├── tests/                     battle_test, game_state_test (rules), smoke_test (plays the game)
 └── docs/                      This file, ASSETS.md
 ```

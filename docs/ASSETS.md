@@ -1,8 +1,8 @@
 # Assets: placeholders now, real art and audio later
 
-The project runs with zero downloaded art or audio. Everything visible or
-audible is drawn or generated in code, and each piece can be swapped for real
-assets independently.
+Apart from five townsfolk (below), the project uses no downloaded art or
+audio. Everything visible or audible is drawn or generated in code, and each
+piece can be swapped for real assets independently.
 
 ## What's generated, and how to replace it
 
@@ -49,6 +49,37 @@ in the layout above and overwrite the file. Packs often order rows or frames
 differently (e.g. 4 walk frames, or up/down swapped), so either rearrange the
 sheet in an editor like Pixelorama, or change `hframes`/`vframes` on the
 `Sprite2D` and the frame math in `GridActor._update_frame()`.
+
+## Townsfolk
+
+![YOUNGSTER, OFFICER, MYSTIC, FIGHTER and GARDENER facing down, up, left and right](images/townsfolk.png)
+
+Five extra NPCs come from a downloaded 16 × 16 NES-style character sheet,
+kept in `assets/characters/townsfolk/source/`:
+
+| NPC | Where |
+|---|---|
+| GARDENER | Emberfall Town, by the flower bed |
+| YOUNGSTER, FIGHTER | Route 1 |
+| OFFICER, MYSTIC | Tidewater City |
+
+`tools/import_townsfolk.gd` cuts each character out of the sheet and
+rearranges it into the game's 48 × 64 layout. The sheet's rows are down,
+right and up, so the left-facing row is mirrored from the right. It also
+swaps the sheet's NES colors for the game's palette and turns the outer edge
+into the same ink outline the cast uses. The results land in
+`assets/characters/townsfolk/<id>.png`, and `tools/build_world.gd` looks
+there before the drawn cast when an NPC names a sprite.
+
+The sheet has three more characters. Two are bald base bodies, and the gold
+one's hair and outfit share one color, so it reads as a blob at 1×. To use
+one anyway:
+
+1. Add a line to `TOWNSFOLK` in the tool: its block in the sheet and a
+   palette color for each of its colors (outline color first). Unmapped
+   colors come out magenta.
+2. Run the tool, then `godot --headless --path . --import`.
+3. Name the id as an NPC sprite in `tools/build_world.gd`.
 
 ## The monsters
 

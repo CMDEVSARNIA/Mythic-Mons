@@ -12,6 +12,8 @@ extends SceneTree
 const TILESET_PATH := "res://assets/tilesets/overworld_tileset.tres"
 const TILE_TEXTURE := "res://assets/placeholder/tiles/overworld_tiles.png"
 const CHARACTER_DIR := "res://assets/placeholder/characters/"
+## Converted pack sprites (tools/import_townsfolk.gd), used before the cast.
+const TOWNSFOLK_DIR := "res://assets/characters/townsfolk/"
 const MAP_DIR := "res://scenes/maps/"
 
 const WORLD_MAP_SCRIPT := "res://scenes/maps/world_map.gd"
@@ -77,7 +79,7 @@ const UP := 1
 
 # Map definitions. Entities are placed by cell.
 #   signs:     [cell, pages]
-#   npcs:      [cell, sprite, wander radius, lines, {scene, property overrides}]
+#   npcs:      [cell, sprite id, wander radius, lines, {scene, property overrides}]
 #   warps:     [cell, map file, spawn, sfx, {property overrides}]
 #   obstacles: [cell, scene]
 const MAPS := [
@@ -121,6 +123,7 @@ const MAPS := [
 			[Vector2i(15, 5), "professor", 0, [], {"scene": "professor"}],
 			[Vector2i(14, 8), "lass", 2, ["Hold SHIFT or X to run!", "Press ENTER for the menu.\nYou can FLY from there\nto towns you've visited."]],
 			[Vector2i(3, 12), "elder", 1, ["Oh! You CUT your way into\nmy secret garden?", "Flowers grow best where\nfew people can reach."]],
+			[Vector2i(6, 8), "gardener", 1, ["SPROUTLE's SUNSOAK\nheals it a little at\nthe end of each turn.", "Sunshine and patience.\nThat's all a garden\nneeds!"]],
 		],
 		"obstacles": [
 			[Vector2i(4, 10), "cut_tree"],
@@ -200,6 +203,8 @@ const MAPS := [
 		"npcs": [
 			[Vector2i(12, 19), "hiker", 2, ["Ledges only go one way.", "Hop down them for a\nshortcut back south!"]],
 			[Vector2i(2, 13), "elder", 0, ["Phew! I was stuck behind\nthat boulder for days!", "ROCK SMASH breaks cracked\nrocks like that one."]],
+			[Vector2i(5, 4), "youngster", 1, ["My FLAMLET's KINDLE\nkicks in when its HP\nis low!", "Its fire moves hit way\nharder then. Never\ngive up!"]],
+			[Vector2i(16, 11), "fighter", 0, ["Hup! Hah! I train on\nthis route every day!", "LEER lowers a foe's\nDEFENSE. Then hit it\nwith everything!"]],
 		],
 		"obstacles": [
 			[Vector2i(2, 15), "smash_rock"],
@@ -244,6 +249,8 @@ const MAPS := [
 		],
 		"npcs": [
 			[Vector2i(14, 7), "swimmer", 2, ["See that island? Face the\nwater and press Z to SURF!"]],
+			[Vector2i(12, 15), "officer", 0, ["Welcome to TIDEWATER\nCITY! I keep the\npeace around here.", "Off on a trip? Open\nthe menu and SAVE\nbefore you go!"]],
+			[Vector2i(16, 15), "mystic", 1, ["I see... FIRE burns\nGRASS, GRASS drinks\nWATER...", "...and WATER douses\nFIRE. The spirits\nnever lie."]],
 		],
 	},
 ]
@@ -337,7 +344,7 @@ func _build_map(map: Dictionary, tile_set: TileSet) -> Node2D:
 		var def: Array = map.npcs[i]
 		var props: Dictionary = def[4] if def.size() > 4 else {}
 		var npc := _instance(props.get("scene", "npc"), def[0], entities, root, "NPC_%s%d" % [def[1].capitalize(), i + 1])
-		npc.set(&"sprite_sheet", load(CHARACTER_DIR + "npc_%s.png" % def[1]))
+		npc.set(&"sprite_sheet", load(_sprite_path(def[1])))
 		npc.set(&"wander_radius", def[2])
 		if not def[3].is_empty():
 			npc.set(&"lines", PackedStringArray(def[3]))
@@ -363,6 +370,11 @@ func _build_map(map: Dictionary, tile_set: TileSet) -> Node2D:
 		marker.set(&"facing", map.spawns[id][1])
 		_add(root, spawns, marker, id)
 	return root
+
+
+func _sprite_path(id: String) -> String:
+	var path := TOWNSFOLK_DIR + "%s.png" % id
+	return path if ResourceLoader.exists(path) else CHARACTER_DIR + "npc_%s.png" % id
 
 
 ## Sets extra properties from a map table; lists become PackedStringArrays.
