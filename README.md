@@ -52,12 +52,24 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
 - **Wild battles** in tall grass, Emerald style: FIGHT / BAG / MON / RUN,
   type matchups, critical hits, stat changes, PP, EXP and level-ups that teach
   new moves. Losing sends you home with your party healed.
-- **Catching.** Open the BAG in battle and throw an orb. Weaken a monster
-  first: the lower its HP, the better the odds (Emerald's formula). The orb
-  shakes up to three times, and caught monsters join your party, or the BOX
-  once you have six. POTIONs heal 20 HP and BIG POTIONs 50. You start with
-  2 POTIONs, and the professor adds 5 MON ORBs.
-- **Start menu (Enter):** MONSTERS (party list, a two-page summary, and
+- **Catching.** Wild monsters appear in tall grass, and in the sea while you
+  SURF. Open the BAG in battle and throw an orb. Weaken a monster first: the
+  lower its HP, the better the odds (Emerald's formula). The orb shakes up to
+  three times, and caught monsters join your party, or the BOX once you have
+  six. POTIONs heal 20 HP and BIG POTIONs 50. You start with 2 POTIONs, and
+  the professor adds 5 MON ORBs.
+- **MONDEX.** PROF. ASTER gives it to you with your starter. It lists every
+  species by number: unseen ones as dashes, ones you've battled by name, and
+  caught ones with an orb. Caught entries open a page with the picture,
+  category, element, height, weight and a description. All six monsters can
+  be caught:
+
+  | Where | Monsters |
+  |---|---|
+  | Route 1 tall grass | SPROUTLE, PEBBLET, ZAPKIT, FLAMLET |
+  | Tidewater sea (while surfing) | AQUAPUP |
+  | Emberfall's secret garden (behind the CUT tree) | SHADELING |
+- **Start menu (Enter):** MONDEX, MONSTERS (party list, a two-page summary, and
   SWITCH to change your lead), BAG (use POTIONs on any party member), FLY and
   SAVE. With a save, the game opens on a title screen with CONTINUE / NEW GAME.
 - **A hand-drawn cast** of nine 16 × 16 characters (above) that mix and
@@ -67,8 +79,7 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   converted from a downloaded sprite sheet into the game's palette.
 - **Six hand-drawn monsters, each with a unique ability:** FLAMLET (KINDLE),
   AQUAPUP (SOAK UP), SPROUTLE (SUNSOAK), PEBBLET (STURDY SHELL), ZAPKIT
-  (JOLT), SHADELING (DREAD). Route 1 has Sproutle, Pebblet, Zapkit and
-  Flamlet.
+  (JOLT), SHADELING (DREAD).
 
   ![The six monsters from the front and from behind](docs/images/monsters.png)
 
@@ -116,9 +127,9 @@ from their CC0 sheets in `assets/`.
 ```sh
 # Battle rules: formulas, turn order, abilities, catching, items, PP, EXP (47 checks)
 godot --headless --path . --script res://tests/battle_test.gd
-# Party, BOX, BAG, money, flags and save/load round trips (27 checks)
+# Party, BOX, BAG, money, MONDEX, flags and save/load round trips (32 checks)
 godot --headless --path . --script res://tests/game_state_test.gd
-# Plays the whole game by injecting input: starter, battles, menus, buildings, shop (58 checks)
+# Plays the whole game by injecting input: starter, battles, MONDEX, buildings, shop (65 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
 # Talks to every NPC and reads every sign on every map, from where a player can stand (28 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/npc_test.gd

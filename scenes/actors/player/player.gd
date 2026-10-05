@@ -128,8 +128,9 @@ func _on_step_finished(cell: Vector2i) -> void:
 		if area.has_method(&"on_player_entered"):
 			area.on_player_entered(self)
 			return
-	if _map and _map.get_terrain(cell) == Terrain.TALL_GRASS:
-		var species := _map.roll_encounter()
+	var terrain := _map.get_terrain(cell) if _map else Terrain.NONE
+	if terrain == Terrain.TALL_GRASS or (terrain == Terrain.WATER and is_surfing):
+		var species := _map.roll_encounter(terrain)
 		if not species.is_empty():
 			Events.wild_encounter.emit(species)
 

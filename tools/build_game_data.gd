@@ -135,6 +135,17 @@ func _build_ability(row: Array) -> Ability:
 	return ability
 
 
+## id: [category, height in m, weight in kg]. MONDEX numbers follow SPECIES order.
+const DEX := {
+	"flamlet": ["EMBER LIZARD", 0.6, 8.5],
+	"aquapup": ["PUDDLE PUP", 0.5, 9.0],
+	"sproutle": ["SPROUT TURTLE", 0.4, 7.2],
+	"pebblet": ["PEBBLE", 0.3, 22.0],
+	"zapkit": ["SPARK FOX", 0.4, 4.8],
+	"shadeling": ["WISP", 0.7, 0.1],
+}
+
+
 func _build_species(id: String, row: Array, moves: Dictionary, abilities: Dictionary) -> MonsterSpecies:
 	var species := MonsterSpecies.new()
 	species.display_name = row[0]
@@ -156,6 +167,10 @@ func _build_species(id: String, row: Array, moves: Dictionary, abilities: Dictio
 		level_move.move = moves[entry[1]]
 		species.learnset.append(level_move)
 	species.dex_entry = row[7]
+	species.dex_number = SPECIES.keys().find(id) + 1
+	species.category = DEX[id][0]
+	species.height = DEX[id][1]
+	species.weight = DEX[id][2]
 	return species
 
 

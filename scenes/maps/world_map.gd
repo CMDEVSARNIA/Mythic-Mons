@@ -25,6 +25,10 @@ extends Node2D
 @export var wild_monsters: Array[StringName] = []
 ## Wild monsters appear at a random level from x to y.
 @export var wild_levels := Vector2i(2, 4)
+## Species met while surfing here (same levels). Empty = quiet water.
+@export var water_monsters: Array[StringName] = []
+## Chance of an encounter per step while surfing.
+@export_range(0.0, 1.0, 0.01) var water_encounter_rate := 0.05
 
 var _layers: Array[TileMapLayer] = []
 var _bounds := Rect2i()
@@ -83,11 +87,14 @@ func get_spawn(id: StringName) -> SpawnPoint:
 	return spawn
 
 
-## Returns a species id if this step triggers a wild encounter, else &"".
-func roll_encounter() -> StringName:
-	if wild_monsters.is_empty() or randf() >= encounter_rate:
+## Returns a species id if a step onto `terrain` (tall grass, or water while
+## surfing) triggers a wild encounter, else &"".
+func roll_encounter(terrain: StringName = Terrain.TALL_GRASS) -> StringName:
+	var on_water := terrain == Terrain.WATER
+	var pool := water_monsters if on_water else wild_monsters
+	if pool.is_empty() or randf() >= (water_encounter_rate if on_water else encounter_rate):
 		return &""
-	return wild_monsters.pick_random()
+	return pool.pick_random()
 
 
 ## Camera limits in pixels. Maps smaller than the screen get centered.

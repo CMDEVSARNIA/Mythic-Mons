@@ -6,6 +6,7 @@
 [ext_resource type="Script" path="res://scenes/ui/map_banner.gd" id="4_banner"]
 [ext_resource type="PackedScene" path="res://scenes/ui/party_menu.tscn" id="5_party"]
 [ext_resource type="Texture2D" path="res://icon.png" id="6_icon"]
+[ext_resource type="PackedScene" path="res://scenes/ui/dex_menu.tscn" id="7_dex"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_main")
@@ -62,6 +63,8 @@ size_flags_vertical = 1
 autowrap_mode = 3
 
 [node name="PartyMenu" parent="UI" instance=ExtResource("5_party")]
+
+[node name="DexMenu" parent="UI" instance=ExtResource("7_dex")]
 
 [node name="TitleScreen" type="Control" parent="UI"]
 visible = false

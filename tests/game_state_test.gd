@@ -12,6 +12,7 @@ var _failures := 0
 
 func _initialize() -> void:
 	_test_party_and_bag()
+	_test_mondex()
 	_test_monster_round_trip()
 	_test_save_and_load()
 	_test_bad_saves()
@@ -45,6 +46,17 @@ func _test_party_and_bag() -> void:
 	state.free()
 
 
+func _test_mondex() -> void:
+	var state := _new_state()
+	state.mark_seen(&"zapkit")
+	state.add_monster(_monster(&"aquapup", 5))
+	_check(state.seen.has(&"zapkit") and not state.caught.has(&"zapkit"), "meeting a monster marks it as seen")
+	_check(state.caught.has(&"aquapup") and state.seen.has(&"aquapup"), "getting a monster marks it as caught and seen")
+	var numbers := GameData.all_species().map(func(species: MonsterSpecies) -> int: return species.dex_number)
+	_check(numbers == [1, 2, 3, 4, 5, 6], "the MONDEX lists every species in number order")
+	state.free()
+
+
 func _test_monster_round_trip() -> void:
 	var original := _monster(&"flamlet", 12)
 	original.nickname = "BLAZE"
@@ -64,6 +76,7 @@ func _test_save_and_load() -> void:
 	state.storage.append(_monster(&"pebblet", 3))
 	state.bag.assign({&"mon_orb": 4, &"potion": 2})
 	state.money = 1234
+	state.mark_seen(&"shadeling")
 	state.set_flag(state.STARTER_FLAG)
 	state.mark_town_visited("res://scenes/maps/town_emberfall.tscn", "EMBERFALL TOWN")
 	var location := {"map": "res://scenes/maps/route_01.tscn", "cell": Vector2i(9, 12), "facing": Vector2i.LEFT, "surfing": true}
@@ -77,6 +90,8 @@ func _test_save_and_load() -> void:
 	_check(loaded.storage.size() == 1 and loaded.storage[0].get_display_name() == "PEBBLET", "the BOX is restored")
 	_check(loaded.bag.get(&"mon_orb") == 4 and loaded.bag.get(&"potion") == 2, "the BAG is restored")
 	_check(loaded.money == 1234, "money is restored")
+	_check(loaded.seen.has(&"shadeling") and loaded.caught.has(&"aquapup") and not loaded.caught.has(&"shadeling"), "the MONDEX is restored")
+	_check(loaded.caught.has(&"pebblet"), "monsters owned before the MONDEX existed count as caught")
 	_check(loaded.has_flag(loaded.STARTER_FLAG) and loaded.visited_towns.has("res://scenes/maps/town_emberfall.tscn"), "flags and Fly destinations are restored")
 	loaded.free()
 

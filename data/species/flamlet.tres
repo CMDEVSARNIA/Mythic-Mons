@@ -48,4 +48,7 @@ base_special = 55
 base_speed = 65
 exp_yield = 62
 learnset = Array[ExtResource("4_g0108")]([SubResource("Resource_4wobf"), SubResource("Resource_se78l"), SubResource("Resource_4ik4h"), SubResource("Resource_vbs4v"), SubResource("Resource_p5f4t")])
+category = "EMBER LIZARD"
+height = 0.6
+weight = 8.5
 dex_entry = "Its tail-flame flickers brighter whenever it is excited."

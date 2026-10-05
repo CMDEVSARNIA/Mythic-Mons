@@ -48,4 +48,7 @@ base_special = 50
 base_speed = 43
 exp_yield = 63
 learnset = Array[ExtResource("4_l04rq")]([SubResource("Resource_8dk0g"), SubResource("Resource_ioh0p"), SubResource("Resource_7k1s1"), SubResource("Resource_yrpyo"), SubResource("Resource_nk378")])
+dex_number = 2
+category = "PUDDLE PUP"
+weight = 9.0
 dex_entry = "Splashes through puddles for hours and never seems to get cold."

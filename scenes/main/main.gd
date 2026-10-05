@@ -3,7 +3,7 @@ extends Node
 ##
 ## Owns the active map (instanced under World), the persistent Player (moved
 ## into each map's Entities node), battles, the title screen, the start menu
-## (party, BAG, Fly, save) and the screen fade. Maps never load each other:
+## (MONDEX, party, BAG, Fly, save) and the screen fade. Maps never load each other:
 ## anything that wants a map change emits Events.warp_requested and this
 ## script does the rest.
 
@@ -21,6 +21,7 @@ var current_map: WorldMap
 @onready var start_menu: ChoiceBox = $UI/StartMenuArea/StartMenu
 @onready var map_banner: MapBanner = $UI/MapBanner
 @onready var party_menu: PartyMenu = $UI/PartyMenu
+@onready var dex_menu: DexMenu = $UI/DexMenu
 @onready var hint_box: Control = $UI/HintBox
 @onready var hint_label: Label = $UI/HintBox/Label
 @onready var title_screen: Control = $UI/TitleScreen
@@ -126,6 +127,8 @@ func _open_start_menu() -> void:
 	var last := 0
 	while true:
 		var actions: Array[StringName] = []
+		if GameState.has_flag(GameState.STARTER_FLAG): # PROF. ASTER hands it over with the starter.
+			actions.append(&"MONDEX")
 		if not GameState.party.is_empty():
 			actions.append(&"MONSTERS")
 		actions.append_array([&"BAG", &"FLY", &"SAVE", &"EXIT"])
@@ -134,6 +137,8 @@ func _open_start_menu() -> void:
 			break
 		last = choice
 		match actions[choice]:
+			&"MONDEX":
+				await dex_menu.browse()
 			&"MONSTERS":
 				await party_menu.browse()
 			&"BAG":
@@ -235,6 +240,7 @@ func _on_wild_encounter(species_id: StringName) -> void:
 	var species := GameData.species(species_id)
 	if species == null or not GameState.has_healthy_monster():
 		return
+	GameState.mark_seen(species_id)
 	player.lock()
 	Audio.play_music(&"battle")
 	Audio.play_sfx(&"encounter")

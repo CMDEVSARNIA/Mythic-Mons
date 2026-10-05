@@ -262,6 +262,8 @@ func _victory() -> void:
 func _add_caught_monster() -> void:
 	Audio.play_music(&"victory")
 	var monster := battle.enemy.monster
+	if not GameState.caught.has(GameData.id_of(monster.species)):
+		await _say(["%s's data was\nadded to the MONDEX." % monster.species.display_name])
 	if GameState.add_monster(monster):
 		await _say(["%s joined\nyour party!" % monster.get_display_name()])
 	else:

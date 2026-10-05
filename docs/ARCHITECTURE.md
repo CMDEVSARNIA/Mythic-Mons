@@ -29,7 +29,7 @@ Mythic-Mons/
 │   ├── objects/               Warp, SpawnPoint, Signpost, CUT tree, ROCK SMASH boulder
 │   ├── battle/                BattleScene (menus + animation), BattlerPanel, StatBar
 │   └── ui/                    Dialogue box (autoload), choice box, map banner, party menu,
-│                              monster summary, shop menu, quantity box
+│                              monster summary, shop menu, quantity box, MONDEX
 ├── scripts/                   Non-scene code (class_name utilities)
 │   ├── core/                  Grid, PhysicsLayers, Terrain, GameData (id → resource lookups)
 │   ├── monsters/              MonsterSpecies, MoveData, LevelMove, Monster, TypeChart,
@@ -279,9 +279,12 @@ it to a species.
 
 ### Encounter flow
 
-Tall grass emits `Events.wild_encounter(species_id)`. Main plays the battle
-music and flash, rolls a level from `WorldMap.wild_levels`, builds the wild
-`Monster`, fades to the BattleScene, and awaits `run()`. A win awards EXP
+Each step into tall grass rolls `WorldMap.encounter_rate` against
+`wild_monsters`, and each step while surfing rolls `water_encounter_rate`
+against `water_monsters`. A hit emits `Events.wild_encounter(species_id)`.
+Main marks the species as seen, plays the battle music and flash, rolls a
+level from `WorldMap.wild_levels`, builds the wild `Monster`, fades to the
+BattleScene, and awaits `run()`. A win awards EXP
 (level-ups may teach moves, with a forget-a-move prompt once four are known).
 A loss heals the party and respawns the player at `GameState.respawn_map`.
 
@@ -322,9 +325,17 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
   back for `sell_price()`, half of that. `GameState.money` starts at $3000
   and is capped at $999,999. The BAG holds up to 99 of each item. To stock a
   different MART, set the clerk's `stock` in the inspector.
+- **MONDEX.** `GameState.seen` and `GameState.caught` hold species ids.
+  Wild encounters mark a species as seen, and `GameState.add_monster()`
+  (starter or catch) marks it as caught. A new catch also gets "data was
+  added to the MONDEX" in battle. `DexMenu` (the start menu's first entry
+  once you have a starter) lists `GameData.all_species()` by
+  `MonsterSpecies.dex_number`. A caught species' page shows its `category`,
+  `element`, `height`, `weight` and `dex_entry`.
 - **Saving.** SAVE writes `user://save.json`: the player's map, cell,
-  facing and surf state, plus the party, BOX, BAG, money, flags, Fly towns
-  and respawn. Monsters store species and move *ids*, not resource paths. A
+  facing and surf state, plus the party, BOX, BAG, money, MONDEX, flags,
+  Fly towns and respawn. Saves from before the MONDEX count everything you
+  own as caught. Monsters store species and move *ids*, not resource paths. A
   save survives refactors as long as ids stay the same, and unknown species
   or moves are skipped rather than crashing. It's JSON because loading a
   `.tres` can run scripts embedded in it, and players edit and share save
@@ -365,15 +376,16 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
   damage formulas, type chart, stages, turn order and priority, all six
   abilities, winning, losing, forced switches, running, PP, STRUGGLE,
   level-ups, catch odds, orbs and POTIONs (47 checks).
-- `tests/game_state_test.gd` covers the party, BOX, BAG limits, money,
-  flags, monster serialization, a full save/load round trip, and corrupt or
-  newer-version saves (27 checks). It uses its own save file.
+- `tests/game_state_test.gd` covers the party, BOX, BAG limits, money, the
+  MONDEX, flags, monster serialization, a full save/load round trip, and
+  corrupt or newer-version saves (32 checks). It uses its own save file.
 - `tests/smoke_test.gd` plays the real game by injecting input: movement,
   signs, NPCs, CUT, doors, the starter gate and PROF. ASTER's starter,
   ledges, ROCK SMASH, a won battle, a catch, a whiteout, MOM's healing, the
-  party screen, summary and SWITCH, POTIONs from the BAG, SAVE, CONTINUE
-  from the title screen, SURF, buying and selling in the MART, healing at the
-  MONSTER CENTER, entering and leaving every building, and FLY (58 checks).
+  MONDEX list and page, party screen, summary and SWITCH, POTIONs from the
+  BAG, SAVE, CONTINUE from the title screen, SURF and a battle at sea,
+  buying and selling in the MART, healing at the MONSTER CENTER, entering and
+  leaving every building, and FLY (65 checks).
   It uses its own save file.
 - `tests/npc_test.gd` visits every map and talks to every NPC and sign,
   standing where a player could (a reachable neighboring cell, counting CUT,

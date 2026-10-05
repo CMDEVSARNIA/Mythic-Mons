@@ -105,7 +105,11 @@ const MAPS := [
 	{
 		"file": "town_emberfall.tscn",
 		"node": "TownEmberfall",
-		"props": {"display_name": "EMBERFALL TOWN", "is_town": true, "music": &"town"},
+		"props": {
+			"display_name": "EMBERFALL TOWN", "is_town": true, "music": &"town",
+			# Only the secret garden has tall grass.
+			"encounter_rate": 0.15, "wild_monsters": [&"shadeling"], "wild_levels": Vector2i(3, 5),
+		},
 		"layout": [
 			"###########::###########",
 			"#*.........::.........*#",
@@ -121,9 +125,9 @@ const MAPS := [
 			"#..........::..........#",
 			"#..........::..........#",
 			"####.####..::..........#",
-			"#**.**..#..::....:.....#",
-			"#*....*.#..::::::::....#",
-			"#**..**.#..............#",
+			"#**.**,,#..::....:.....#",
+			"#*...,,,#..::::::::....#",
+			"#**..,,,#..............#",
 			"########################",
 		],
 		"houses": [
@@ -153,7 +157,7 @@ const MAPS := [
 		],
 		"npcs": [
 			[Vector2i(14, 16), "lass", 2, ["Hold SHIFT or X to run!", "Press ENTER for the menu.\nYou can FLY from there\nto towns you've visited."]],
-			[Vector2i(3, 15), "elder", 1, ["Oh! You CUT your way into\nmy secret garden?", "Flowers grow best where\nfew people can reach."]],
+			[Vector2i(3, 15), "elder", 1, ["Oh! You CUT your way into\nmy secret garden?", "Flowers grow best where\nfew people can reach.", "But something giggles in\nmy tall grass at night..."]],
 			[Vector2i(6, 11), "gardener", 1, ["SPROUTLE's SUNSOAK\nheals it a little at\nthe end of each turn.", "Sunshine and patience.\nThat's all a garden\nneeds!"]],
 		],
 		"obstacles": [
@@ -278,7 +282,10 @@ const MAPS := [
 	{
 		"file": "town_tidewater.tscn",
 		"node": "TownTidewater",
-		"props": {"display_name": "TIDEWATER CITY", "is_town": true, "music": &"town"},
+		"props": {
+			"display_name": "TIDEWATER CITY", "is_town": true, "music": &"town",
+			"water_monsters": [&"aquapup"], "water_encounter_rate": 0.08, "wild_levels": Vector2i(4, 6),
+		},
 		"layout": [
 			"########################",
 			"#~~~~~~~~~~~~~~~~~~~~~~#",
@@ -330,7 +337,7 @@ const MAPS := [
 			[Vector2i(17, 12), ["MONSTER CENTER\nWe heal your MONSTERS\nfor free!"]],
 		],
 		"npcs": [
-			[Vector2i(15, 5), "swimmer", 2, ["See that island? Face the\nwater and press Z to SURF!"]],
+			[Vector2i(15, 5), "swimmer", 2, ["See that island? Face the\nwater and press Z to SURF!", "Wild AQUAPUP swim out\nthere. Bring MON ORBs!"]],
 			[Vector2i(10, 19), "officer", 0, ["Welcome to TIDEWATER\nCITY! I keep the\npeace around here.", "Off on a trip? Open\nthe menu and SAVE\nbefore you go!"]],
 			[Vector2i(21, 13), "mystic", 1, ["I see... FIRE burns\nGRASS, GRASS drinks\nWATER...", "...and WATER douses\nFIRE. The spirits\nnever lie."]],
 		],
@@ -478,7 +485,7 @@ func _build_map(map: Dictionary, tile_set: TileSet) -> Node2D:
 	root.set_script(load(WORLD_MAP_SCRIPT))
 	for property: String in map.props:
 		var value: Variant = map.props[property]
-		if property == "wild_monsters": # The export is typed, so convert the plain array.
+		if property in ["wild_monsters", "water_monsters"]: # Typed exports: convert the plain array.
 			value = Array(value, TYPE_STRING_NAME, &"", null)
 		root.set(property, value)
 

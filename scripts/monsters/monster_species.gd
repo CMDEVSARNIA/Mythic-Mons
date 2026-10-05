@@ -24,6 +24,13 @@ extends Resource
 @export_range(1, 400) var exp_yield := 60
 @export var learnset: Array[LevelMove] = []
 
+@export_group("MONDEX")
+## Position in the MONDEX list (No. 001 and up).
+@export_range(1, 999) var dex_number := 1
+## Shown as "<category> MONSTER", e.g. "EMBER LIZARD".
+@export var category := ""
+@export_range(0.1, 99.9, 0.1, "suffix:m") var height := 0.5
+@export_range(0.1, 999.9, 0.1, "suffix:kg") var weight := 5.0
 @export_multiline var dex_entry := ""
 
 

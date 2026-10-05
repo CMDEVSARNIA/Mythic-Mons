@@ -52,5 +52,7 @@ func _give(species: MonsterSpecies) -> void:
 		"%s received\n%s!" % [player_name, species.display_name],
 		"Take these as well.",
 		"%s received\n%d %ss!" % [player_name, gift_count, GameData.item(gift_item).display_name],
+		"%s received\nthe MONDEX!" % player_name,
+		"It records every MONSTER\nyou see and catch. Open\nit from the menu (ENTER).",
 	])
 	await Dialogue.say(lines)

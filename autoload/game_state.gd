@@ -28,6 +28,9 @@ var flags: Dictionary[StringName, bool] = {}
 var party: Array[Monster] = []
 ## Caught monsters that didn't fit in the party (a PC box comes later).
 var storage: Array[Monster] = []
+## MONDEX: species ids met in battle, and species ids ever owned.
+var seen: Dictionary[StringName, bool] = {}
+var caught: Dictionary[StringName, bool] = {}
 ## Item id (a file in res://data/items/) -> how many the player carries.
 var bag: Dictionary[StringName, int] = {&"potion": 2}
 var money := START_MONEY
@@ -66,9 +69,11 @@ func heal_party() -> void:
 		monster.heal_full()
 
 
-## Adds a new monster (a starter or a catch). Returns true if it joined the
-## party, false if the party was full and it went to storage.
+## Adds a new monster (a starter or a catch) and registers it in the MONDEX.
+## Returns true if it joined the party, false if the party was full and it
+## went to storage.
 func add_monster(monster: Monster) -> bool:
+	mark_caught(GameData.id_of(monster.species))
 	if party.size() < MAX_PARTY:
 		party.append(monster)
 		return true
@@ -81,6 +86,16 @@ func item_count(id: StringName) -> int:
 
 
 ## Adds items, up to MAX_ITEM_COUNT of each.
+func mark_seen(species_id: StringName) -> void:
+	seen[species_id] = true
+
+
+## Caught monsters count as seen too.
+func mark_caught(species_id: StringName) -> void:
+	seen[species_id] = true
+	caught[species_id] = true
+
+
 func add_item(id: StringName, count := 1) -> void:
 	bag[id] = mini(item_count(id) + count, MAX_ITEM_COUNT)
 
@@ -134,6 +149,8 @@ func save_game(location: Dictionary) -> Error:
 		"money": money,
 		"flags": flags,
 		"visited_towns": visited_towns,
+		"seen": seen.keys(),
+		"caught": caught.keys(),
 	}
 	var file := FileAccess.open(save_path, FileAccess.WRITE)
 	if file == null:
@@ -166,6 +183,14 @@ func load_game() -> Dictionary:
 	visited_towns.clear()
 	for path: String in data.get("visited_towns", {}):
 		visited_towns[path] = String(data.visited_towns[path])
+	seen.clear()
+	caught.clear()
+	for id: Variant in data.get("seen", []):
+		mark_seen(StringName(str(id)))
+	for id: Variant in data.get("caught", []):
+		mark_caught(StringName(str(id)))
+	for monster in party + storage: # Saves from before the MONDEX existed.
+		mark_caught(GameData.id_of(monster.species))
 	var cell: Array = data.get("cell", [0, 0])
 	return {
 		"map": String(data.get("map", "")),

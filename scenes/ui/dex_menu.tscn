@@ -1,0 +1,99 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/dex_menu.gd" id="1_script"]
+
+[node name="DexMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.431, 0.165, 0.271, 1)
+
+[node name="Header" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 236.0
+offset_bottom = 22.0
+
+[node name="Label" type="Label" parent="Header"]
+layout_mode = 2
+text = "MONDEX   SEEN   0   OWN   0"
+
+[node name="List" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 26.0
+offset_right = 148.0
+offset_bottom = 156.0
+
+[node name="Rows" type="VBoxContainer" parent="List"]
+layout_mode = 2
+
+[node name="Preview" type="PanelContainer" parent="."]
+layout_mode = 0
+offset_left = 152.0
+offset_top = 26.0
+offset_right = 236.0
+offset_bottom = 156.0
+
+[node name="Info" type="VBoxContainer" parent="Preview"]
+layout_mode = 2
+alignment = 1
+
+[node name="Art" type="TextureRect" parent="Preview/Info"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Details" type="Label" parent="Preview/Info"]
+layout_mode = 2
+text = "No.001
+?????"
+horizontal_alignment = 1
+
+[node name="Page" type="PanelContainer" parent="."]
+visible = false
+layout_mode = 0
+offset_left = 4.0
+offset_top = 26.0
+offset_right = 236.0
+offset_bottom = 156.0
+
+[node name="Layout" type="VBoxContainer" parent="Page"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Top" type="HBoxContainer" parent="Page/Layout"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Art" type="TextureRect" parent="Page/Layout/Top"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Title" type="Label" parent="Page/Layout/Top"]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/line_spacing = 2
+text = "No.001 FLAMLET"
+
+[node name="Text" type="Label" parent="Page/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+autowrap_mode = 3
+text = "Entry."

@@ -20,6 +20,16 @@ static func item(id: StringName) -> ItemData:
 	return _load(ITEMS_DIR, id, "item")
 
 
+## Every species, in MONDEX order.
+static func all_species() -> Array[MonsterSpecies]:
+	var list: Array[MonsterSpecies] = []
+	for file in ResourceLoader.list_directory(SPECIES_DIR):
+		if file.ends_with(".tres"):
+			list.append(load(SPECIES_DIR + file))
+	list.sort_custom(func(a: MonsterSpecies, b: MonsterSpecies) -> bool: return a.dex_number < b.dex_number)
+	return list
+
+
 ## The id of a data resource: its file name without extension
 ## (res://data/species/zapkit.tres -> &"zapkit").
 static func id_of(resource: Resource) -> StringName:

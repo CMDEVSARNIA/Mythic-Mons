@@ -172,6 +172,7 @@ func _run() -> void:
 	_shot_once("11_catch")
 	await _press_through_battle()
 	_check(_game_state.party.size() == 2 and _game_state.party[1].species.display_name == "SPROUTLE", "a caught monster joins the party")
+	_check(_game_state.caught.has(&"sproutle") and _game_state.caught.has(&"flamlet"), "the starter and the catch are registered as caught")
 	_check(not _game_state.bag.has(&"master_orb"), "throwing an orb uses it up")
 
 	# --- Losing --------------------------------------------------------------
@@ -198,7 +199,20 @@ func _run() -> void:
 
 	# --- Start menu: party, summary, BAG, save -------------------------------
 	var party_menu: Control = _main.party_menu
+	var dex_menu: Control = _main.dex_menu
 	await _tap(&"menu")
+	await _tap(&"confirm") # MONDEX
+	_check(dex_menu.visible, "MONDEX opens from the start menu")
+	await _tap(&"confirm") # No. 001 FLAMLET
+	_check(dex_menu.get_node(^"Page").visible, "a caught entry opens its MONDEX page")
+	_shot_once("12_mondex_page")
+	await _tap(&"cancel")
+	await _tap(&"move_down")
+	await _tap(&"move_down") # No. 003 SPROUTLE
+	_shot_once("12_mondex")
+	await _tap(&"cancel")
+	_check(not dex_menu.visible, "B closes the MONDEX")
+	await _tap(&"move_down")
 	await _tap(&"confirm") # MONSTERS
 	_check(party_menu.visible, "MONSTERS opens the party screen")
 	_shot_once("12_party")
@@ -223,6 +237,7 @@ func _run() -> void:
 	var hurt: Resource = _game_state.party[0]
 	hurt.hp = 1
 	await _tap(&"menu")
+	await _tap(&"move_down")
 	await _tap(&"move_down") # BAG
 	await _tap(&"confirm")
 	_shot_once("15_bag")
@@ -233,7 +248,7 @@ func _run() -> void:
 	await _tap(&"cancel")
 
 	await _tap(&"menu")
-	for i in 3: # MONSTERS, BAG, FLY, SAVE
+	for i in 4: # MONDEX, MONSTERS, BAG, FLY, SAVE
 		await _tap(&"move_down")
 	await _tap(&"confirm")
 	for i in 6: # Finish the question, then YES.
@@ -254,11 +269,14 @@ func _run() -> void:
 	await _wait(0.6)
 	_check(_map_name() == saved_map and _player.get_cell() == saved_cell, "CONTINUE resumes where you saved")
 	_check(_game_state.party.size() == 2 and _game_state.party[0].species.display_name == "SPROUTLE", "...with your party as you left it")
+	_check(_game_state.caught.has(&"sproutle") and _game_state.seen.has(&"zapkit"), "...and your MONDEX")
 
 	# --- SURF ----------------------------------------------------------------
 	_main.change_map(MAPS + "town_tidewater.tscn", &"from_route")
 	await _wait(1.0)
 	_check(_map_name() == "TIDEWATER CITY", "Route 1 connects to Tidewater")
+	var town: Node2D = _main.current_map
+	town.water_encounter_rate = 0.0
 	await _place(Vector2i(6, 5), Vector2i.UP)
 	await _tap(&"confirm")
 	await _wait(1.6)
@@ -266,8 +284,14 @@ func _run() -> void:
 	await _tap(&"confirm") # YES
 	await _wait(0.6)
 	_check(_player.is_surfing and _player.get_cell() == Vector2i(6, 4), "SURF hops onto the water")
+	town.water_encounter_rate = 1.0
+	town.wild_levels = Vector2i(2, 2)
 	await _tap(&"move_up")
-	await _wait(0.3)
+	await _wait(2.5)
+	_check(_battle_scene() != null, "wild monsters can appear while surfing")
+	await _press_through_battle()
+	_check(_game_state.seen.has(&"aquapup") and not _game_state.caught.has(&"aquapup"), "monsters you battle are marked as seen")
+	town.water_encounter_rate = 0.0
 	_shot("18_surfing")
 	await _tap(&"move_left")
 	await _tap(&"move_left")
@@ -341,8 +365,8 @@ func _run() -> void:
 	await _place(Vector2i(11, 15), Vector2i.DOWN)
 	await _tap(&"menu")
 	_check(_main.start_menu.visible, "ENTER opens the start menu")
-	await _tap(&"move_down")
-	await _tap(&"move_down")
+	for i in 3: # MONDEX, MONSTERS, BAG, FLY
+		await _tap(&"move_down")
 	await _tap(&"confirm") # FLY
 	await _wait(0.2)
 	_shot("19_fly_menu")
