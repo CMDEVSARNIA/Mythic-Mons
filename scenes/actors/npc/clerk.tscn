@@ -8,9 +8,11 @@
 [ext_resource type="Resource" path="res://data/items/potion.tres" id="6_potion"]
 [ext_resource type="Resource" path="res://data/items/big_potion.tres" id="7_big_potion"]
 [ext_resource type="Script" path="res://scripts/items/item_data.gd" id="8_item"]
+[ext_resource type="Resource" path="res://data/items/bolt_stone.tres" id="9_bolt_stone"]
+[ext_resource type="Resource" path="res://data/items/dusk_stone.tres" id="10_dusk_stone"]
 
 [node name="Clerk" instance=ExtResource("1_npc")]
 script = ExtResource("2_script")
-stock = Array[ExtResource("8_item")]([ExtResource("4_mon_orb"), ExtResource("5_super_orb"), ExtResource("6_potion"), ExtResource("7_big_potion")])
+stock = Array[ExtResource("8_item")]([ExtResource("4_mon_orb"), ExtResource("5_super_orb"), ExtResource("6_potion"), ExtResource("7_big_potion"), ExtResource("9_bolt_stone"), ExtResource("10_dusk_stone")])
 sprite_sheet = ExtResource("3_sheet")
 wander_radius = 0

@@ -82,11 +82,17 @@ const ELEMENT_COLORS := {
 ## tools/generate_placeholder_art.gd saves monsters/<id>.png and <id>_back.png.
 const MONSTERS := {
 	&"flamlet": {"B": ORANGE, "b": RED, "L": SAND, "R": RED, "O": ORANGE, "Y": SAND},
+	&"blazard": {"B": RED, "b": PLUM, "L": ORANGE, "C": SAND, "c": ORANGE, "H": SAND, "h": ORANGE, "O": ORANGE, "Y": SAND},
 	&"aquapup": {"B": SKY, "b": BLUE, "L": CYAN, "A": CYAN, "a": BLUE, "m": FOG},
-	&"zapkit": {"B": SAND, "b": ORANGE, "L": WHITE, "A": NIGHT, "P": PINK, "Y": SAND, "y": ORANGE, "m": FOG},
+	&"tidehound": {"B": BLUE, "b": NAVY, "L": SKY, "A": CYAN, "a": SKY, "m": FOG},
 	&"sproutle": {"B": GREEN, "b": DEEP, "L": LIME, "S": WOOD, "s": WOOD_DARK, "T": SAND, "t": DIRT_DARK, "G": GREEN, "g": DEEP},
+	&"grovetle": {"B": GREEN, "b": DEEP, "L": LIME, "S": WOOD, "s": WOOD_DARK, "T": SAND, "t": DIRT_DARK, "G": LIME, "g": GREEN, "D": DEEP},
 	&"pebblet": {"B": FOG, "b": SLATE, "L": WHITE, "N": NIGHT, "G": GREEN, "g": DEEP},
+	&"bouldron": {"B": FOG, "b": SLATE, "L": WHITE, "N": NIGHT, "G": GREEN, "g": DEEP, "C": CYAN, "c": SKY},
+	&"zapkit": {"B": SAND, "b": ORANGE, "L": WHITE, "A": NIGHT, "P": PINK, "Y": SAND, "y": ORANGE, "m": FOG},
+	&"voltvix": {"B": SAND, "b": ORANGE, "L": WHITE, "A": NIGHT, "P": PINK, "C": CYAN, "Y": SAND, "y": ORANGE, "m": FOG},
 	&"shadeling": {"B": PLUM, "b": NAVY, "L": MAUVE, "C": CYAN, "c": SKY},
+	&"duskwraith": {"B": PLUM, "b": NAVY, "L": MAUVE, "C": CYAN, "c": SKY, "H": NIGHT, "h": NAVY},
 }
 
 ## Quick stand-ins for species nobody has drawn yet: id -> [seed, element],

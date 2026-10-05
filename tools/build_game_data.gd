@@ -43,6 +43,12 @@ const MOVES := {
 	"volt_dash": ["VOLT DASH", "electric", PHYSICAL, 65, 95, 15, 0, {}, FOE, 0, "A crackling tackle."],
 	"lick": ["LICK", "ghost", PHYSICAL, 30, 100, 30, 0, {}, FOE, 0, "An eerie, chilling lick."],
 	"shade_orb": ["SHADE ORB", "ghost", SPECIAL, 60, 100, 15, 0, {&"special": -1}, FOE, 20, "May lower the foe's SPECIAL."],
+	"heat_wave": ["HEAT WAVE", "fire", SPECIAL, 90, 90, 10, 0, {}, FOE, 0, "A scorching blast of hot air."],
+	"aqua_blast": ["AQUA BLAST", "water", SPECIAL, 90, 90, 10, 0, {}, FOE, 0, "A crashing jet of seawater."],
+	"leaf_storm": ["LEAF STORM", "grass", SPECIAL, 90, 90, 10, 0, {}, FOE, 0, "A whirlwind of razor leaves."],
+	"rock_slide": ["ROCK SLIDE", "rock", PHYSICAL, 75, 90, 10, 0, {}, FOE, 0, "Buries the foe under boulders."],
+	"thunder": ["THUNDER", "electric", SPECIAL, 110, 70, 10, 0, {}, FOE, 0, "A huge but wild lightning bolt."],
+	"phantasm": ["PHANTASM", "ghost", SPECIAL, 85, 100, 10, 0, {&"attack": -1}, FOE, 20, "May lower the foe's ATTACK."],
 	"struggle": ["STRUGGLE", "normal", PHYSICAL, 50, 100, 1, 0, {}, FOE, 0, "Used only when no move has PP left."],
 }
 
@@ -57,29 +63,61 @@ const ABILITIES := {
 }
 
 ## id: [name, element, ability, [hp, attack, defense, special, speed], catch rate, exp yield, learnset, dex entry]
+## In MONDEX order: each evolution right after its pre-evolution.
 const SPECIES := {
 	"flamlet": ["FLAMLET", "fire", "kindle", [39, 52, 43, 55, 65], 45, 62,
 		[[1, "scratch"], [1, "growl"], [7, "ember"], [13, "leer"], [19, "flame_dash"]],
 		"Its tail-flame flickers brighter whenever it is excited."],
+	"blazard": ["BLAZARD", "fire", "kindle", [58, 72, 58, 75, 80], 45, 142,
+		[[1, "scratch"], [1, "growl"], [7, "ember"], [13, "leer"], [19, "flame_dash"], [28, "heat_wave"]],
+		"Its horns glow white-hot when it battles a worthy foe."],
 	"aquapup": ["AQUAPUP", "water", "soak_up", [44, 48, 65, 50, 43], 45, 63,
 		[[1, "tackle"], [1, "growl"], [7, "water_gun"], [13, "harden"], [19, "bubblebeam"]],
 		"Splashes through puddles for hours and never seems to get cold."],
+	"tidehound": ["TIDEHOUND", "water", "soak_up", [62, 66, 82, 68, 60], 45, 143,
+		[[1, "tackle"], [1, "growl"], [7, "water_gun"], [13, "harden"], [19, "bubblebeam"], [28, "aqua_blast"]],
+		"Rides the waves along the coast, its fin crest cutting the spray."],
 	"sproutle": ["SPROUTLE", "grass", "sunsoak", [45, 49, 49, 65, 45], 190, 50,
 		[[1, "tackle"], [3, "growl"], [7, "vine_whip"], [15, "razor_leaf"]],
 		"Naps in sunny patches of tall grass, soaking up light through its leaves."],
+	"grovetle": ["GROVETLE", "grass", "sunsoak", [62, 64, 72, 82, 55], 45, 141,
+		[[1, "tackle"], [3, "growl"], [7, "vine_whip"], [15, "razor_leaf"], [30, "leaf_storm"]],
+		"A small tree takes root on its back. Birds nest in its branches."],
 	"pebblet": ["PEBBLET", "rock", "sturdy_shell", [40, 80, 100, 30, 20], 190, 60,
 		[[1, "tackle"], [1, "harden"], [8, "rock_throw"], [16, "scary_face"]],
 		"Often mistaken for an ordinary rock, until it rolls away."],
+	"bouldron": ["BOULDRON", "rock", "sturdy_shell", [60, 100, 125, 45, 35], 45, 137,
+		[[1, "tackle"], [1, "harden"], [8, "rock_throw"], [16, "scary_face"], [24, "rock_slide"]],
+		"Crystals grow from its shoulders. It can sleep standing up for years."],
 	"zapkit": ["ZAPKIT", "electric", "jolt", [35, 55, 30, 50, 90], 190, 56,
 		[[1, "quick_hit"], [1, "growl"], [6, "spark"], [14, "volt_dash"]],
 		"Its ears crackle with static. Touching them makes your hair stand up."],
+	"voltvix": ["VOLTVIX", "electric", "jolt", [60, 85, 55, 85, 115], 45, 160,
+		[[1, "quick_hit"], [1, "growl"], [6, "spark"], [14, "volt_dash"], [26, "thunder"]],
+		"Its mane crackles with lightning. It can outrun a thunderclap."],
 	"shadeling": ["SHADELING", "ghost", "dread", [30, 35, 30, 100, 80], 120, 62,
 		[[1, "lick"], [1, "scary_face"], [8, "shade_orb"]],
 		"Lurks in the shadows of old houses and giggles at night."],
+	"duskwraith": ["DUSKWRAITH", "ghost", "dread", [55, 60, 50, 125, 105], 45, 160,
+		[[1, "lick"], [1, "scary_face"], [8, "shade_orb"], [24, "phantasm"]],
+		"Drifts through town at dusk, grinning at anyone still outside."],
+}
+
+const BY_LEVEL := Evolution.Method.LEVEL
+const BY_ITEM := Evolution.Method.ITEM
+## Pre-evolution id: [evolved id, BY_LEVEL or BY_ITEM, level or item id].
+const EVOLUTIONS := {
+	"flamlet": ["blazard", BY_LEVEL, 12],
+	"aquapup": ["tidehound", BY_LEVEL, 12],
+	"sproutle": ["grovetle", BY_LEVEL, 12],
+	"pebblet": ["bouldron", BY_LEVEL, 14],
+	"zapkit": ["voltvix", BY_ITEM, "bolt_stone"],
+	"shadeling": ["duskwraith", BY_ITEM, "dusk_stone"],
 }
 
 const BALL := ItemData.Kind.BALL
 const HEAL := ItemData.Kind.HEAL
+const EVOLUTION := ItemData.Kind.EVOLUTION
 
 ## id: [name, kind, catch multiplier or heal amount, price (0 = not sold), description]
 const ITEMS := {
@@ -88,6 +126,8 @@ const ITEMS := {
 	"master_orb": ["MASTER ORB", BALL, 255.0, 0, "Catches any wild\nMONSTER without fail."],
 	"potion": ["POTION", HEAL, 20, 300, "Restores 20 HP to\none MONSTER."],
 	"big_potion": ["BIG POTION", HEAL, 50, 700, "Restores 50 HP to\none MONSTER."],
+	"bolt_stone": ["BOLT STONE", EVOLUTION, 0, 2100, "Makes certain MONSTERS\nevolve. It crackles\nwith static."],
+	"dusk_stone": ["DUSK STONE", EVOLUTION, 0, 2100, "Makes certain MONSTERS\nevolve. It's cold to\nthe touch."],
 }
 
 var _force := false
@@ -101,8 +141,17 @@ func _initialize() -> void:
 	var abilities := {}
 	for id: String in ABILITIES:
 		abilities[id] = _save_or_keep(ABILITY_DIR + id + ".tres", _build_ability.bind(ABILITIES[id]))
+	var species := {}
+	var rebuilt: Array[String] = []
 	for id: String in SPECIES:
-		_save_or_keep(SPECIES_DIR + id + ".tres", _build_species.bind(id, SPECIES[id], moves, abilities))
+		var path := SPECIES_DIR + id + ".tres"
+		if _force or not FileAccess.file_exists(path):
+			rebuilt.append(id)
+		species[id] = _save_or_keep(path, _build_species.bind(id, SPECIES[id], moves, abilities))
+	# Evolutions point at other species, so they're added once all exist.
+	for id: String in EVOLUTIONS:
+		if id in rebuilt:
+			_add_evolution(species[id], species[EVOLUTIONS[id][0]], EVOLUTIONS[id])
 	for id: String in ITEMS:
 		_save_or_keep(ITEM_DIR + id + ".tres", _build_item.bind(id, ITEMS[id]))
 	quit()
@@ -135,14 +184,26 @@ func _build_ability(row: Array) -> Ability:
 	return ability
 
 
-## id: [category, height in m, weight in kg]. MONDEX numbers follow SPECIES order.
+const FAST := MonsterSpecies.Growth.FAST
+const MEDIUM_FAST := MonsterSpecies.Growth.MEDIUM_FAST
+const MEDIUM_SLOW := MonsterSpecies.Growth.MEDIUM_SLOW
+const SLOW := MonsterSpecies.Growth.SLOW
+
+## id: [category, height in m, weight in kg, growth rate]. MONDEX numbers
+## follow SPECIES order.
 const DEX := {
-	"flamlet": ["EMBER LIZARD", 0.6, 8.5],
-	"aquapup": ["PUDDLE PUP", 0.5, 9.0],
-	"sproutle": ["SPROUT TURTLE", 0.4, 7.2],
-	"pebblet": ["PEBBLE", 0.3, 22.0],
-	"zapkit": ["SPARK FOX", 0.4, 4.8],
-	"shadeling": ["WISP", 0.7, 0.1],
+	"flamlet": ["EMBER LIZARD", 0.6, 8.5, MEDIUM_SLOW],
+	"blazard": ["BLAZE DRAKE", 1.1, 19.0, MEDIUM_SLOW],
+	"aquapup": ["PUDDLE PUP", 0.5, 9.0, MEDIUM_SLOW],
+	"tidehound": ["SURF HOUND", 1.2, 35.0, MEDIUM_SLOW],
+	"sproutle": ["SPROUT TURTLE", 0.4, 7.2, MEDIUM_SLOW],
+	"grovetle": ["GROVE TURTLE", 0.9, 48.0, MEDIUM_SLOW],
+	"pebblet": ["PEBBLE", 0.3, 22.0, MEDIUM_SLOW],
+	"bouldron": ["BOULDER", 1.4, 210.0, MEDIUM_SLOW],
+	"zapkit": ["SPARK FOX", 0.4, 4.8, MEDIUM_FAST],
+	"voltvix": ["STORM FOX", 0.9, 21.0, MEDIUM_FAST],
+	"shadeling": ["WISP", 0.7, 0.1, MEDIUM_SLOW],
+	"duskwraith": ["SHADE", 1.5, 0.3, MEDIUM_SLOW],
 }
 
 
@@ -171,7 +232,22 @@ func _build_species(id: String, row: Array, moves: Dictionary, abilities: Dictio
 	species.category = DEX[id][0]
 	species.height = DEX[id][1]
 	species.weight = DEX[id][2]
+	species.growth = DEX[id][3]
 	return species
+
+
+func _add_evolution(from: MonsterSpecies, into: MonsterSpecies, row: Array) -> void:
+	assert(from.growth == into.growth, "%s must share %s's growth rate" % [into.display_name, from.display_name])
+	var evolution := Evolution.new()
+	evolution.into = into
+	evolution.method = row[1]
+	if evolution.method == BY_LEVEL:
+		evolution.level = row[2]
+	else:
+		evolution.item = StringName(row[2])
+	from.evolutions.append(evolution)
+	var error := ResourceSaver.save(from, from.resource_path)
+	print("%s %s (evolves into %s)" % ["wrote" if error == OK else "FAILED (%s)" % error_string(error), from.resource_path, into.display_name])
 
 
 func _build_item(id: String, row: Array) -> ItemData:
@@ -181,7 +257,7 @@ func _build_item(id: String, row: Array) -> ItemData:
 	if item.kind == BALL:
 		item.catch_multiplier = row[2]
 		item.icon = load(ITEM_SPRITE_DIR + id + ".png")
-	else:
+	elif item.kind == HEAL:
 		item.heal_amount = row[2]
 	item.price = row[3]
 	item.description = row[4]

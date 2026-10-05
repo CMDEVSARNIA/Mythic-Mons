@@ -160,7 +160,7 @@ func _test_experience() -> void:
 	var flamlet := _monster(&"flamlet", 6)
 	flamlet.hp -= 3
 	var missing := flamlet.max_hp() - flamlet.hp
-	var levels := flamlet.gain_exp(Monster.exp_for_level(7) - flamlet.experience)
+	var levels := flamlet.gain_exp(flamlet.exp_for_level(7) - flamlet.experience)
 	_check(levels == 1 and flamlet.level == 7, "EXP follows the n^3 curve")
 	_check("EMBER" in _names(flamlet.moves), "level-ups teach the learnset's moves")
 	_check(flamlet.max_hp() - flamlet.hp == missing, "levelling up keeps the damage already taken")
@@ -202,9 +202,10 @@ func _test_items() -> void:
 
 # --- Helpers -------------------------------------------------------------------
 
-## A monster with zero IVs so stats are predictable.
+## A monster with zero IVs and a neutral nature so stats are predictable.
 func _monster(id: StringName, level: int) -> Monster:
 	var monster := Monster.create(GameData.species(id), level)
+	monster.nature = &"HARDY"
 	for stat in Monster.STATS:
 		monster.ivs[stat] = 0
 	monster.hp = monster.max_hp()

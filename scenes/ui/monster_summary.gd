@@ -61,15 +61,17 @@ func _refresh() -> void:
 	var monster := _party[_index]
 	var species := monster.species
 	_art.texture = species.front_texture
-	_header.text = "%s\nLv%d  %s\nHP %d/%d" % [monster.get_display_name(), monster.level,
-		species.element.to_upper(), monster.hp, monster.max_hp()]
+	_header.text = "%s\nLv%d  %s\nHP %d/%d\n%s nature" % [monster.get_display_name(), monster.level,
+		species.element.to_upper(), monster.hp, monster.max_hp(), monster.nature]
 	var next := "MAX" if monster.level >= Monster.MAX_LEVEL else str(monster.exp_to_next_level())
 	var ability := species.ability
 	_info.text = "EXP %d\nNEXT LV %s EXP\nABILITY: %s\n%s" % [monster.experience, next,
 		ability.display_name if ability else "NONE", ability.description if ability else ""]
 	var lines := PackedStringArray()
 	for stat: StringName in [&"attack", &"defense", &"special", &"speed"]:
-		lines.append("%-8s %3d" % [Battle.STAT_NAMES[stat], monster.stat(stat)])
+		# The nature's raised stat gets a +, its lowered one a -.
+		var mark: String = ["-", " ", "+"][monster.nature_effect(stat) + 1]
+		lines.append("%-8s%s%3d" % [Battle.STAT_NAMES[stat], mark, monster.stat(stat)])
 	lines.append("")
 	for i in monster.moves.size():
 		var move := monster.moves[i]

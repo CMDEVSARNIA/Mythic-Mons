@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="MonsterSpecies" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/sunsoak.tres" id="1_iadso"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/grovetle_back.png" id="2_uy06d"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_qqusq"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/grovetle.png" id="4_1bq10"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_x4p4h"]
+[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="6_bpejf"]
+[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_t3tta"]
+[ext_resource type="Resource" path="res://data/moves/vine_whip.tres" id="8_7hykr"]
+[ext_resource type="Resource" path="res://data/moves/razor_leaf.tres" id="9_v4alb"]
+[ext_resource type="Resource" path="res://data/moves/leaf_storm.tres" id="10_4uyhj"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="11_gc82c"]
+
+[sub_resource type="Resource" id="Resource_eson1"]
+script = ExtResource("5_x4p4h")
+move = ExtResource("6_bpejf")
+
+[sub_resource type="Resource" id="Resource_0igqb"]
+script = ExtResource("5_x4p4h")
+level = 3
+move = ExtResource("7_t3tta")
+
+[sub_resource type="Resource" id="Resource_o325m"]
+script = ExtResource("5_x4p4h")
+level = 7
+move = ExtResource("8_7hykr")
+
+[sub_resource type="Resource" id="Resource_4qqyk"]
+script = ExtResource("5_x4p4h")
+level = 15
+move = ExtResource("9_v4alb")
+
+[sub_resource type="Resource" id="Resource_87n0r"]
+script = ExtResource("5_x4p4h")
+level = 30
+move = ExtResource("10_4uyhj")
+
+[resource]
+script = ExtResource("11_gc82c")
+display_name = "GROVETLE"
+element = "grass"
+ability = ExtResource("1_iadso")
+front_texture = ExtResource("4_1bq10")
+back_texture = ExtResource("2_uy06d")
+base_hp = 62
+base_attack = 64
+base_defense = 72
+base_special = 82
+base_speed = 55
+growth = 2
+exp_yield = 141
+learnset = Array[ExtResource("5_x4p4h")]([SubResource("Resource_eson1"), SubResource("Resource_0igqb"), SubResource("Resource_o325m"), SubResource("Resource_4qqyk"), SubResource("Resource_87n0r")])
+dex_number = 6
+category = "GROVE TURTLE"
+height = 0.9
+weight = 48.0
+dex_entry = "A small tree takes root on its back. Birds nest in its branches."

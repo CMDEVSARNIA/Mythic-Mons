@@ -172,6 +172,12 @@ static func sfx(id: StringName) -> AudioStreamWAV:
 			for hz: float in [1046.5, 1318.51, 1567.98, 2093.0, 1567.98, 2093.0]:
 				sparkle.append(tone(Wave.PULSE_12, hz, hz, 0.05, 0.18, 0.12))
 			samples = sequence(sparkle)
+		&"evolve":
+			var fanfare: Array[PackedFloat32Array] = []
+			for hz: float in [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5]:
+				fanfare.append(tone(Wave.PULSE_25, hz, hz, 0.09, 0.22, 0.18))
+			fanfare.append(tone(Wave.PULSE_25, 1318.51, 1318.51, 0.5, 0.22))
+			samples = sequence(fanfare)
 		&"purchase":
 			samples = sequence([tone(Wave.PULSE_25, 1567.98, 1567.98, 0.06, 0.22, 0.15), tone(Wave.PULSE_25, 2093.0, 2093.0, 0.18, 0.22)])
 		&"encounter":

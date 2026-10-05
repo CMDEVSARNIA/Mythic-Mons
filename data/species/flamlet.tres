@@ -1,53 +1,62 @@
 [gd_resource type="Resource" script_class="MonsterSpecies" format=3]
 
-[ext_resource type="Resource" path="res://data/abilities/kindle.tres" id="1_7swx4"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/flamlet_back.png" id="2_0ogma"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/flamlet.png" id="3_ig8gy"]
-[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="4_g0108"]
-[ext_resource type="Resource" path="res://data/moves/scratch.tres" id="5_i8r1u"]
-[ext_resource type="Resource" path="res://data/moves/growl.tres" id="6_d0rsk"]
-[ext_resource type="Resource" path="res://data/moves/ember.tres" id="7_eb42s"]
-[ext_resource type="Resource" path="res://data/moves/leer.tres" id="8_33hny"]
-[ext_resource type="Resource" path="res://data/moves/flame_dash.tres" id="9_50eu5"]
-[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="10_v7fsn"]
+[ext_resource type="Resource" path="res://data/abilities/kindle.tres" id="1_0ogma"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/flamlet_back.png" id="2_ig8gy"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_g0108"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/flamlet.png" id="4_i8r1u"]
+[ext_resource type="Resource" path="res://data/species/blazard.tres" id="4_ig8gy"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_d0rsk"]
+[ext_resource type="Resource" path="res://data/moves/scratch.tres" id="6_eb42s"]
+[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_33hny"]
+[ext_resource type="Resource" path="res://data/moves/ember.tres" id="8_50eu5"]
+[ext_resource type="Resource" path="res://data/moves/leer.tres" id="9_v7fsn"]
+[ext_resource type="Resource" path="res://data/moves/flame_dash.tres" id="10_4wobf"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="11_se78l"]
 
-[sub_resource type="Resource" id="Resource_4wobf"]
-script = ExtResource("4_g0108")
-move = ExtResource("5_i8r1u")
-
-[sub_resource type="Resource" id="Resource_se78l"]
-script = ExtResource("4_g0108")
-move = ExtResource("6_d0rsk")
+[sub_resource type="Resource" id="Resource_g0108"]
+script = ExtResource("3_g0108")
+into = ExtResource("4_ig8gy")
+level = 12
 
 [sub_resource type="Resource" id="Resource_4ik4h"]
-script = ExtResource("4_g0108")
-level = 7
-move = ExtResource("7_eb42s")
+script = ExtResource("5_d0rsk")
+move = ExtResource("6_eb42s")
 
 [sub_resource type="Resource" id="Resource_vbs4v"]
-script = ExtResource("4_g0108")
-level = 13
-move = ExtResource("8_33hny")
+script = ExtResource("5_d0rsk")
+move = ExtResource("7_33hny")
 
 [sub_resource type="Resource" id="Resource_p5f4t"]
-script = ExtResource("4_g0108")
+script = ExtResource("5_d0rsk")
+level = 7
+move = ExtResource("8_50eu5")
+
+[sub_resource type="Resource" id="Resource_28fvr"]
+script = ExtResource("5_d0rsk")
+level = 13
+move = ExtResource("9_v7fsn")
+
+[sub_resource type="Resource" id="Resource_yun52"]
+script = ExtResource("5_d0rsk")
 level = 19
-move = ExtResource("9_50eu5")
+move = ExtResource("10_4wobf")
 
 [resource]
-script = ExtResource("10_v7fsn")
+script = ExtResource("11_se78l")
 display_name = "FLAMLET"
 element = "fire"
-ability = ExtResource("1_7swx4")
-front_texture = ExtResource("3_ig8gy")
-back_texture = ExtResource("2_0ogma")
+ability = ExtResource("1_0ogma")
+front_texture = ExtResource("4_i8r1u")
+back_texture = ExtResource("2_ig8gy")
 base_hp = 39
 base_attack = 52
 base_defense = 43
 base_special = 55
 base_speed = 65
+growth = 2
 exp_yield = 62
-learnset = Array[ExtResource("4_g0108")]([SubResource("Resource_4wobf"), SubResource("Resource_se78l"), SubResource("Resource_4ik4h"), SubResource("Resource_vbs4v"), SubResource("Resource_p5f4t")])
+learnset = Array[ExtResource("5_d0rsk")]([SubResource("Resource_4ik4h"), SubResource("Resource_vbs4v"), SubResource("Resource_p5f4t"), SubResource("Resource_28fvr"), SubResource("Resource_yun52")])
+evolutions = Array[ExtResource("3_g0108")]([SubResource("Resource_g0108")])
 category = "EMBER LIZARD"
 height = 0.6
 weight = 8.5

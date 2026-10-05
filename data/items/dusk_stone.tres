@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1_ejwp5"]
+
+[resource]
+script = ExtResource("1_ejwp5")
+display_name = "DUSK STONE"
+description = "Makes certain MONSTERS
+evolve. It's cold to
+the touch."
+kind = 2
+price = 2100

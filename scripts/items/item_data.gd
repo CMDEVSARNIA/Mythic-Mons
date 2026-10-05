@@ -3,7 +3,7 @@ extends Resource
 ## An item that can be carried in the BAG. Saved as .tres files in
 ## res://data/items/, named by id; GameState.bag counts them by that id.
 
-enum Kind { BALL, HEAL }
+enum Kind { BALL, HEAL, EVOLUTION }
 
 ## Shown in menus; keep it to 10 characters.
 @export var display_name := ""

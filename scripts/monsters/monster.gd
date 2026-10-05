@@ -3,15 +3,28 @@ extends Resource
 ## One individual monster: a species plus its own level, stats, moves and HP.
 ## A Resource so the party can be saved later with ResourceSaver.
 ##
-## Stats use a simplified Generation 3 formula without EVs:
+## Stats use the Generation 3 formula without EVs:
 ##   HP    = (2 * base + iv) * level / 100 + level + 10
-##   other = (2 * base + iv) * level / 100 + 5
-## EXP follows the "medium fast" curve: reaching level n takes n^3 EXP.
+##   other = ((2 * base + iv) * level / 100 + 5) * nature (x1.1, x0.9 or x1)
+## IVs are 0-31. The EXP needed per level depends on the species' growth rate
+## (MonsterSpecies.exp_for_level).
 
 const MAX_LEVEL := 100
 const MAX_MOVES := 4
-const MAX_IV := 15
+const MAX_IV := 31
 const STATS: Array[StringName] = [&"hp", &"attack", &"defense", &"special", &"speed"]
+## Nature -> [stat raised 10%, stat lowered 10%]; the same stat twice means
+## neutral. Like Generation 3's 25, over our four non-HP stats.
+const NATURES := {
+	&"HARDY": [&"attack", &"attack"], &"LONELY": [&"attack", &"defense"],
+	&"BRAVE": [&"attack", &"speed"], &"ADAMANT": [&"attack", &"special"],
+	&"BOLD": [&"defense", &"attack"], &"DOCILE": [&"defense", &"defense"],
+	&"RELAXED": [&"defense", &"speed"], &"IMPISH": [&"defense", &"special"],
+	&"TIMID": [&"speed", &"attack"], &"HASTY": [&"speed", &"defense"],
+	&"SERIOUS": [&"speed", &"speed"], &"JOLLY": [&"speed", &"special"],
+	&"MODEST": [&"special", &"attack"], &"MILD": [&"special", &"defense"],
+	&"QUIET": [&"special", &"speed"], &"BASHFUL": [&"special", &"special"],
+}
 
 @export var species: MonsterSpecies
 ## Leave empty to use the species name.
@@ -19,8 +32,10 @@ const STATS: Array[StringName] = [&"hp", &"attack", &"defense", &"special", &"sp
 @export_range(1, 100) var level := 1
 @export var experience := 0
 @export var hp := 1
-## Individual values 0-15 per stat: why two monsters of one species differ.
+## Individual values 0-31 per stat: why two monsters of one species differ.
 @export var ivs: Dictionary[StringName, int] = {}
+## A key of NATURES.
+@export var nature: StringName = &"HARDY"
 @export var moves: Array[MoveData] = []
 ## Remaining PP, one entry per move.
 @export var pp: PackedInt32Array = []
@@ -31,17 +46,20 @@ static func create(p_species: MonsterSpecies, p_level: int, rng: RandomNumberGen
 	var monster := Monster.new()
 	monster.species = p_species
 	monster.level = clampi(p_level, 1, MAX_LEVEL)
-	monster.experience = exp_for_level(monster.level)
+	monster.experience = monster.exp_for_level(monster.level)
 	for stat in STATS:
 		monster.ivs[stat] = rng.randi_range(0, MAX_IV) if rng else randi_range(0, MAX_IV)
+	var natures := NATURES.keys()
+	monster.nature = natures[rng.randi_range(0, natures.size() - 1) if rng else randi_range(0, natures.size() - 1)]
 	for move in p_species.moves_known_at(monster.level):
 		monster.learn(move)
 	monster.hp = monster.max_hp()
 	return monster
 
 
-static func exp_for_level(p_level: int) -> int:
-	return p_level * p_level * p_level
+## Total EXP needed to reach `p_level`, by the species' growth rate.
+func exp_for_level(p_level: int) -> int:
+	return species.exp_for_level(p_level)
 
 
 func get_display_name() -> String:
@@ -55,7 +73,22 @@ func max_hp() -> int:
 @warning_ignore("integer_division")
 func stat(stat_name: StringName) -> int:
 	var raw: int = (2 * species.base_stat(stat_name) + ivs.get(stat_name, 0)) * level / 100
-	return raw + level + 10 if stat_name == &"hp" else raw + 5
+	if stat_name == &"hp":
+		return raw + level + 10
+	match nature_effect(stat_name):
+		1:
+			return (raw + 5) * 11 / 10
+		-1:
+			return (raw + 5) * 9 / 10
+	return raw + 5
+
+
+## +1 if the nature raises this stat, -1 if it lowers it, 0 otherwise.
+func nature_effect(stat_name: StringName) -> int:
+	var effect: Array = NATURES.get(nature, NATURES[&"HARDY"])
+	if effect[0] == effect[1]:
+		return 0
+	return 1 if stat_name == effect[0] else (-1 if stat_name == effect[1] else 0)
 
 
 func is_fainted() -> bool:
@@ -89,6 +122,34 @@ func replace_move(index: int, move: MoveData) -> void:
 	pp[index] = move.max_pp
 
 
+## The species this monster evolves into now that it has reached its level,
+## or null. Checked after battles in which it leveled up.
+func evolution_by_level() -> MonsterSpecies:
+	for evolution in species.evolutions:
+		if evolution.method == Evolution.Method.LEVEL and level >= evolution.level:
+			return evolution.into
+	return null
+
+
+## The species `item_id` (an evolution stone) turns this monster into, or null.
+func evolution_by_item(item_id: StringName) -> MonsterSpecies:
+	for evolution in species.evolutions:
+		if evolution.method == Evolution.Method.ITEM and evolution.item == item_id:
+			return evolution.into
+	return null
+
+
+## Becomes `into`, keeping level, EXP, IVs, nature, moves and nickname. Max HP
+## changes and current HP moves with it. Returns the moves the new species
+## learns at the current level (the caller decides how to teach them).
+func evolve(into: MonsterSpecies) -> Array[MoveData]:
+	var old_max := max_hp()
+	species = into
+	if not is_fainted():
+		hp = clampi(hp + max_hp() - old_max, 1, max_hp())
+	return species.moves_learned_at(level)
+
+
 ## Plain data for save files. Species and moves are stored by id.
 func to_dict() -> Dictionary:
 	var move_ids: Array[String] = []
@@ -101,6 +162,7 @@ func to_dict() -> Dictionary:
 		"experience": experience,
 		"hp": hp,
 		"ivs": ivs,
+		"nature": String(nature),
 		"moves": move_ids,
 		"pp": Array(pp),
 	}
@@ -116,10 +178,14 @@ static func from_dict(data: Dictionary) -> Monster:
 	monster.species = saved_species
 	monster.nickname = data.get("nickname", "")
 	monster.level = clampi(int(data.get("level", 1)), 1, MAX_LEVEL)
-	monster.experience = int(data.get("experience", exp_for_level(monster.level)))
+	# Kept inside the level's range, in case the growth rate changed.
+	var top := monster.exp_for_level(monster.level + 1) - 1 if monster.level < MAX_LEVEL else monster.exp_for_level(MAX_LEVEL)
+	monster.experience = clampi(int(data.get("experience", 0)), monster.exp_for_level(monster.level), top)
 	var saved_ivs: Dictionary = data.get("ivs", {})
 	for stat in STATS:
 		monster.ivs[stat] = clampi(int(saved_ivs.get(stat, 0)), 0, MAX_IV)
+	var saved_nature := StringName(str(data.get("nature", "HARDY"))) # Neutral for older saves.
+	monster.nature = saved_nature if NATURES.has(saved_nature) else &"HARDY"
 	var saved_pp: Array = data.get("pp", [])
 	var saved_moves: Array = data.get("moves", [])
 	for i in saved_moves.size():

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/move_data.gd" id="1_uxr1e"]
+
+[resource]
+script = ExtResource("1_uxr1e")
+display_name = "PHANTASM"
+element = "ghost"
+category = 1
+power = 85
+max_pp = 10
+stat_changes = Dictionary[StringName, int]({
+&"attack": -1
+})
+effect_chance = 20
+description = "May lower the foe's ATTACK."

@@ -1,48 +1,57 @@
 [gd_resource type="Resource" script_class="MonsterSpecies" format=3]
 
-[ext_resource type="Resource" path="res://data/abilities/sunsoak.tres" id="1_r11uv"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/sproutle_back.png" id="2_5bw8u"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/sproutle.png" id="3_2lcro"]
-[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="4_yg0gu"]
-[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="5_ww8fk"]
-[ext_resource type="Resource" path="res://data/moves/growl.tres" id="6_yv4l1"]
-[ext_resource type="Resource" path="res://data/moves/vine_whip.tres" id="7_2mcgh"]
-[ext_resource type="Resource" path="res://data/moves/razor_leaf.tres" id="8_mgc6s"]
-[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="9_qkwou"]
+[ext_resource type="Resource" path="res://data/abilities/sunsoak.tres" id="1_5bw8u"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/sproutle_back.png" id="2_2lcro"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_yg0gu"]
+[ext_resource type="Resource" path="res://data/species/grovetle.tres" id="4_2lcro"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/sproutle.png" id="4_ww8fk"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_yv4l1"]
+[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="6_2mcgh"]
+[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_mgc6s"]
+[ext_resource type="Resource" path="res://data/moves/vine_whip.tres" id="8_qkwou"]
+[ext_resource type="Resource" path="res://data/moves/razor_leaf.tres" id="9_81drg"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="10_no7ha"]
 
-[sub_resource type="Resource" id="Resource_81drg"]
-script = ExtResource("4_yg0gu")
-move = ExtResource("5_ww8fk")
-
-[sub_resource type="Resource" id="Resource_no7ha"]
-script = ExtResource("4_yg0gu")
-level = 3
-move = ExtResource("6_yv4l1")
+[sub_resource type="Resource" id="Resource_yg0gu"]
+script = ExtResource("3_yg0gu")
+into = ExtResource("4_2lcro")
+level = 12
 
 [sub_resource type="Resource" id="Resource_m2mlv"]
-script = ExtResource("4_yg0gu")
-level = 7
-move = ExtResource("7_2mcgh")
+script = ExtResource("5_yv4l1")
+move = ExtResource("6_2mcgh")
 
 [sub_resource type="Resource" id="Resource_vbnvs"]
-script = ExtResource("4_yg0gu")
+script = ExtResource("5_yv4l1")
+level = 3
+move = ExtResource("7_mgc6s")
+
+[sub_resource type="Resource" id="Resource_8cvj6"]
+script = ExtResource("5_yv4l1")
+level = 7
+move = ExtResource("8_qkwou")
+
+[sub_resource type="Resource" id="Resource_108tm"]
+script = ExtResource("5_yv4l1")
 level = 15
-move = ExtResource("8_mgc6s")
+move = ExtResource("9_81drg")
 
 [resource]
-script = ExtResource("9_qkwou")
+script = ExtResource("10_no7ha")
 display_name = "SPROUTLE"
 element = "grass"
-ability = ExtResource("1_r11uv")
-front_texture = ExtResource("3_2lcro")
-back_texture = ExtResource("2_5bw8u")
+ability = ExtResource("1_5bw8u")
+front_texture = ExtResource("4_ww8fk")
+back_texture = ExtResource("2_2lcro")
 base_attack = 49
 base_defense = 49
 base_special = 65
+growth = 2
 catch_rate = 190
 exp_yield = 50
-learnset = Array[ExtResource("4_yg0gu")]([SubResource("Resource_81drg"), SubResource("Resource_no7ha"), SubResource("Resource_m2mlv"), SubResource("Resource_vbnvs")])
-dex_number = 3
+learnset = Array[ExtResource("5_yv4l1")]([SubResource("Resource_m2mlv"), SubResource("Resource_vbnvs"), SubResource("Resource_8cvj6"), SubResource("Resource_108tm")])
+evolutions = Array[ExtResource("3_yg0gu")]([SubResource("Resource_yg0gu")])
+dex_number = 5
 category = "SPROUT TURTLE"
 height = 0.4
 weight = 7.2

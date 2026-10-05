@@ -122,7 +122,7 @@ one anyway:
 
 ## The monsters
 
-![The six monsters from the front (top) and from behind (bottom)](images/monsters.png)
+![The six base monsters (top) and what they evolve into (bottom)](images/monsters.png)
 
 Each monster has a 32 × 32 front sprite (the wild side of a battle, menus and
 the starter choice) and a back sprite (your side of a battle). They're drawn

@@ -27,14 +27,16 @@ Mythic-Mons/
 │   │   └── *.tscn             Emberfall (home, lab, REN's house), Route 1, Tidewater
 │   │                          (MART, MONSTER CENTER, seaside house)
 │   ├── objects/               Warp, SpawnPoint, Signpost, CUT tree, ROCK SMASH boulder
-│   ├── battle/                BattleScene (menus + animation), BattlerPanel, StatBar
+│   ├── battle/                BattleScene (menus + animation), BattlerPanel, StatBar,
+│   │                          EvolutionScene
 │   └── ui/                    Dialogue box (autoload), choice box, map banner, party menu,
-│                              monster summary, shop menu, quantity box, MONDEX
+│                              monster summary, shop menu, quantity box, MONDEX,
+│                              MoveTutor (learning a move, forgetting one if needed)
 ├── scripts/                   Non-scene code (class_name utilities)
 │   ├── core/                  Grid, PhysicsLayers, Terrain, GameData (id → resource lookups)
-│   ├── monsters/              MonsterSpecies, MoveData, LevelMove, Monster, TypeChart,
-│   │                          Ability + abilities/ (one script per behavior)
-│   ├── items/                 ItemData (orbs, potions)
+│   ├── monsters/              MonsterSpecies, MoveData, LevelMove, Evolution, Monster,
+│   │                          TypeChart, Ability + abilities/ (one script per behavior)
+│   ├── items/                 ItemData (orbs, potions, evolution stones)
 │   ├── battle/                Battle (the rules) and Battler (a monster on the field)
 │   ├── art/                   pixel_art.gd (tiles, objects, monsters, sheets),
 │   │                          character_designs.gd (hand-drawn character parts) and
@@ -42,10 +44,10 @@ Mythic-Mons/
 │   │                          world_tiles.gd (WorldTiles: the map atlas layout)
 │   └── audio/                 ChipSynth (SFX), Chiptune (sequencer), Songs (music data)
 ├── data/                      Game data as .tres, file name = id
-│   ├── species/               flamlet, aquapup, sproutle, pebblet, zapkit, shadeling
+│   ├── species/               flamlet, blazard, aquapup, tidehound, ... (12, in dex order)
 │   ├── moves/                 tackle, ember, water_gun, ...
 │   ├── abilities/             kindle, soak_up, sunsoak, sturdy_shell, jolt, dread
-│   └── items/                 mon_orb, super_orb, master_orb, potion
+│   └── items/                 mon_orb, super_orb, master_orb, potion, bolt_stone, ...
 ├── assets/
 │   ├── placeholder/           Generated PNGs: tiles, characters, objects, monsters
 │   ├── characters/townsfolk/  NPC sheets converted from a downloaded pack (source/)
@@ -57,7 +59,8 @@ Mythic-Mons/
 │   └── audio/music, sfx/      Drop real audio here to replace the generated sounds
 ├── tools/                     Headless generators (art, TileSet, starter maps, game data)
 │                              and the town-tile and townsfolk importers
-├── tests/                     battle_test, game_state_test (rules), smoke_test (plays the game)
+├── tests/                     battle_test, monster_test, game_state_test (rules),
+│                              smoke_test (plays the game), npc_test (every NPC and sign)
 └── docs/                      This file, ASSETS.md
 ```
 
@@ -87,11 +90,11 @@ Main (Node)                              main.gd
 ├── UI (CanvasLayer, layer 5)
 │   ├── MapBanner (PanelContainer)       location name that slides in
 │   ├── StartMenuArea (MarginContainer)
-│   │   └── StartMenu (choice_box.tscn)  MONSTERS / BAG / FLY / SAVE / EXIT
+│   │   └── StartMenu (choice_box.tscn)  MONDEX / MONSTERS / BAG / FLY / SAVE / EXIT
 │   ├── HintBox (PanelContainer)         item descriptions while browsing the BAG
 │   ├── PartyMenu (party_menu.tscn)      party list + MonsterSummary
 │   └── TitleScreen (Control)            CONTINUE / NEW GAME when a save exists
-├── BattleLayer (CanvasLayer, layer 8)   a BattleScene is added here during battles
+├── BattleLayer (CanvasLayer, layer 8)   a BattleScene (or EvolutionScene) is added here
 └── Transition (CanvasLayer, layer 20)
     └── Fade (ColorRect)                 fades and encounter flashes
 ```
@@ -211,16 +214,27 @@ and badges.
 
 | Resource | Holds |
 |---|---|
-| `MonsterSpecies` (`data/species/*.tres`) | Name, element, ability, front/back sprites, 5 base stats, catch rate, EXP yield, learnset (`LevelMove` entries) |
+| `MonsterSpecies` (`data/species/*.tres`) | Name, element, ability, front/back sprites, 5 base stats, catch rate, EXP yield, EXP curve (`growth`), learnset (`LevelMove` entries), `evolutions`, MONDEX number and entry |
+| `Evolution` (inside a species) | What it evolves `into`, and how: `LEVEL` (at `level` or above) or `ITEM` (an evolution stone's id) |
 | `MoveData` (`data/moves/*.tres`) | Name, element, PHYSICAL/SPECIAL/STATUS, power, accuracy, PP, priority, optional stat changes |
 | `Ability` subclasses (`data/abilities/*.tres`) | A configured behavior, e.g. `ElementBoostAbility` with element = fire is KINDLE |
-| `Monster` (runtime, a Resource so it can be saved) | Species, level, EXP, current HP, IVs, moves and remaining PP |
+| `Monster` (runtime, a Resource so it can be saved) | Species, level, EXP, current HP, IVs, nature, moves and remaining PP |
 
-Stats are simplified from Generation 3: five stats (HP, ATTACK, DEFENSE,
-SPECIAL, SPEED, where one SPECIAL serves for both attack and defense as in
-the 8-bit games), IVs 0-15, no EVs, and the "medium fast" n³ EXP curve. Maps
-and code refer to species, moves and items by id (`GameData.species(&"zapkit")`),
-and the id is the file name.
+Stats follow Generation 3 with two simplifications: five stats (HP, ATTACK,
+DEFENSE, SPECIAL, SPEED, where one SPECIAL serves for both attack and defense
+as in the 8-bit games) and no EVs.
+
+- **IVs** are 0-31 per stat, rolled when a monster is created.
+- **Natures** (`Monster.NATURES`, 16 of them) raise one non-HP stat by 10%
+  and lower another. The five where both are the same stat are neutral.
+- **Formulas:** HP = (2·base + IV)·L/100 + L + 10, and every other stat is
+  ((2·base + IV)·L/100 + 5) × nature, with integer math as in Gen 3.
+- **EXP curves** (`MonsterSpecies.Growth`) are Gen 3's: FAST (4n³/5),
+  MEDIUM_FAST (n³), MEDIUM_SLOW (6n³/5 − 15n² + 100n − 140) and SLOW
+  (5n³/4). `species.exp_for_level(n)` is the total EXP at level n.
+
+Maps and code refer to species, moves and items by id
+(`GameData.species(&"zapkit")`), and the id is the file name.
 
 ### Rules vs. presentation
 
@@ -284,9 +298,31 @@ Each step into tall grass rolls `WorldMap.encounter_rate` against
 against `water_monsters`. A hit emits `Events.wild_encounter(species_id)`.
 Main marks the species as seen, plays the battle music and flash, rolls a
 level from `WorldMap.wild_levels`, builds the wild `Monster`, fades to the
-BattleScene, and awaits `run()`. A win awards EXP
-(level-ups may teach moves, with a forget-a-move prompt once four are known).
-A loss heals the party and respawns the player at `GameState.respawn_map`.
+BattleScene, and awaits `run()`. A win awards EXP. Level-ups may teach moves
+through `MoveTutor.teach()`, which asks which move to forget once four are
+known. A loss heals the party and respawns the player at
+`GameState.respawn_map`.
+
+### Evolution
+
+BattleScene lists the monsters that leveled up in `leveled_up`. Once the
+battle is over, Main checks each one with `monster.evolution_by_level()` and
+plays `EvolutionScene.run(monster, into, can_cancel)` for each match, on
+`BattleLayer`. The scene flashes white silhouettes of the old and new forms,
+faster and faster. Holding B (`cancel`) stops a level evolution, and it's
+offered again at the next level-up, as in Emerald.
+
+Evolution stones (`ItemData.Kind.EVOLUTION`) are used from the start menu's
+BAG: Main asks for a party member, checks `monster.evolution_by_item(id)`,
+and on a match uses up the stone and plays the same scene with
+`can_cancel = false`. A stone that doesn't apply says "It won't have any
+effect." and is kept. BattleScene's BAG doesn't list stones.
+
+`Monster.evolve(into)` swaps the species and keeps everything else: level,
+EXP, IVs, nature, moves, PP and nickname. Current HP rises by however much max
+HP did, so damage taken carries over. It returns the new species' moves for
+the current level, which the scene teaches with `MoveTutor`. The scene also
+marks the new species as caught in the MONDEX.
 
 ### Adding a monster or move
 
@@ -297,6 +333,10 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
    quick stand-in), then rerun the art tool. Or point
    `front_texture`/`back_texture` at real 32 × 32 or 64 × 64 sprites.
 3. Add its id to a map's `wild_monsters`.
+4. To make it evolve, add a row to `EVOLUTIONS` in `tools/build_game_data.gd`
+   (the tool checks that both forms use the same EXP curve), or add an
+   `Evolution` to the species' `evolutions` in the inspector. A new stone is
+   an `ItemData` with `kind = EVOLUTION`; add its id to a clerk's `stock`.
 
 ## Story, party & saving
 
@@ -335,7 +375,9 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
 - **Saving.** SAVE writes `user://save.json`: the player's map, cell,
   facing and surf state, plus the party, BOX, BAG, money, MONDEX, flags,
   Fly towns and respawn. Saves from before the MONDEX count everything you
-  own as caught. Monsters store species and move *ids*, not resource paths. A
+  own as caught, monsters without a nature get HARDY (neutral), and EXP is
+  clamped to each species' curve. Monsters store species and move *ids*, not
+  resource paths. A
   save survives refactors as long as ids stay the same, and unknown species
   or moves are skipped rather than crashing. It's JSON because loading a
   `.tres` can run scripts embedded in it, and players edit and share save
@@ -376,16 +418,24 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
   damage formulas, type chart, stages, turn order and priority, all six
   abilities, winning, losing, forced switches, running, PP, STRUGGLE,
   level-ups, catch odds, orbs and POTIONs (47 checks).
+- `tests/monster_test.gd` covers the four EXP curves, IV ranges, every
+  nature turning up, nature effects on stats, level and stone evolution
+  (what's kept and what changes), and that evolutions share their
+  pre-evolution's curve (20 checks).
 - `tests/game_state_test.gd` covers the party, BOX, BAG limits, money, the
-  MONDEX, flags, monster serialization, a full save/load round trip, and
-  corrupt or newer-version saves (32 checks). It uses its own save file.
+  MONDEX, flags, monster serialization (natures included, and older saves
+  without one), a full save/load round trip, and corrupt or newer-version
+  saves (34 checks). It uses its own save file.
 - `tests/smoke_test.gd` plays the real game by injecting input: movement,
   signs, NPCs, CUT, doors, the starter gate and PROF. ASTER's starter,
-  ledges, ROCK SMASH, a won battle, a catch, a whiteout, MOM's healing, the
+  ledges, ROCK SMASH, a won battle whose level-up evolution is stopped with
+  B, a catch, a whiteout, MOM's healing, the
   MONDEX list and page, party screen, summary and SWITCH, POTIONs from the
-  BAG, SAVE, CONTINUE from the title screen, SURF and a battle at sea,
-  buying and selling in the MART, healing at the MONSTER CENTER, entering and
-  leaving every building, and FLY (65 checks).
+  BAG, SAVE, CONTINUE from the title screen, SURF and a battle at sea
+  (SPROUTLE evolves into GROVETLE afterwards), buying and selling in the
+  MART, a BOLT STONE from the BAG (on the wrong monster, then on ZAPKIT),
+  healing at the MONSTER CENTER, entering and leaving every building, and
+  FLY (78 checks).
   It uses its own save file.
 - `tests/npc_test.gd` visits every map and talks to every NPC and sign,
   standing where a player could (a reachable neighboring cell, counting CUT,
@@ -394,6 +444,7 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
 
 ```sh
 godot --headless --path . --script res://tests/battle_test.gd
+godot --headless --path . --script res://tests/monster_test.gd
 godot --headless --path . --script res://tests/game_state_test.gd
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
 godot --headless --path . --fixed-fps 60 --script res://tests/npc_test.gd

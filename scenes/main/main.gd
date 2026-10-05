@@ -9,6 +9,7 @@ extends Node
 
 const FADE_SECONDS := 0.25
 const BATTLE_SCENE := preload("res://scenes/battle/battle_scene.tscn")
+const EVOLUTION_SCENE := preload("res://scenes/battle/evolution_scene.tscn")
 
 @export_file("*.tscn") var start_map := "res://scenes/maps/town_emberfall.tscn"
 @export var start_spawn: StringName = &"default"
@@ -157,6 +158,7 @@ func _open_start_menu() -> void:
 
 ## The BAG outside battle: POTIONs can be used on any party member.
 func _open_bag() -> void:
+	var first := true
 	while true:
 		var ids: Array[StringName] = []
 		var items: Array[ItemData] = []
@@ -168,8 +170,10 @@ func _open_bag() -> void:
 				items.append(item)
 				options.append("%-10s x%2d" % [item.display_name, GameState.bag[id]])
 		if ids.is_empty():
-			await Dialogue.say(["Your BAG is empty."])
+			if first: # After using the last item, just go back to the menu.
+				await Dialogue.say(["Your BAG is empty."])
 			return
+		first = false
 		options.append("CANCEL")
 		var describe := func(index: int) -> void:
 			hint_label.text = items[index].description if index < items.size() else "Close the BAG."
@@ -184,6 +188,9 @@ func _open_bag() -> void:
 
 
 func _use_item(id: StringName, item: ItemData) -> void:
+	if item.kind == ItemData.Kind.EVOLUTION:
+		await _use_evolution_item(id)
+		return
 	if item.kind != ItemData.Kind.HEAL:
 		await Dialogue.say(["There's a time and place\nfor that... This isn't it."])
 		return
@@ -202,6 +209,37 @@ func _use_item(id: StringName, item: ItemData) -> void:
 	GameState.remove_item(id)
 	Audio.play_sfx(&"heal")
 	await Dialogue.say(["%s's HP was\nrestored by %d points." % [monster.get_display_name(), healed]])
+
+
+## Evolution stones: pick a party member; the stone is used up if it works.
+func _use_evolution_item(id: StringName) -> void:
+	if GameState.party.is_empty():
+		await Dialogue.say(["You don't have any\nMONSTERS yet."])
+		return
+	var target: int = await party_menu.pick("Use on which MONSTER?")
+	if target < 0:
+		return
+	var monster := GameState.party[target]
+	var into := monster.evolution_by_item(id)
+	if into == null:
+		await Dialogue.say(["It won't have any effect."])
+		return
+	GameState.remove_item(id)
+	await _fade_to(1.0)
+	await _evolve(monster, into, false)
+	await _fade_to(0.0)
+
+
+## Shows the evolution screen over everything. Expects (and leaves) the screen
+## faded to black. Returns false if the player stopped the evolution.
+func _evolve(monster: Monster, into: MonsterSpecies, can_cancel: bool) -> bool:
+	var scene: EvolutionScene = EVOLUTION_SCENE.instantiate()
+	battle_layer.add_child(scene)
+	await _fade_to(0.0)
+	var evolved: bool = await scene.run(monster, into, can_cancel)
+	await _fade_to(1.0)
+	scene.queue_free()
+	return evolved
 
 
 func _save() -> void:
@@ -265,8 +303,14 @@ func _run_battle(wild: Monster) -> Battle.Outcome:
 	battle_layer.add_child(battle)
 	await _fade_to(0.0)
 	var outcome: Battle.Outcome = await battle.run(GameState.party, wild)
+	var leveled_up: Array[Monster] = battle.leveled_up
 	await _fade_to(1.0)
 	battle.queue_free()
+	# Like Emerald, monsters that leveled up evolve once the battle is over.
+	for monster in leveled_up:
+		var into := monster.evolution_by_level()
+		if into and not monster.is_fainted():
+			await _evolve(monster, into, true)
 	world.process_mode = Node.PROCESS_MODE_INHERIT
 	if outcome != Battle.Outcome.LOST:
 		Audio.play_music(current_map.music)

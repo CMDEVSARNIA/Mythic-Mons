@@ -17,12 +17,20 @@ extends Resource
 @export_range(1, 255) var base_special := 45
 @export_range(1, 255) var base_speed := 45
 
+## How much EXP each level takes (Generation 3's curves; 100 is reached at
+## 800,000 / 1,000,000 / 1,059,860 / 1,250,000 EXP).
+enum Growth { FAST, MEDIUM_FAST, MEDIUM_SLOW, SLOW }
+
 @export_group("Growth")
+## Evolutions must share their pre-evolution's growth rate.
+@export var growth := Growth.MEDIUM_FAST
 ## 3 (very hard) to 255 (very easy). Used by the catching formula.
 @export_range(1, 255) var catch_rate := 45
 ## EXP awarded for defeating it is exp_yield * its level / 7.
 @export_range(1, 400) var exp_yield := 60
 @export var learnset: Array[LevelMove] = []
+## How this species evolves, if it does.
+@export var evolutions: Array[Evolution] = []
 
 @export_group("MONDEX")
 ## Position in the MONDEX list (No. 001 and up).
@@ -32,6 +40,20 @@ extends Resource
 @export_range(0.1, 99.9, 0.1, "suffix:m") var height := 0.5
 @export_range(0.1, 999.9, 0.1, "suffix:kg") var weight := 5.0
 @export_multiline var dex_entry := ""
+
+
+## Total EXP needed to reach `level`.
+@warning_ignore("integer_division")
+func exp_for_level(level: int) -> int:
+	var n := level
+	match growth:
+		Growth.FAST:
+			return 4 * n * n * n / 5
+		Growth.MEDIUM_SLOW:
+			return maxi(0, 6 * n * n * n / 5 - 15 * n * n + 100 * n - 140)
+		Growth.SLOW:
+			return 5 * n * n * n / 4
+	return n * n * n
 
 
 func base_stat(stat: StringName) -> int:

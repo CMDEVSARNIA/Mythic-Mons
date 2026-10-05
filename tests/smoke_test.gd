@@ -1,7 +1,8 @@
 extends SceneTree
 ## Automated walkthrough of the prototype. It plays the real game by injecting
 ## input events and checks the results, from the first steps through getting
-## a starter, battling, catching, the start menu, saving and continuing.
+## a starter, battling, catching, evolving, the start menu, saving and
+## continuing.
 ##
 ## Logic only (fast, no window):
 ##   godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
@@ -143,7 +144,12 @@ func _run() -> void:
 	await _tap(&"move_up")
 	_check(_player.get_cell() == Vector2i(2, 15), "ROCK SMASH opens the hidden pocket")
 
-	# --- Wild battles --------------------------------------------------------
+	# --- Wild battles and evolution ------------------------------------------
+	# FLAMLET is one EXP point short of level 12, where it evolves.
+	var lead: Resource = _game_state.party[0]
+	lead.level = 11
+	lead.experience = lead.exp_for_level(12) - 1
+	lead.hp = lead.max_hp()
 	var route: Node2D = _main.current_map
 	route.encounter_rate = 1.0
 	route.wild_monsters.assign([&"sproutle"])
@@ -154,9 +160,17 @@ func _run() -> void:
 	_check(_battle_scene() != null, "tall grass starts a wild battle")
 	_shot("07_battle_intro")
 	await _press_through_battle()
-	_check(_battle_scene() == null and _map_name() == "ROUTE 1" and not _player.is_locked(), "winning a battle returns to the overworld")
-	var lead: Resource = _game_state.party[0]
-	_check(lead.experience > 125, "the winner earns EXP")
+	_check(lead.level == 12, "the winner earns EXP and levels up")
+	_check(await _until_evolution_text(), "reaching level 12 after a battle starts FLAMLET's evolution")
+	_shot("24_evolution_start")
+	await _close_dialogue() # "What? FLAMLET is evolving!"
+	await _wait(0.6)
+	_shot("25_evolution_flash")
+	await _hold(&"cancel", 0.5)
+	_check(_dialogue.is_open and lead.species.display_name == "FLAMLET", "holding B stops the evolution")
+	await _press_through_evolutions()
+	_check(not _game_state.seen.has(&"blazard"), "...without registering BLAZARD")
+	_check(_battle_scene() == null and _map_name() == "ROUTE 1" and not _player.is_locked(), "the battle returns to the overworld")
 
 	# --- Catching ------------------------------------------------------------
 	_game_state.bag.assign({&"master_orb": 1})
@@ -207,8 +221,8 @@ func _run() -> void:
 	_check(dex_menu.get_node(^"Page").visible, "a caught entry opens its MONDEX page")
 	_shot_once("12_mondex_page")
 	await _tap(&"cancel")
-	await _tap(&"move_down")
-	await _tap(&"move_down") # No. 003 SPROUTLE
+	for i in 4: # No. 002 BLAZARD (unseen), 003 AQUAPUP, 004 TIDEHOUND, 005 SPROUTLE
+		await _tap(&"move_down")
 	_shot_once("12_mondex")
 	await _tap(&"cancel")
 	_check(not dex_menu.visible, "B closes the MONDEX")
@@ -286,11 +300,22 @@ func _run() -> void:
 	_check(_player.is_surfing and _player.get_cell() == Vector2i(6, 4), "SURF hops onto the water")
 	town.water_encounter_rate = 1.0
 	town.wild_levels = Vector2i(2, 2)
+	var sprout: Resource = _game_state.party[0]
+	sprout.level = 11
+	sprout.experience = sprout.exp_for_level(12) - 1
+	sprout.hp = sprout.max_hp()
 	await _tap(&"move_up")
 	await _wait(2.5)
 	_check(_battle_scene() != null, "wild monsters can appear while surfing")
 	await _press_through_battle()
 	_check(_game_state.seen.has(&"aquapup") and not _game_state.caught.has(&"aquapup"), "monsters you battle are marked as seen")
+	_check(await _until_evolution_text(), "SPROUTLE starts evolving after the battle")
+	await _press_through_evolutions(func() -> void:
+		if sprout.species.display_name == "GROVETLE" and _dialogue.is_open and not _dialogue.get(&"_typing"):
+			_shot_once("26_evolved"))
+	_check(sprout.species.display_name == "GROVETLE" and sprout.level == 12, "...and becomes GROVETLE at the same level")
+	_check(_game_state.caught.has(&"grovetle"), "evolving registers the new form in the MONDEX")
+	_check(not _player.is_locked() and _player.is_surfing, "control returns after evolving, still surfing")
 	town.water_encounter_rate = 0.0
 	_shot("18_surfing")
 	await _tap(&"move_left")
@@ -343,6 +368,30 @@ func _run() -> void:
 	await _tap(&"move_down")
 	await _wait(1.0)
 	_check(_map_name() == "TIDEWATER CITY" and _player.get_cell() == Vector2i(4, 12), "the mat leads back out of the MART")
+
+	# --- Evolution stones ----------------------------------------------------
+	_game_state.add_monster(load("res://scripts/monsters/monster.gd").create(load("res://data/species/zapkit.tres"), 8))
+	_game_state.bag.assign({&"bolt_stone": 1})
+	await _open_bag_item()
+	await _tap(&"confirm") # On GROVETLE, which no stone evolves.
+	await _close_dialogue()
+	_check(_game_state.item_count(&"bolt_stone") == 1, "a stone that won't work isn't used up")
+	await _tap(&"cancel") # Close the BAG...
+	await _tap(&"cancel") # ...and the start menu.
+	await _open_bag_item()
+	await _tap(&"move_down")
+	await _tap(&"move_down")
+	await _tap(&"confirm") # On ZAPKIT, in the third slot.
+	_check(await _until_evolution_text(), "a BOLT STONE starts ZAPKIT's evolution")
+	await _close_dialogue() # "What? ZAPKIT is evolving!"
+	await _hold(&"cancel", 0.5)
+	_check(not _dialogue.is_open, "B can't stop a stone evolution")
+	await _press_through_evolutions()
+	var zap: Resource = _game_state.party[2]
+	_check(zap.species.display_name == "VOLTVIX" and not _game_state.bag.has(&"bolt_stone"), "...which makes VOLTVIX and uses up the stone")
+	_check(_main.start_menu.visible, "...then returns to the start menu")
+	await _tap(&"cancel")
+	_check(not _player.is_locked(), "closing it returns control")
 
 	# --- MONSTER CENTER and the other houses -----------------------------------
 	await _place(Vector2i(19, 12), Vector2i.UP)
@@ -411,11 +460,51 @@ func _until_action_menu() -> void:
 
 
 func _battle_scene() -> Control:
+	return _on_battle_layer("battle_scene.tscn")
+
+
+func _evolution_scene() -> Control:
+	return _on_battle_layer("evolution_scene.tscn")
+
+
+func _on_battle_layer(scene_file: String) -> Control:
 	var layer: CanvasLayer = _main.battle_layer
 	for child in layer.get_children():
-		if not child.is_queued_for_deletion():
+		if not child.is_queued_for_deletion() and child.scene_file_path.get_file() == scene_file:
 			return child
 	return null
+
+
+## Waits for the evolution screen's opening "What? X is evolving!" text.
+## Returns false if it never shows up.
+func _until_evolution_text() -> bool:
+	for i in 40:
+		if _evolution_scene() != null and _dialogue.is_open:
+			return true
+		await _wait(0.1)
+	return false
+
+
+## Presses A through the evolution screen (and any new moves) until it has
+## closed. `on_page` runs before each press.
+func _press_through_evolutions(on_page := Callable()) -> void:
+	for i in 60:
+		if _evolution_scene() == null and not _dialogue.is_open:
+			break
+		if on_page.is_valid():
+			on_page.call()
+		await _tap(&"confirm")
+	await _wait(1.0)
+
+
+## Opens the start menu's BAG and picks its first item, ending on the party
+## screen's "Use on which MONSTER?".
+func _open_bag_item() -> void:
+	await _tap(&"menu")
+	await _tap(&"move_down")
+	await _tap(&"move_down") # BAG
+	await _tap(&"confirm")
+	await _tap(&"confirm")
 
 
 ## Walks in through the door above `outside`, checks the map name, and walks

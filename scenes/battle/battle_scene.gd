@@ -18,6 +18,8 @@ const SPRITE_HEIGHT := 64.0
 const CANCELLED := -2
 
 var battle: Battle
+## Monsters that leveled up this battle; Main checks them for evolutions.
+var leveled_up: Array[Monster] = []
 var _last_action := 0
 var _last_move := 0
 
@@ -135,7 +137,8 @@ func _choose_item() -> StringName:
 	var options := PackedStringArray()
 	for id: StringName in GameState.bag:
 		var item := GameData.item(id)
-		if item and GameState.bag[id] > 0:
+		# Evolution stones are for the field, not battle.
+		if item and GameState.bag[id] > 0 and item.kind != ItemData.Kind.EVOLUTION:
 			ids.append(id)
 			items.append(item)
 			options.append("%-10s x%2d" % [item.display_name, GameState.bag[id]])
@@ -255,7 +258,9 @@ func _victory() -> void:
 			_player_panel.show_monster(monster)
 			await _say(["%s grew to\nLv. %d!" % [monster.get_display_name(), monster.level]])
 			for move in new_moves:
-				await _learn_move(monster, move)
+				await MoveTutor.teach(monster, move)
+			if not monster in leveled_up:
+				leveled_up.append(monster)
 	monster.experience += remaining
 
 
@@ -268,34 +273,6 @@ func _add_caught_monster() -> void:
 		await _say(["%s joined\nyour party!" % monster.get_display_name()])
 	else:
 		await _say(["Your party is full.\n%s was sent\nto the BOX." % monster.get_display_name()])
-
-
-func _learn_move(monster: Monster, move: MoveData) -> void:
-	var monster_name := monster.get_display_name()
-	if move in monster.moves:
-		return
-	if monster.learn(move):
-		await _say(["%s learned\n%s!" % [monster_name, move.display_name]])
-		return
-	await _say(["%s is trying to\nlearn %s." % [monster_name, move.display_name],
-		"But %s can't learn\nmore than four moves." % monster_name])
-	while true:
-		if await Dialogue.ask("Forget a move to make\nroom for %s?" % move.display_name) != 0:
-			await _say(["%s did not learn\n%s." % [monster_name, move.display_name]])
-			return
-		var names := PackedStringArray()
-		for known in monster.moves:
-			names.append(known.display_name)
-		names.append("CANCEL")
-		_prompt.text = "Which move should\nbe forgotten?"
-		var index: int = await _list_menu.choose(names)
-		_prompt.text = ""
-		if index >= 0 and index < monster.moves.size():
-			var forgotten := monster.moves[index].display_name
-			monster.replace_move(index, move)
-			await _say(["1, 2, and... Poof!", "%s forgot %s.\nAnd..." % [monster_name, forgotten],
-				"%s learned\n%s!" % [monster_name, move.display_name]])
-			return
 
 
 # --- Animation ---------------------------------------------------------------

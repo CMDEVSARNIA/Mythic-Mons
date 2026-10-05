@@ -53,19 +53,24 @@ func _test_mondex() -> void:
 	_check(state.seen.has(&"zapkit") and not state.caught.has(&"zapkit"), "meeting a monster marks it as seen")
 	_check(state.caught.has(&"aquapup") and state.seen.has(&"aquapup"), "getting a monster marks it as caught and seen")
 	var numbers := GameData.all_species().map(func(species: MonsterSpecies) -> int: return species.dex_number)
-	_check(numbers == [1, 2, 3, 4, 5, 6], "the MONDEX lists every species in number order")
+	_check(numbers == range(1, 13), "the MONDEX lists all 12 species in number order")
 	state.free()
 
 
 func _test_monster_round_trip() -> void:
 	var original := _monster(&"flamlet", 12)
 	original.nickname = "BLAZE"
+	original.nature = &"ADAMANT"
 	original.hp = 7
 	original.pp[0] = 3
 	var copy := Monster.from_dict(JSON.parse_string(JSON.stringify(original.to_dict())))
 	_check(copy != null and copy.species == original.species and copy.nickname == "BLAZE", "a monster survives a save/load round trip")
 	_check(copy.level == 12 and copy.hp == 7 and copy.experience == original.experience, "level, HP and EXP are kept")
 	_check(copy.moves == original.moves and copy.pp == original.pp and copy.ivs == original.ivs, "moves, PP and IVs are kept")
+	_check(copy.nature == &"ADAMANT", "the nature is kept")
+	var old_save := original.to_dict()
+	old_save.erase("nature")
+	_check(Monster.from_dict(old_save).nature == &"HARDY", "monsters from older saves get a neutral nature")
 	_check(Monster.from_dict({"species": "missingno"}) == null, "unknown species are skipped instead of crashing")
 
 

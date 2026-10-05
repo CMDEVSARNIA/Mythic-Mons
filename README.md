@@ -7,7 +7,8 @@ built with **Godot 4.7** and GDScript.
 
 So far: tile-locked movement, a multi-town world, dialogue, field moves,
 a starter from the local professor, turn-based wild battles with unique
-abilities, EXP and level-ups, catching, a party screen, and saving.
+abilities, EXP and level-ups, evolution, catching, a MONDEX, a MART, a party
+screen, and saving.
 The world (towns, routes, interiors, signs and the battle backdrop) is built
 from ArMM1998's CC0 overworld tileset, with matching pieces drawn for this
 project in its colors. The characters, monsters, chiptune music and sound
@@ -45,7 +46,8 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   seaside house, the **MONSTER CENTER** (red roof), where the nurse heals
   your team for free, and the **TIDEWATER MART** (blue roof). At the MART,
   talk to the clerk across the counter to BUY or SELL. You start with $3000.
-  Orbs and potions cost $200 to $700, and the MART buys items back for half.
+  Orbs and potions cost $200 to $700, evolution stones $2100, and the MART
+  buys items back for half.
 - **FLY** from the start menu (Enter) to any town you've visited.
 - Emerald-style feel: tap to turn in place, hold to walk, bump into walls,
   run at double speed, location banner on entering a map, typewriter text box.
@@ -61,14 +63,28 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
 - **MONDEX.** PROF. ASTER gives it to you with your starter. It lists every
   species by number: unseen ones as dashes, ones you've battled by name, and
   caught ones with an orb. Caught entries open a page with the picture,
-  category, element, height, weight and a description. All six monsters can
-  be caught:
+  category, element, height, weight and a description. The six base forms
+  can be caught, and evolving them fills in the other six:
 
   | Where | Monsters |
   |---|---|
   | Route 1 tall grass | SPROUTLE, PEBBLET, ZAPKIT, FLAMLET |
   | Tidewater sea (while surfing) | AQUAPUP |
   | Emberfall's secret garden (behind the CUT tree) | SHADELING |
+- **Evolution.** Like Emerald, a monster that reaches its evolution level in
+  a battle evolves once the battle is over. Hold B during the flashing to
+  stop it, and it tries again at its next level-up. ZAPKIT and SHADELING
+  evolve with a BOLT STONE or DUSK STONE from the MART instead: use one from
+  the BAG. An evolved monster keeps its level, nature, IVs, moves, nickname
+  and damage taken, gains its new form's stats and moves, and is registered
+  in the MONDEX.
+
+  ![FLAMLET starts to evolve, the flashing silhouettes, and SPROUTLE evolved into GROVETLE](docs/images/evolution.png)
+- **Gen 3 stats.** Each monster rolls IVs from 0 to 31 per stat and one of
+  16 natures, which raises one stat by 10% and lowers another (the summary
+  marks them with + and −). Species level on one of four EXP curves (fast,
+  medium fast, medium slow or slow, as in Gen 3), and evolutions share their
+  pre-evolution's curve.
 - **Start menu (Enter):** MONDEX, MONSTERS (party list, a two-page summary, and
   SWITCH to change your lead), BAG (use POTIONs on any party member), FLY and
   SAVE. With a save, the game opens on a title screen with CONTINUE / NEW GAME.
@@ -77,11 +93,13 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
 - **Townsfolk** with tips: a GARDENER in Emberfall, a YOUNGSTER and a
   FIGHTER on Route 1, an OFFICER and a MYSTIC in Tidewater. They're
   converted from a downloaded sprite sheet into the game's palette.
-- **Six hand-drawn monsters, each with a unique ability:** FLAMLET (KINDLE),
-  AQUAPUP (SOAK UP), SPROUTLE (SUNSOAK), PEBBLET (STURDY SHELL), ZAPKIT
-  (JOLT), SHADELING (DREAD).
+- **Twelve hand-drawn monsters in six evolution lines.** Each line has a
+  unique ability: FLAMLET → BLAZARD (KINDLE), AQUAPUP → TIDEHOUND (SOAK UP),
+  SPROUTLE → GROVETLE (SUNSOAK), PEBBLET → BOULDRON (STURDY SHELL), ZAPKIT →
+  VOLTVIX (JOLT), SHADELING → DUSKWRAITH (DREAD). Each evolved form learns a
+  new signature move, such as HEAT WAVE, THUNDER and PHANTASM.
 
-  ![The six monsters from the front and from behind](docs/images/monsters.png)
+  ![The six base monsters (top) and their evolutions (bottom)](docs/images/monsters.png)
 
 ## Project layout
 
@@ -95,7 +113,7 @@ assets/        world/ (tiles, signs, battle backdrop + their CC0 source), placeh
                (generated PNGs), characters/townsfolk/ (converted pack sprites),
                tilesets/ (the TileSet), ui/, fonts/, audio/
 tools/         Headless generators for the art, TileSet, maps and monster data
-tests/         Rule tests (battles, game state/saves) and a smoke test that plays the game
+tests/         Rule tests (battles, monsters, game state/saves) and a smoke test that plays the game
 docs/          ARCHITECTURE.md, ASSETS.md
 ```
 
@@ -127,9 +145,11 @@ from their CC0 sheets in `assets/`.
 ```sh
 # Battle rules: formulas, turn order, abilities, catching, items, PP, EXP (47 checks)
 godot --headless --path . --script res://tests/battle_test.gd
-# Party, BOX, BAG, money, MONDEX, flags and save/load round trips (32 checks)
+# EXP curves, IVs, natures and evolution (20 checks)
+godot --headless --path . --script res://tests/monster_test.gd
+# Party, BOX, BAG, money, MONDEX, flags and save/load round trips (34 checks)
 godot --headless --path . --script res://tests/game_state_test.gd
-# Plays the whole game by injecting input: starter, battles, MONDEX, buildings, shop (65 checks)
+# Plays the whole game by injecting input: starter, battles, evolutions, MONDEX, buildings, shop (78 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
 # Talks to every NPC and reads every sign on every map, from where a player can stand (28 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/npc_test.gd
@@ -141,7 +161,8 @@ your real save.
 
 ## Roadmap
 
-1. ~~**Monster data.**~~ Done: species, moves, abilities and `Monster` instances.
+1. ~~**Monster data.**~~ Done: species, moves, abilities and `Monster`
+   instances, with IVs, natures, EXP curves and evolution.
 2. ~~**Battles.**~~ Done: wild battles with ability hooks, EXP and level-ups.
 3. ~~**Catching.**~~ Done: orbs and POTIONs in the BAG, Gen 3 catch odds, the
    shake animation, and caught monsters joining the party or BOX.
@@ -153,6 +174,8 @@ your real save.
    for the BOX, nicknames, more routes and towns, and more real art from the
    sources in ASSETS.md. ~~A mart~~, ~~a Monster Center~~ and ~~enterable
    buildings~~ are done.
+7. **Stat depth.** Split SPECIAL into SP. ATK and SP. DEF, and add EVs
+   (effort points from each defeated monster), as in Gen 3.
 
 ## Credits
 

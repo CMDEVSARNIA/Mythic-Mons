@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="MonsterSpecies" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/dread.tres" id="1_uuymq"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/duskwraith_back.png" id="2_c0t1i"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_c2uh6"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/duskwraith.png" id="4_3eixt"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_brjnf"]
+[ext_resource type="Resource" path="res://data/moves/lick.tres" id="6_pm52o"]
+[ext_resource type="Resource" path="res://data/moves/scary_face.tres" id="7_iqrkv"]
+[ext_resource type="Resource" path="res://data/moves/shade_orb.tres" id="8_5p3dn"]
+[ext_resource type="Resource" path="res://data/moves/phantasm.tres" id="9_dnhpv"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="10_5yahp"]
+
+[sub_resource type="Resource" id="Resource_cbfh5"]
+script = ExtResource("5_brjnf")
+move = ExtResource("6_pm52o")
+
+[sub_resource type="Resource" id="Resource_tryqo"]
+script = ExtResource("5_brjnf")
+move = ExtResource("7_iqrkv")
+
+[sub_resource type="Resource" id="Resource_vyg5n"]
+script = ExtResource("5_brjnf")
+level = 8
+move = ExtResource("8_5p3dn")
+
+[sub_resource type="Resource" id="Resource_ol26g"]
+script = ExtResource("5_brjnf")
+level = 24
+move = ExtResource("9_dnhpv")
+
+[resource]
+script = ExtResource("10_5yahp")
+display_name = "DUSKWRAITH"
+element = "ghost"
+ability = ExtResource("1_uuymq")
+front_texture = ExtResource("4_3eixt")
+back_texture = ExtResource("2_c0t1i")
+base_hp = 55
+base_attack = 60
+base_defense = 50
+base_special = 125
+base_speed = 105
+growth = 2
+exp_yield = 160
+learnset = Array[ExtResource("5_brjnf")]([SubResource("Resource_cbfh5"), SubResource("Resource_tryqo"), SubResource("Resource_vyg5n"), SubResource("Resource_ol26g")])
+dex_number = 12
+category = "SHADE"
+height = 1.5
+weight = 0.3
+dex_entry = "Drifts through town at dusk, grinning at anyone still outside."

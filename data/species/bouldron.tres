@@ -1,0 +1,56 @@
+[gd_resource type="Resource" script_class="MonsterSpecies" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/sturdy_shell.tres" id="1_vsrsg"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/bouldron_back.png" id="2_2qjne"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_8oc0f"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/bouldron.png" id="4_yfk7w"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_2fejk"]
+[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="6_r8b8b"]
+[ext_resource type="Resource" path="res://data/moves/harden.tres" id="7_hqyv6"]
+[ext_resource type="Resource" path="res://data/moves/rock_throw.tres" id="8_4jgdi"]
+[ext_resource type="Resource" path="res://data/moves/scary_face.tres" id="9_y4mux"]
+[ext_resource type="Resource" path="res://data/moves/rock_slide.tres" id="10_dcch0"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="11_yb6o1"]
+
+[sub_resource type="Resource" id="Resource_4eepv"]
+script = ExtResource("5_2fejk")
+move = ExtResource("6_r8b8b")
+
+[sub_resource type="Resource" id="Resource_0t7ci"]
+script = ExtResource("5_2fejk")
+move = ExtResource("7_hqyv6")
+
+[sub_resource type="Resource" id="Resource_yywjf"]
+script = ExtResource("5_2fejk")
+level = 8
+move = ExtResource("8_4jgdi")
+
+[sub_resource type="Resource" id="Resource_vr8im"]
+script = ExtResource("5_2fejk")
+level = 16
+move = ExtResource("9_y4mux")
+
+[sub_resource type="Resource" id="Resource_olhro"]
+script = ExtResource("5_2fejk")
+level = 24
+move = ExtResource("10_dcch0")
+
+[resource]
+script = ExtResource("11_yb6o1")
+display_name = "BOULDRON"
+element = "rock"
+ability = ExtResource("1_vsrsg")
+front_texture = ExtResource("4_yfk7w")
+back_texture = ExtResource("2_2qjne")
+base_hp = 60
+base_attack = 100
+base_defense = 125
+base_speed = 35
+growth = 2
+exp_yield = 137
+learnset = Array[ExtResource("5_2fejk")]([SubResource("Resource_4eepv"), SubResource("Resource_0t7ci"), SubResource("Resource_yywjf"), SubResource("Resource_vr8im"), SubResource("Resource_olhro")])
+dex_number = 8
+category = "BOULDER"
+height = 1.4
+weight = 210.0
+dex_entry = "Crystals grow from its shoulders. It can sleep standing up for years."

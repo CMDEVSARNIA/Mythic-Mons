@@ -1,0 +1,38 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/evolution_scene.gd" id="1_script"]
+
+[node name="EvolutionScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.2, 0.235, 0.341, 1)
+
+[node name="Glow" type="ColorRect" parent="."]
+layout_mode = 0
+offset_left = 72.0
+offset_top = 20.0
+offset_right = 168.0
+offset_bottom = 104.0
+color = Color(0.161, 0.212, 0.435, 1)
+
+[node name="Art" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 88.0
+offset_top = 28.0
+offset_right = 152.0
+offset_bottom = 92.0
+expand_mode = 1
+stretch_mode = 5
