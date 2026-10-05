@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://by1m6mo0ci152"
-path="res://.godot/imported/signpost.png-fa0cbecf82fad590176cb0275d30a60c.ctex"
+uid="uid://bgipnde6r37qc"
+path="res://.godot/imported/world_tiles.png-483da383ead1af151778125b3c28ccb8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/placeholder/objects/signpost.png"
-dest_files=["res://.godot/imported/signpost.png-fa0cbecf82fad590176cb0275d30a60c.ctex"]
+source_file="res://assets/world/world_tiles.png"
+dest_files=["res://.godot/imported/world_tiles.png-483da383ead1af151778125b3c28ccb8.ctex"]
 
 [params]
 

@@ -52,6 +52,18 @@ func get_terrain(cell: Vector2i) -> StringName:
 	return Terrain.NONE
 
 
+## What pressing A on the cell's tile says (see EXAMINE in
+## tools/build_world.gd), or "" if there's nothing to read.
+func get_examine_text(cell: Vector2i) -> String:
+	for i in range(_layers.size() - 1, -1, -1):
+		var data := _layers[i].get_cell_tile_data(cell)
+		if data and data.has_custom_data(&"examine"):
+			var text: String = data.get_custom_data(&"examine")
+			if not text.is_empty():
+				return text
+	return ""
+
+
 ## Cells covered by any tile layer. Actors can't walk outside it.
 func get_bounds() -> Rect2i:
 	return _bounds

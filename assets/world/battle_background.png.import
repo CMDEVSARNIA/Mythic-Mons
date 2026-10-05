@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://shsi5jwndqbu"
-path="res://.godot/imported/smash_rock.png-4e5299bbad918d5ae1d5fe1619bc13de.ctex"
+uid="uid://bfrvgvse6w1ou"
+path="res://.godot/imported/battle_background.png-b8bc5fba0eabf9d9ddfbac3a421f2922.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/placeholder/objects/smash_rock.png"
-dest_files=["res://.godot/imported/smash_rock.png-4e5299bbad918d5ae1d5fe1619bc13de.ctex"]
+source_file="res://assets/world/battle_background.png"
+dest_files=["res://.godot/imported/battle_background.png-b8bc5fba0eabf9d9ddfbac3a421f2922.ctex"]
 
 [params]
 

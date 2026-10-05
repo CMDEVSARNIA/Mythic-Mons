@@ -47,6 +47,8 @@ func _idle_update(delta: float, _just_stepped: bool) -> void:
 	if _timer > 0.0:
 		return
 	_timer = randf_range(wander_interval.x, wander_interval.y)
+	if _player_beside():
+		return
 	var dir: Vector2i = Grid.DIRECTIONS.pick_random()
 	var target := get_cell() + dir
 	var from_home := target - _home
@@ -55,6 +57,16 @@ func _idle_update(delta: float, _just_stepped: bool) -> void:
 		face(dir)
 		return
 	start_step(dir)
+
+
+## True while the player stands next to this NPC. Wandering pauses then, so
+## an NPC never walks off just as the player turns to talk to it.
+func _player_beside() -> bool:
+	for dir in Grid.DIRECTIONS:
+		for body in query_cell(get_cell() + dir, PhysicsLayers.ACTORS):
+			if body is Player:
+				return true
+	return false
 
 
 ## NPCs never wander onto warps, water, ledges or tall grass.

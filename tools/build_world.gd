@@ -7,13 +7,11 @@ extends SceneTree
 ##
 ## An existing TileSet or map scene is left alone, so edits made in the Godot
 ## editor are safe. Pass `-- --force` to regenerate everything from the data
-## below (needed after changing PixelArt.TILES or TILE_RULES).
+## below (needed after changing WorldTiles or TILE_RULES).
 
 const TILESET_PATH := "res://assets/tilesets/overworld_tileset.tres"
-const TILE_TEXTURE := "res://assets/placeholder/tiles/overworld_tiles.png"
-## TileSet source ids: PixelArt's generated atlas, then TownTiles.
-const GENERATED := 0
-const TOWN := 1
+## The TileSet's only source: WorldTiles.ATLAS.
+const SOURCE := 0
 const CHARACTER_DIR := "res://assets/placeholder/characters/"
 ## Converted pack sprites (tools/import_townsfolk.gd), used before the cast.
 const TOWNSFOLK_DIR := "res://assets/characters/townsfolk/"
@@ -42,15 +40,8 @@ const TILE_RULES := {
 	&"tree": [0, &""],
 	&"cliff": [0, &""],
 	&"water": [1, &"water"],
-	&"roof_red_l": [0, &""],
-	&"roof_red_m": [0, &""],
-	&"roof_red_r": [0, &""],
-	&"roof_blue_l": [0, &""],
-	&"roof_blue_m": [0, &""],
-	&"roof_blue_r": [0, &""],
-	&"wall": [0, &""],
-	&"window": [0, &""],
-	&"door": [-1, &""],
+	&"shore_north": [1, &"water"],
+	&"shore_south": [1, &"water"],
 	&"fence": [0, &""],
 	&"floor": [-1, &""],
 	&"indoor_wall": [0, &""],
@@ -60,18 +51,26 @@ const TILE_RULES := {
 	&"shelf": [0, &""],
 	&"counter": [0, &"counter"],
 	&"mart_shelf": [0, &""],
+	&"plant": [0, &""],
+	&"crate": [0, &""],
 	&"void": [0, &""],
+}
+
+## What the player reads on pressing A at a tile, like Emerald's furniture.
+const EXAMINE := {
+	&"shelf": "It's crammed full of\nbooks about MONSTERS.",
+	&"mart_shelf": "Rows of MON ORBs and\nPOTIONs, all lined up.",
+	&"bed": "A soft, comfy bed.\nNo time for a nap now!",
+	&"plant": "A leafy potted plant.\nSomeone waters it daily.",
+	&"crate": "A sturdy wooden crate.\nIt won't budge.",
 }
 
 ## Layout character -> tile name.
 const LEGEND := {
 	".": &"grass", ",": &"tall_grass", ":": &"path", "*": &"flowers", "_": &"sand",
-	"v": &"ledge_down", "#": &"tree", "^": &"cliff", "~": &"water",
-	"[": &"roof_red_l", "=": &"roof_red_m", "]": &"roof_red_r",
-	"{": &"roof_blue_l", "-": &"roof_blue_m", "}": &"roof_blue_r",
-	"|": &"wall", "o": &"window", "D": &"door", "f": &"fence",
+	"v": &"ledge_down", "#": &"tree", "^": &"cliff", "~": &"water", "f": &"fence",
 	"b": &"floor", "w": &"indoor_wall", "m": &"mat", "t": &"table", "B": &"bed", "k": &"shelf", "x": &"void",
-	"c": &"counter", "s": &"mart_shelf",
+	"c": &"counter", "s": &"mart_shelf", "p": &"plant", "r": &"crate",
 }
 
 ## Turns the player back at Emberfall's north exit until they have a starter.
@@ -87,10 +86,10 @@ const UP := 1
 ## Shared by the small houses' interiors.
 const HOUSE_LAYOUT := [
 	"wwkkwwwwww",
-	"bbbbbbbbBb",
+	"pbbbbbbbBb",
 	"bbbbbbbbbb",
 	"bbtbbbbbbb",
-	"bbtbbbbbbb",
+	"bbtbbbbbbr",
 	"bbbbbbbbbb",
 	"bbbbmbbbbb",
 ]
@@ -100,8 +99,8 @@ const HOUSE_LAYOUT := [
 #   npcs:      [cell, sprite id, wander radius, lines, {scene, property overrides}]
 #   warps:     [cell, map file, spawn, sfx, {property overrides}]
 #   obstacles: [cell, scene]
-#   houses:    [top-left cell, roof in TownTiles.HOUSES]; the door is at
-#              TownTiles.HOUSE_DOOR from the top-left, so put a warp there
+#   houses:    [top-left cell, roof in WorldTiles.HOUSES]; the door is at
+#              WorldTiles.HOUSE_DOOR from the top-left, so put a warp there
 const MAPS := [
 	{
 		"file": "town_emberfall.tscn",
@@ -183,7 +182,7 @@ const MAPS := [
 		"props": {"display_name": "MONSTER LAB", "allow_fly": false, "music": &"town"},
 		"layout": [
 			"wwkkwwwwkkww",
-			"bbbbbbbbbbbb",
+			"pbbbbbbbbbbp",
 			"bbbbbbbbbbbb",
 			"bttbbbbbbttb",
 			"bbbbbbbbbbbb",
@@ -342,10 +341,10 @@ const MAPS := [
 		"props": {"display_name": "TIDEWATER MART", "allow_fly": false, "music": &"town"},
 		"layout": [
 			"wwwwwwwwww",
-			"bbcbbbbbbb",
+			"bbcbbbbbbp",
 			"bbcbbssbbb",
 			"cccbbssbbb",
-			"bbbbbbbbbb",
+			"bbbbbbbbbr",
 			"bbbbbbbbbb",
 			"bbbbmbbbbb",
 		],
@@ -370,7 +369,7 @@ const MAPS := [
 			"bbbbbbbbbbbb",
 			"kkcccccccckk",
 			"bbbbbbbbbbbb",
-			"bbbbbbbbbbbb",
+			"pbbbbbbbbbbp",
 			"btbbbbbbbbtb",
 			"bbbbbbbbbbbb",
 			"bbbbbmbbbbbb",
@@ -438,40 +437,28 @@ func _build_tile_set() -> TileSet:
 	tile_set.add_custom_data_layer()
 	tile_set.set_custom_data_layer_name(0, "terrain")
 	tile_set.set_custom_data_layer_type(0, TYPE_STRING_NAME)
+	tile_set.add_custom_data_layer()
+	tile_set.set_custom_data_layer_name(1, "examine")
+	tile_set.set_custom_data_layer_type(1, TYPE_STRING)
 
 	var source := TileSetAtlasSource.new()
-	source.texture = load(TILE_TEXTURE)
+	source.texture = load(WorldTiles.ATLAS)
 	source.texture_region_size = tile_set.tile_size
-	tile_set.add_source(source, 0)
-
-	for tile_name: StringName in PixelArt.TILES:
-		var coords: Vector2i = PixelArt.TILES[tile_name]
-		source.create_tile(coords)
-		if tile_name == &"water":
-			source.set_tile_animation_frames_count(coords, 2)
-			source.set_tile_animation_frame_duration(coords, 0, 0.6)
-			source.set_tile_animation_frame_duration(coords, 1, 0.6)
-		_set_rule(source, coords, TILE_RULES[tile_name])
-
-	var town := TileSetAtlasSource.new()
-	town.texture = load(TownTiles.ATLAS)
-	town.texture_region_size = tile_set.tile_size
-	tile_set.add_source(town, TOWN)
-	for tile_name: StringName in TownTiles.TILES:
-		var water := tile_name in TownTiles.WATER_TILES
-		var rule: Array = TILE_RULES[&"water"] if water else TILE_RULES[tile_name]
-		var count := 4 if tile_name == &"water" else 1
+	tile_set.add_source(source, SOURCE)
+	for tile_name: StringName in WorldTiles.TILES:
+		var count := 4 if tile_name == &"water" else 1 # Open water is a 2x2 pattern.
 		for i in count:
-			var coords: Vector2i = TownTiles.TILES[tile_name] + Vector2i(i, 0)
-			town.create_tile(coords)
-			_set_rule(town, coords, rule)
+			var coords: Vector2i = WorldTiles.TILES[tile_name] + Vector2i(i, 0)
+			source.create_tile(coords)
+			_set_rule(source, coords, TILE_RULES[tile_name])
+			source.get_tile_data(coords, 0).set_custom_data("examine", EXAMINE.get(tile_name, ""))
 	# Houses are solid except for the door.
-	for roof: StringName in TownTiles.HOUSES:
-		for y in TownTiles.HOUSE_SIZE.y:
-			for x in TownTiles.HOUSE_SIZE.x:
-				var coords: Vector2i = TownTiles.HOUSES[roof] + Vector2i(x, y)
-				town.create_tile(coords)
-				_set_rule(town, coords, [-1 if Vector2i(x, y) == TownTiles.HOUSE_DOOR else 0, &""])
+	for roof: StringName in WorldTiles.HOUSES:
+		for y in WorldTiles.HOUSE_SIZE.y:
+			for x in WorldTiles.HOUSE_SIZE.x:
+				var coords: Vector2i = WorldTiles.HOUSES[roof] + Vector2i(x, y)
+				source.create_tile(coords)
+				_set_rule(source, coords, [-1 if Vector2i(x, y) == WorldTiles.HOUSE_DOOR else 0, &""])
 	return tile_set
 
 
@@ -511,9 +498,9 @@ func _build_map(map: Dictionary, tile_set: TileSet) -> Node2D:
 		buildings.tile_set = tile_set
 		_add(root, root, buildings)
 		for def: Array in map.houses:
-			for y in TownTiles.HOUSE_SIZE.y:
-				for x in TownTiles.HOUSE_SIZE.x:
-					buildings.set_cell(def[0] + Vector2i(x, y), TOWN, TownTiles.HOUSES[def[1]] + Vector2i(x, y))
+			for y in WorldTiles.HOUSE_SIZE.y:
+				for x in WorldTiles.HOUSE_SIZE.x:
+					buildings.set_cell(def[0] + Vector2i(x, y), SOURCE, WorldTiles.HOUSES[def[1]] + Vector2i(x, y))
 
 	var entities := Node2D.new()
 	entities.y_sort_enabled = true
@@ -554,22 +541,19 @@ func _build_map(map: Dictionary, tile_set: TileSet) -> Node2D:
 	return root
 
 
-## Paints one layout cell, preferring TownTiles over the generated atlas.
-## Water next to land gets a line of foam, and open water a ripple pattern.
+## Paints one layout cell. Water next to land gets a line of foam, and open
+## water a ripple pattern.
 func _paint(ground: TileMapLayer, layout: Array, cell: Vector2i) -> void:
 	var tile_name: StringName = LEGEND[layout[cell.y][cell.x]]
-	if not TownTiles.TILES.has(tile_name):
-		ground.set_cell(cell, GENERATED, PixelArt.TILES[tile_name])
-		return
-	var coords: Vector2i = TownTiles.TILES[tile_name]
+	var coords: Vector2i = WorldTiles.TILES[tile_name]
 	if tile_name == &"water":
 		if _is_shore(layout, cell + Vector2i.DOWN):
-			coords = TownTiles.TILES[&"shore_south"]
+			coords = WorldTiles.TILES[&"shore_south"]
 		elif _is_shore(layout, cell + Vector2i.UP):
-			coords = TownTiles.TILES[&"shore_north"]
+			coords = WorldTiles.TILES[&"shore_north"]
 		else:
-			coords = TownTiles.water_at(cell)
-	ground.set_cell(cell, TOWN, coords)
+			coords = WorldTiles.water_at(cell)
+	ground.set_cell(cell, SOURCE, coords)
 
 
 ## True if `cell` is land that water foams against (not water, trees or the edge).

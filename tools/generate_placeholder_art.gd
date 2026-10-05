@@ -10,15 +10,11 @@ const OUT_DIR := "res://assets/placeholder/"
 
 
 func _initialize() -> void:
-	_save(PixelArt.overworld_tiles(), "tiles/overworld_tiles.png")
 	for id: StringName in PixelArt.CHARACTERS:
 		var file := "player" if id == &"player" else "npc_%s" % id
 		_save(PixelArt.character_sheet(id), "characters/%s.png" % file)
 	_save(PixelArt.surf_mount(), "objects/surf_mount.png")
 	_save(PixelArt.shadow(), "objects/shadow.png")
-	_save(PixelArt.cut_tree(), "objects/cut_tree.png")
-	_save(PixelArt.smash_rock(), "objects/smash_rock.png")
-	_save(PixelArt.signpost(), "objects/signpost.png")
 	for id: StringName in PixelArt.MONSTERS:
 		_save(PixelArt.monster(id), "monsters/%s.png" % id)
 		_save(PixelArt.monster(id, true), "monsters/%s_back.png" % id)
@@ -26,7 +22,6 @@ func _initialize() -> void:
 		var recipe: Array = PixelArt.GENERATED_MONSTERS[id]
 		_save(PixelArt.generated_monster(recipe[0], recipe[1]), "monsters/%s.png" % id)
 		_save(PixelArt.generated_monster(recipe[0], recipe[1], true), "monsters/%s_back.png" % id)
-	_save(PixelArt.battle_background(), "battle/background.png")
 	for id: StringName in PixelArt.ORBS:
 		var colors: Array = PixelArt.ORBS[id]
 		_save(PixelArt.orb(colors[0], colors[1]), "items/%s.png" % id)

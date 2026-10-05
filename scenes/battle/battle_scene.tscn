@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scenes/battle/battle_scene.gd" id="1_script"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/battle/background.png" id="2_background"]
+[ext_resource type="Texture2D" path="res://assets/world/battle_background.png" id="2_background"]
 [ext_resource type="PackedScene" path="res://scenes/battle/battler_panel.tscn" id="3_panel"]
 [ext_resource type="PackedScene" path="res://scenes/ui/choice_box.tscn" id="4_choices"]
 

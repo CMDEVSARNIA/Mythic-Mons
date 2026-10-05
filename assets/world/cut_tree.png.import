@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://rtngb0ewnxw6"
-path="res://.godot/imported/overworld_tiles.png-4097ff7322d6ae059455eb38478baee9.ctex"
+uid="uid://bob5n0l2bjqkc"
+path="res://.godot/imported/cut_tree.png-eecbe0e965be2fc6e3865e9f5b5d25d6.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/placeholder/tiles/overworld_tiles.png"
-dest_files=["res://.godot/imported/overworld_tiles.png-4097ff7322d6ae059455eb38478baee9.ctex"]
+source_file="res://assets/world/cut_tree.png"
+dest_files=["res://.godot/imported/cut_tree.png-eecbe0e965be2fc6e3865e9f5b5d25d6.ctex"]
 
 [params]
 

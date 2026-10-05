@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://csxbea7vg5tg1"
-path="res://.godot/imported/cut_tree.png-d258a843506189e6e47de02f10d94b9a.ctex"
+uid="uid://d4mayhahhfv5l"
+path="res://.godot/imported/smash_rock.png-44984a390fb63751c786859dd7eac55e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/placeholder/objects/cut_tree.png"
-dest_files=["res://.godot/imported/cut_tree.png-d258a843506189e6e47de02f10d94b9a.ctex"]
+source_file="res://assets/world/smash_rock.png"
+dest_files=["res://.godot/imported/smash_rock.png-44984a390fb63751c786859dd7eac55e.ctex"]
 
 [params]
 

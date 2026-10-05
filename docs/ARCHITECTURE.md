@@ -39,7 +39,7 @@ Mythic-Mons/
 │   ├── art/                   pixel_art.gd (tiles, objects, monsters, sheets),
 │   │                          character_designs.gd (hand-drawn character parts) and
 │   │                          monster_designs.gd (hand-drawn battle sprites),
-│   │                          town_tiles.gd (TownTiles: the town atlas layout)
+│   │                          world_tiles.gd (WorldTiles: the map atlas layout)
 │   └── audio/                 ChipSynth (SFX), Chiptune (sequencer), Songs (music data)
 ├── data/                      Game data as .tres, file name = id
 │   ├── species/               flamlet, aquapup, sproutle, pebblet, zapkit, shadeling
@@ -49,8 +49,9 @@ Mythic-Mons/
 ├── assets/
 │   ├── placeholder/           Generated PNGs: tiles, characters, objects, monsters
 │   ├── characters/townsfolk/  NPC sheets converted from a downloaded pack (source/)
-│   ├── tilesets/              overworld_tileset.tres (physics + terrain custom data),
-│   │                          town_tiles.png, source/ (ArMM1998's CC0 overworld sheet)
+│   ├── world/                 world_tiles.png, signs, CUT tree, boulder, battle backdrop,
+│   │                          source/ (ArMM1998's CC0 overworld sheet)
+│   ├── tilesets/              overworld_tileset.tres (physics, terrain + examine data)
 │   ├── ui/theme.tres          Pixel font, text-box style
 │   ├── fonts/                 Press Start 2P (SIL OFL)
 │   └── audio/music, sfx/      Drop real audio here to replace the generated sounds
@@ -122,7 +123,7 @@ NPCs (`npc.tscn`) use the same layout without the camera and surf mount.
 TownEmberfall (Node2D)                   world_map.gd: display_name, is_town, allow_fly,
 │                                        music, encounter_rate, wild_monsters
 ├── Ground (TileMapLayer)                overworld_tileset.tres
-├── Buildings (TileMapLayer)             5 × 5 houses from TownTiles (towns only)
+├── Buildings (TileMapLayer)             5 × 5 houses from WorldTiles (towns only)
 ├── Entities (Node2D, Y Sort enabled)    NPCs, signs, field obstacles (+ the player at runtime)
 ├── Warps (Node2D)                       warp.tscn areas on doors and map edges
 └── Spawns (Node2D)                      SpawnPoint markers: "default", "fly", "from_route", …
@@ -184,6 +185,13 @@ are listed in `scripts/core/terrain.gd`: `tall_grass`, `water`, `ledge_down`,
 ground leaves it empty. Add a tag there,
 assign it in the TileSet editor (or `TILE_RULES` in `tools/build_world.gd`),
 and react to it in `Player._try_step()` / `_on_step_finished()`.
+
+A second layer, `examine` (String), holds what pressing A on a tile says
+(`EXAMINE` in `tools/build_world.gd`: bookshelves, beds, plants, crates, MART
+shelves). `Player._interact()` shows it when nothing else answers.
+
+NPCs wander within `wander_radius` of home, but pause while the player stands
+next to them, so they don't walk off just as you press A.
 
 ## Field moves
 
@@ -343,11 +351,10 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
 ## Adding a map
 
 1. Duplicate a map scene (or extend `MAPS` in `tools/build_world.gd` and run it).
-2. Paint `Ground` with `overworld_tileset.tres`. Its source 1 holds the town
-   tiles (outdoors) and source 0 the generated ones (interiors). For
-   buildings, add a `Buildings` layer with houses from source 1 (in `MAPS`:
-   `houses`, as `[top-left cell, roof]`), and put a warp on each door, 2 tiles
-   right of and 4 below the house's top-left corner.
+2. Paint `Ground` with `overworld_tileset.tres` (one atlas, `WorldTiles`).
+   For buildings, add a `Buildings` layer with houses from the same atlas (in
+   `MAPS`: `houses`, as `[top-left cell, roof]`), and put a warp on each
+   door, 2 tiles right of and 4 below the house's top-left corner.
 3. Add `SpawnPoint` markers under `Spawns`, named by id.
 4. Add `warp.tscn` instances under `Warps`. Set `target_map` and `target_spawn`.
 5. Set `display_name`, `music`, `is_town`, and the encounter table in the inspector.
@@ -366,10 +373,16 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
   ledges, ROCK SMASH, a won battle, a catch, a whiteout, MOM's healing, the
   party screen, summary and SWITCH, POTIONs from the BAG, SAVE, CONTINUE
   from the title screen, SURF, buying and selling in the MART, healing at the
-  MONSTER CENTER, entering and leaving every building, and FLY (58 checks). It uses its own save file.
+  MONSTER CENTER, entering and leaving every building, and FLY (58 checks).
+  It uses its own save file.
+- `tests/npc_test.gd` visits every map and talks to every NPC and sign,
+  standing where a player could (a reachable neighboring cell, counting CUT,
+  ROCK SMASH and SURF, or across a counter), then examines a bookshelf
+  (28 checks).
 
 ```sh
 godot --headless --path . --script res://tests/battle_test.gd
 godot --headless --path . --script res://tests/game_state_test.gd
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
+godot --headless --path . --fixed-fps 60 --script res://tests/npc_test.gd
 ```

@@ -134,7 +134,8 @@ func _on_step_finished(cell: Vector2i) -> void:
 			Events.wild_encounter.emit(species)
 
 
-## Presses A on the faced cell: talk, read, use a field move, or start surfing.
+## Presses A on the faced cell: talk, read, use a field move, examine the
+## furniture, or start surfing.
 func _interact() -> void:
 	lock()
 	var target := get_cell() + facing
@@ -146,7 +147,10 @@ func _interact() -> void:
 			await body.interact(self)
 			handled = true
 			break
-	if not handled and not is_surfing and _map and _map.get_terrain(target) == Terrain.WATER:
+	var examine := _map.get_examine_text(target) if _map and not handled else ""
+	if not examine.is_empty():
+		await Dialogue.say([examine])
+	elif not handled and not is_surfing and _map and _map.get_terrain(target) == Terrain.WATER:
 		await _offer_surf()
 	unlock()
 
