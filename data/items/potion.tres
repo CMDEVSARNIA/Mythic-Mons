@@ -8,3 +8,4 @@ display_name = "POTION"
 description = "Restores 20 HP to
 one MONSTER."
 kind = 1
+price = 300

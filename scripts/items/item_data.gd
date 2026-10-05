@@ -11,6 +11,8 @@ enum Kind { BALL, HEAL }
 @export var kind := Kind.BALL
 ## Sprite thrown in battle (balls).
 @export var icon: Texture2D
+## Cost in a MART, which buys items back for half. 0 = can't be bought or sold.
+@export_range(0, 99999) var price := 0
 
 @export_group("Ball")
 ## Multiplies the catch chance. 255 or more always catches.
@@ -18,3 +20,8 @@ enum Kind { BALL, HEAL }
 
 @export_group("Heal")
 @export_range(1, 999) var heal_amount := 20
+
+
+## What a MART pays for one.
+func sell_price() -> int:
+	return floori(price / 2.0)

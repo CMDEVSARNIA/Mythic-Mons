@@ -264,6 +264,52 @@ func _run() -> void:
 	await _wait(0.6)
 	_check(not _player.is_surfing and _player.get_cell() == Vector2i(5, 3), "surfing into land dismounts")
 
+	# --- MART ----------------------------------------------------------------
+	await _place(Vector2i(5, 11), Vector2i.UP)
+	await _tap(&"move_up")
+	await _wait(1.0)
+	_check(_map_name() == "TIDEWATER MART", "the MART door leads inside")
+	_game_state.money = 3000
+	_game_state.bag.assign({&"potion": 3})
+	var clerk: Node = _main.current_map.entities.get_node(^"NPC_Clerk1")
+	var choices: Control = _dialogue.get_node(^"ChoiceArea/Choices")
+	await _place(Vector2i(3, 2), Vector2i.LEFT)
+	await _tap(&"confirm")
+	await _wait(0.8)
+	var shop: Node = clerk.get_node_or_null(^"ShopMenu")
+	_check(shop != null and choices.visible, "the clerk is reached across the counter and opens the shop")
+	_shot("20_mart")
+	await _tap(&"confirm") # BUY
+	_check(shop.get_node(^"ListArea/List").visible, "BUY lists the clerk's stock")
+	_shot("21_shop_buy")
+	await _tap(&"confirm") # MON ORB
+	await _tap(&"move_up") # 2 of them
+	_shot("22_shop_quantity")
+	await _tap(&"confirm")
+	await _wait(1.2)
+	await _tap(&"confirm") # YES
+	await _close_dialogue()
+	_check(_game_state.money == 2600 and _game_state.item_count(&"mon_orb") == 2, "buying 2 MON ORBs costs $400")
+	await _tap(&"cancel") # Back to BUY / SELL / QUIT.
+	await _wait(1.0)
+	await _tap(&"move_down")
+	await _tap(&"confirm") # SELL
+	await _tap(&"confirm") # POTION
+	await _tap(&"confirm") # Just one.
+	await _wait(1.0)
+	await _tap(&"confirm") # YES
+	await _close_dialogue()
+	_check(_game_state.money == 2750 and _game_state.item_count(&"potion") == 2, "selling a POTION pays half its price")
+	await _tap(&"cancel")
+	await _wait(1.0)
+	await _tap(&"cancel") # QUIT
+	await _close_dialogue()
+	_check(not is_instance_valid(shop) and not _player.is_locked(), "leaving the shop returns control")
+	await _place(Vector2i(4, 5), Vector2i.DOWN)
+	await _tap(&"move_down")
+	await _wait(1.0)
+	_check(_map_name() == "TIDEWATER CITY" and _player.get_cell() == Vector2i(5, 11), "the mat leads back out of the MART")
+
 	# --- FLY -----------------------------------------------------------------
 	await _place(Vector2i(9, 14), Vector2i.DOWN)
 	await _tap(&"menu")

@@ -30,6 +30,16 @@ func _test_party_and_bag() -> void:
 	state.bag.assign({&"potion": 1})
 	_check(state.remove_item(&"potion") and not state.bag.has(&"potion"), "using the last item removes it from the BAG")
 	_check(not state.remove_item(&"potion"), "you can't use an item you don't have")
+	state.add_item(&"mon_orb", 60)
+	state.add_item(&"mon_orb", 60)
+	_check(state.item_count(&"mon_orb") == state.MAX_ITEM_COUNT, "the BAG holds at most 99 of an item")
+	_check(not state.remove_item(&"mon_orb", 100) and state.item_count(&"mon_orb") == 99, "removing more than you have removes nothing")
+	_check(state.remove_item(&"mon_orb", 98) and state.item_count(&"mon_orb") == 1, "items can be removed several at a time")
+	_check(state.money == state.START_MONEY, "a new game starts with $%d" % state.START_MONEY)
+	_check(not state.spend_money(state.money + 1) and state.money == state.START_MONEY, "you can't spend more than you have")
+	_check(state.spend_money(1000) and state.money == state.START_MONEY - 1000, "spending takes the money")
+	state.add_money(state.MAX_MONEY)
+	_check(state.money == state.MAX_MONEY, "money is capped at $%d" % state.MAX_MONEY)
 	state.set_flag(&"met_rival")
 	_check(state.has_flag(&"met_rival") and not state.has_flag(&"unknown"), "story flags default to off")
 	state.free()
@@ -53,6 +63,7 @@ func _test_save_and_load() -> void:
 	state.add_monster(_monster(&"zapkit", 4))
 	state.storage.append(_monster(&"pebblet", 3))
 	state.bag.assign({&"mon_orb": 4, &"potion": 2})
+	state.money = 1234
 	state.set_flag(state.STARTER_FLAG)
 	state.mark_town_visited("res://scenes/maps/town_emberfall.tscn", "EMBERFALL TOWN")
 	var location := {"map": "res://scenes/maps/route_01.tscn", "cell": Vector2i(9, 12), "facing": Vector2i.LEFT, "surfing": true}
@@ -65,6 +76,7 @@ func _test_save_and_load() -> void:
 	_check(loaded.party.size() == 2 and loaded.party[0].get_display_name() == "AQUAPUP" and loaded.party[0].level == 9, "the party is restored in order")
 	_check(loaded.storage.size() == 1 and loaded.storage[0].get_display_name() == "PEBBLET", "the BOX is restored")
 	_check(loaded.bag.get(&"mon_orb") == 4 and loaded.bag.get(&"potion") == 2, "the BAG is restored")
+	_check(loaded.money == 1234, "money is restored")
 	_check(loaded.has_flag(loaded.STARTER_FLAG) and loaded.visited_towns.has("res://scenes/maps/town_emberfall.tscn"), "flags and Fly destinations are restored")
 	loaded.free()
 

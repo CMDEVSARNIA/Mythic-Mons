@@ -1,0 +1,52 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_6q8v4"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_kqpk6"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/clerk.tscn" id="3_05j2t"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="4_y8fjm"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_hiker.png" id="5_r28b3"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="6_aie1m"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="7_bqyqe"]
+
+[node name="MartTidewater" type="Node2D" unique_id=836138092]
+script = ExtResource("1_6q8v4")
+display_name = "TIDEWATER MART"
+allow_fly = false
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=1231738842]
+tile_map_data = PackedByteArray("AAAAAAAAAAACAAIAAAABAAAAAAACAAIAAAACAAAAAAACAAIAAAADAAAAAAACAAIAAAAEAAAAAAACAAIAAAAFAAAAAAACAAIAAAAGAAAAAAACAAIAAAAHAAAAAAACAAIAAAAIAAAAAAACAAIAAAAJAAAAAAACAAIAAAAAAAEAAAABAAIAAAABAAEAAAABAAIAAAACAAEAAAADAAMAAAADAAEAAAABAAIAAAAEAAEAAAABAAIAAAAFAAEAAAABAAIAAAAGAAEAAAABAAIAAAAHAAEAAAABAAIAAAAIAAEAAAABAAIAAAAJAAEAAAABAAIAAAAAAAIAAAABAAIAAAABAAIAAAABAAIAAAACAAIAAAADAAMAAAADAAIAAAABAAIAAAAEAAIAAAABAAIAAAAFAAIAAAAEAAMAAAAGAAIAAAAEAAMAAAAHAAIAAAABAAIAAAAIAAIAAAABAAIAAAAJAAIAAAABAAIAAAAAAAMAAAADAAMAAAABAAMAAAADAAMAAAACAAMAAAADAAMAAAADAAMAAAABAAIAAAAEAAMAAAABAAIAAAAFAAMAAAAEAAMAAAAGAAMAAAAEAAMAAAAHAAMAAAABAAIAAAAIAAMAAAABAAIAAAAJAAMAAAABAAIAAAAAAAQAAAABAAIAAAABAAQAAAABAAIAAAACAAQAAAABAAIAAAADAAQAAAABAAIAAAAEAAQAAAABAAIAAAAFAAQAAAABAAIAAAAGAAQAAAABAAIAAAAHAAQAAAABAAIAAAAIAAQAAAABAAIAAAAJAAQAAAABAAIAAAAAAAUAAAABAAIAAAABAAUAAAABAAIAAAACAAUAAAABAAIAAAADAAUAAAABAAIAAAAEAAUAAAABAAIAAAAFAAUAAAABAAIAAAAGAAUAAAABAAIAAAAHAAUAAAABAAIAAAAIAAUAAAABAAIAAAAJAAUAAAABAAIAAAAAAAYAAAABAAIAAAABAAYAAAABAAIAAAACAAYAAAABAAIAAAADAAYAAAABAAIAAAAEAAYAAAADAAIAAAAFAAYAAAABAAIAAAAGAAYAAAABAAIAAAAHAAYAAAABAAIAAAAIAAYAAAABAAIAAAAJAAYAAAABAAIAAAA=")
+tile_set = ExtResource("2_kqpk6")
+
+[node name="Entities" type="Node2D" parent="." unique_id=928728250]
+y_sort_enabled = true
+
+[node name="NPC_Clerk1" parent="Entities" unique_id=1652945825 instance=ExtResource("3_05j2t")]
+position = Vector2(24, 40)
+lines = PackedStringArray("Hello there!")
+start_facing = 3
+
+[node name="NPC_Hiker2" parent="Entities" unique_id=1156817895 instance=ExtResource("4_y8fjm")]
+position = Vector2(136, 72)
+sprite_sheet = ExtResource("5_r28b3")
+lines = PackedStringArray("I always stock up on\nPOTIONs before a long\ntrip.", "BIG POTIONs heal even\nmore. They\'re worth it!")
+wander_radius = 1
+
+[node name="Warps" type="Node2D" parent="." unique_id=706604462]
+
+[node name="Warp1" parent="Warps" unique_id=1987856608 instance=ExtResource("6_aie1m")]
+position = Vector2(72, 104)
+target_map = "res://scenes/maps/town_tidewater.tscn"
+target_spawn = &"from_mart"
+blocked_lines = PackedStringArray()
+
+[node name="Spawns" type="Node2D" parent="." unique_id=1286809067]
+
+[node name="default" type="Marker2D" parent="Spawns" unique_id=444987121]
+position = Vector2(72, 88)
+script = ExtResource("7_bqyqe")
+facing = 1
+
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=686694034]
+position = Vector2(72, 88)
+script = ExtResource("7_bqyqe")
+facing = 1

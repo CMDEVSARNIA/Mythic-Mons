@@ -138,6 +138,8 @@ func _on_step_finished(cell: Vector2i) -> void:
 func _interact() -> void:
 	lock()
 	var target := get_cell() + facing
+	if _map and _map.get_terrain(target) == Terrain.COUNTER:
+		target += facing # Talk to the clerk on the other side.
 	var handled := false
 	for body in query_cell(target, PhysicsLayers.INTERACT_MASK):
 		if body.has_method(&"interact"):

@@ -33,7 +33,10 @@ sheet. Real assets slot in later without code changes.
   secret garden behind a **CUT** tree.
 - **Route 1.** Tall grass with wild encounters, one-way **ledges**, and a
   hiker trapped behind a **ROCK SMASH** boulder.
-- **Tidewater City.** A beach and an island you reach with **SURF**.
+- **Tidewater City.** A beach and an island you reach with **SURF**, and
+  the **TIDEWATER MART**: talk to the clerk across the counter to BUY or
+  SELL. You start with $3000. Orbs and potions cost $200 to $700, and the
+  MART buys items back for half.
 - **FLY** from the start menu (Enter) to any town you've visited.
 - Emerald-style feel: tap to turn in place, hold to walk, bump into walls,
   run at double speed, location banner on entering a map, typewriter text box.
@@ -43,8 +46,8 @@ sheet. Real assets slot in later without code changes.
 - **Catching.** Open the BAG in battle and throw an orb. Weaken a monster
   first: the lower its HP, the better the odds (Emerald's formula). The orb
   shakes up to three times, and caught monsters join your party, or the BOX
-  once you have six. POTIONs heal 20 HP. You start with 2 POTIONs, and the
-  professor adds 5 MON ORBs.
+  once you have six. POTIONs heal 20 HP and BIG POTIONs 50. You start with
+  2 POTIONs, and the professor adds 5 MON ORBs.
 - **Start menu (Enter):** MONSTERS (party list, a two-page summary, and
   SWITCH to change your lead), BAG (use POTIONs on any party member), FLY and
   SAVE. With a save, the game opens on a title screen with CONTINUE / NEW GAME.
@@ -107,9 +110,9 @@ godot --headless --path . --import
 ```sh
 # Battle rules: formulas, turn order, abilities, catching, items, PP, EXP (47 checks)
 godot --headless --path . --script res://tests/battle_test.gd
-# Party, BOX, BAG, flags and save/load round trips (19 checks)
+# Party, BOX, BAG, money, flags and save/load round trips (27 checks)
 godot --headless --path . --script res://tests/game_state_test.gd
-# Plays the whole game by injecting input: starter, battles, menus, save, continue (44 checks)
+# Plays the whole game by injecting input: starter, battles, menus, shop, save (51 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
 ```
 
@@ -127,9 +130,9 @@ your real save.
    summary, BAG outside battle, MOM healing, save/load with a title screen.
 5. **Field-move gating.** Unlock CUT/SURF/FLY through party moves and badges
    instead of the prototype's all-unlocked default.
-6. **Content.** Trainers with line-of-sight battles, a Monster Center, a mart,
-   a PC for the BOX, nicknames, more routes and towns, and real art from the
-   sources in ASSETS.md.
+6. **Content.** Trainers with line-of-sight battles (and prize money), a
+   Monster Center, a PC for the BOX, nicknames, more routes and towns, and
+   real art from the sources in ASSETS.md. ~~A mart~~ is done.
 
 ## Credits
 

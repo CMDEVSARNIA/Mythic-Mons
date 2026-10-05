@@ -172,6 +172,8 @@ static func sfx(id: StringName) -> AudioStreamWAV:
 			for hz: float in [1046.5, 1318.51, 1567.98, 2093.0, 1567.98, 2093.0]:
 				sparkle.append(tone(Wave.PULSE_12, hz, hz, 0.05, 0.18, 0.12))
 			samples = sequence(sparkle)
+		&"purchase":
+			samples = sequence([tone(Wave.PULSE_25, 1567.98, 1567.98, 0.06, 0.22, 0.15), tone(Wave.PULSE_25, 2093.0, 2093.0, 0.18, 0.22)])
 		&"encounter":
 			var beeps: Array[PackedFloat32Array] = []
 			for i in 8:

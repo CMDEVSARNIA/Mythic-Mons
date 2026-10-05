@@ -9,6 +9,7 @@ const WATER := &"water"             ## Surfable.
 const LEDGE_DOWN := &"ledge_down"   ## One-way hop when approached from above.
 const LEDGE_LEFT := &"ledge_left"
 const LEDGE_RIGHT := &"ledge_right"
+const COUNTER := &"counter"         ## Solid; the player talks across it.
 
 const _LEDGE_DIRECTIONS := {
 	LEDGE_DOWN: Vector2i.DOWN,

@@ -72,6 +72,8 @@ const TILES := {
 	&"roof_blue_l": Vector2i(0, 3),
 	&"roof_blue_m": Vector2i(1, 3),
 	&"roof_blue_r": Vector2i(2, 3),
+	&"counter": Vector2i(3, 3),
+	&"mart_shelf": Vector2i(4, 3),
 }
 const ATLAS_SIZE := Vector2i(8, 4)
 
@@ -88,6 +90,7 @@ const CHARACTERS := {
 	&"swimmer": [&"swimcap", &"swim", {"H": SKY, "h": BLUE, "G": INK, "L": WHITE, "B": ORANGE, "b": RED}],
 	&"rival": [&"spiky", &"jacket", {"H": WOOD, "h": WOOD_DARK, "B": PLUM, "b": NAVY, "C": WHITE, "P": NIGHT, "F": SLATE}],
 	&"nurse": [&"nurse", &"apron", {"H": PINK, "h": PINK_DARK, "A": RED, "B": PINK, "b": PINK_DARK, "C": WHITE, "c": FOG, "P": PINK, "F": WHITE}],
+	&"clerk": [&"cap", &"apron", {"H": GREEN, "h": DEEP, "A": WHITE, "R": HAIR, "r": INK, "B": GREEN, "b": DEEP, "C": WHITE, "c": FOG, "P": NIGHT, "F": INK}],
 }
 
 ## Catching orbs: id -> [top color, accent color].
@@ -121,6 +124,46 @@ const MONSTERS := {
 ## Quick stand-ins for species nobody has drawn yet: id -> [seed, element],
 ## e.g. `&"newmon": [7, &"fire"]`. Try seeds until one looks right.
 const GENERATED_MONSTERS := {}
+
+# A shop counter: the top, its front edge, then a paneled front.
+const _COUNTER := [
+	"KKKKKKKKKKKKKKKK",
+	"WWWWWWWWWWWWWWWW",
+	"SSSSSSSSSSSSSSSS",
+	"SSSSSSSSSSSSSSSS",
+	"SSSSSSSSSSSSSSSS",
+	"SSSSSSSSSSSSSSSS",
+	"SSSSSSSSSSSSSSSS",
+	"SSSSSSSSSSSSSSSS",
+	"dddddddddddddddd",
+	"KKKKKKKKKKKKKKKK",
+	"oooooooooooooooo",
+	"oOOOOOOooOOOOOOo",
+	"oOooooOooOooooOo",
+	"oOOOOOOooOOOOOOo",
+	"oooooooooooooooo",
+	"KKKKKKKKKKKKKKKK",
+]
+
+# A MART display shelf: orbs on top, potions below.
+const _MART_SHELF := [
+	"KKKKKKKKKKKKKKKK",
+	"KFFFFFFFFFFFFFFK",
+	"KFnnnnnnnnnnnnFK",
+	"KFnnRRnnnnRRnnFK",
+	"KFnRRRRnnRRRRnFK",
+	"KFnWWWWnnWWWWnFK",
+	"KFnnWWnnnnWWnnFK",
+	"KFSSSSSSSSSSSSFK",
+	"KFnnnnnnnnnnnnFK",
+	"KFnnCCnnnnCCnnFK",
+	"KFnnPPnnnnPPnnFK",
+	"KFnPPPPnnPPPPnFK",
+	"KFnPLPPnnPLPPnFK",
+	"KFnPPPPnnPPPPnFK",
+	"KFSSSSSSSSSSSSFK",
+	"KKKKKKKKKKKKKKKK",
+]
 
 # 8x8 clump repeated four times to make the tall grass tile.
 const _TALL_GRASS := [
@@ -165,6 +208,8 @@ static func overworld_tiles() -> Image:
 	_table(img, _origin(&"table"))
 	_bed(img, _origin(&"bed"))
 	_shelf(img, _origin(&"shelf"))
+	_pattern(img, _origin(&"counter"), _COUNTER, {"K": INK, "W": WHITE, "S": SAND, "d": DIRT_DARK, "o": WOOD, "O": WOOD_DARK})
+	_pattern(img, _origin(&"mart_shelf"), _MART_SHELF, {"K": INK, "F": FOG, "n": NIGHT, "S": SLATE, "R": RED, "W": WHITE, "C": CYAN, "P": PLUM, "L": MAUVE})
 	_rect(img, _origin(&"void"), 0, 0, TILE, TILE, INK)
 	return img
 

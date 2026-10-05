@@ -81,12 +81,13 @@ const SPECIES := {
 const BALL := ItemData.Kind.BALL
 const HEAL := ItemData.Kind.HEAL
 
-## id: [name, kind, catch multiplier or heal amount, description]
+## id: [name, kind, catch multiplier or heal amount, price (0 = not sold), description]
 const ITEMS := {
-	"mon_orb": ["MON ORB", BALL, 1.0, "A device for catching\nwild MONSTERS."],
-	"super_orb": ["SUPER ORB", BALL, 1.5, "A better orb with a\nhigher catch rate."],
-	"master_orb": ["MASTER ORB", BALL, 255.0, "Catches any wild\nMONSTER without fail."],
-	"potion": ["POTION", HEAL, 20, "Restores 20 HP to\none MONSTER."],
+	"mon_orb": ["MON ORB", BALL, 1.0, 200, "A device for catching\nwild MONSTERS."],
+	"super_orb": ["SUPER ORB", BALL, 1.5, 600, "A better orb with a\nhigher catch rate."],
+	"master_orb": ["MASTER ORB", BALL, 255.0, 0, "Catches any wild\nMONSTER without fail."],
+	"potion": ["POTION", HEAL, 20, 300, "Restores 20 HP to\none MONSTER."],
+	"big_potion": ["BIG POTION", HEAL, 50, 700, "Restores 50 HP to\none MONSTER."],
 }
 
 var _force := false
@@ -167,7 +168,8 @@ func _build_item(id: String, row: Array) -> ItemData:
 		item.icon = load(ITEM_SPRITE_DIR + id + ".png")
 	else:
 		item.heal_amount = row[2]
-	item.description = row[3]
+	item.price = row[3]
+	item.description = row[4]
 	return item
 
 

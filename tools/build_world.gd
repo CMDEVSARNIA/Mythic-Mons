@@ -21,6 +21,7 @@ const SPAWN_POINT_SCRIPT := "res://scenes/objects/spawn_point.gd"
 const SCENES := {
 	"npc": "res://scenes/actors/npc/npc.tscn",
 	"professor": "res://scenes/actors/npc/professor.tscn",
+	"clerk": "res://scenes/actors/npc/clerk.tscn",
 	"sign": "res://scenes/objects/signpost.tscn",
 	"warp": "res://scenes/objects/warp.tscn",
 	"cut_tree": "res://scenes/objects/cut_tree.tscn",
@@ -54,6 +55,8 @@ const TILE_RULES := {
 	&"table": [0, &""],
 	&"bed": [0, &""],
 	&"shelf": [0, &""],
+	&"counter": [0, &"counter"],
+	&"mart_shelf": [0, &""],
 	&"void": [0, &""],
 }
 
@@ -65,6 +68,7 @@ const LEGEND := {
 	"{": &"roof_blue_l", "-": &"roof_blue_m", "}": &"roof_blue_r",
 	"|": &"wall", "o": &"window", "D": &"door", "f": &"fence",
 	"b": &"floor", "w": &"indoor_wall", "m": &"mat", "t": &"table", "B": &"bed", "k": &"shelf", "x": &"void",
+	"c": &"counter", "s": &"mart_shelf",
 }
 
 ## Turns the player back at Emberfall's north exit until they have a starter.
@@ -225,7 +229,7 @@ const MAPS := [
 			"#..................#",
 			"#..{---}....{---}..#",
 			"#..{---}....{---}..#",
-			"#..|ooo|....|ooo|..#",
+			"#..|oDo|....|ooo|..#",
 			"#..................#",
 			"#....::::::::::....#",
 			"#..**....::....**..#",
@@ -238,12 +242,15 @@ const MAPS := [
 			"default": [Vector2i(9, 14), DOWN],
 			"fly": [Vector2i(9, 14), DOWN],
 			"from_route": [Vector2i(9, 16), UP],
+			"from_mart": [Vector2i(5, 11), DOWN],
 		},
 		"warps": [
 			[Vector2i(9, 17), "route_01.tscn", "north", &""],
 			[Vector2i(10, 17), "route_01.tscn", "north", &""],
+			[Vector2i(5, 10), "mart_tidewater.tscn", "entrance", &"door"],
 		],
 		"signs": [
+			[Vector2i(7, 11), ["TIDEWATER MART\nOrbs and medicine for\nevery trainer!"]],
 			[Vector2i(11, 14), ["TIDEWATER CITY\nWhere the sea meets\nthe sky."]],
 			[Vector2i(4, 2), ["TREASURE ISLE", "...There's nothing here\nyet. Maybe in a future\nupdate!"]],
 		],
@@ -251,6 +258,31 @@ const MAPS := [
 			[Vector2i(14, 7), "swimmer", 2, ["See that island? Face the\nwater and press Z to SURF!"]],
 			[Vector2i(12, 15), "officer", 0, ["Welcome to TIDEWATER\nCITY! I keep the\npeace around here.", "Off on a trip? Open\nthe menu and SAVE\nbefore you go!"]],
 			[Vector2i(16, 15), "mystic", 1, ["I see... FIRE burns\nGRASS, GRASS drinks\nWATER...", "...and WATER douses\nFIRE. The spirits\nnever lie."]],
+		],
+	},
+	{
+		"file": "mart_tidewater.tscn",
+		"node": "MartTidewater",
+		"props": {"display_name": "TIDEWATER MART", "allow_fly": false, "music": &"town"},
+		"layout": [
+			"wwwwwwwwww",
+			"bbcbbbbbbb",
+			"bbcbbssbbb",
+			"cccbbssbbb",
+			"bbbbbbbbbb",
+			"bbbbbbbbbb",
+			"bbbbmbbbbb",
+		],
+		"spawns": {
+			"default": [Vector2i(4, 5), UP],
+			"entrance": [Vector2i(4, 5), UP],
+		},
+		"warps": [
+			[Vector2i(4, 6), "town_tidewater.tscn", "from_mart", &"door"],
+		],
+		"npcs": [
+			[Vector2i(1, 2), "clerk", 0, [], {"scene": "clerk", "start_facing": 3}],
+			[Vector2i(8, 4), "hiker", 1, ["I always stock up on\nPOTIONs before a long\ntrip.", "BIG POTIONs heal even\nmore. They're worth it!"]],
 		],
 	},
 ]

@@ -20,14 +20,15 @@ Mythic-Mons/
 │   ├── actors/
 │   │   ├── grid_actor.gd      Shared tile-locked movement (player and NPCs)
 │   │   ├── player/            Player scene + input, interaction, surfing, ledges
-│   │   └── npc/               Wandering NPC (can heal), StarterGiver + professor.tscn
+│   │   └── npc/               Wandering NPC (can heal), StarterGiver + professor.tscn,
+│   │                          ShopClerk + clerk.tscn
 │   ├── maps/
 │   │   ├── world_map.gd       Root script of every map (terrain lookups, spawns, encounters)
-│   │   └── *.tscn             Emberfall, its house, Route 1, Tidewater
+│   │   └── *.tscn             Emberfall, its house, Route 1, Tidewater, its MART
 │   ├── objects/               Warp, SpawnPoint, Signpost, CUT tree, ROCK SMASH boulder
 │   ├── battle/                BattleScene (menus + animation), BattlerPanel, StatBar
 │   └── ui/                    Dialogue box (autoload), choice box, map banner, party menu,
-│                              monster summary
+│                              monster summary, shop menu, quantity box
 ├── scripts/                   Non-scene code (class_name utilities)
 │   ├── core/                  Grid, PhysicsLayers, Terrain, GameData (id → resource lookups)
 │   ├── monsters/              MonsterSpecies, MoveData, LevelMove, Monster, TypeChart,
@@ -175,7 +176,8 @@ Player specifics, mirroring Emerald:
 
 The TileSet has a custom data layer named `terrain` (StringName). Current tags
 are listed in `scripts/core/terrain.gd`: `tall_grass`, `water`, `ledge_down`,
-`ledge_left`, `ledge_right`. Normal ground leaves it empty. Add a tag there,
+`ledge_left`, `ledge_right` and `counter` (the player talks across it). Normal
+ground leaves it empty. Add a tag there,
 assign it in the TileSet editor (or `TILE_RULES` in `tools/build_world.gd`),
 and react to it in `Player._try_step()` / `_on_step_finished()`.
 
@@ -299,9 +301,18 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
   big picture of the highlighted monster, and SUMMARY (two pages: info and
   ability, then stats and moves) or SWITCH to reorder; the first healthy one
   leads in battle. BAG uses `PartyMenu.pick()` to choose who gets a POTION.
+- **Shops.** A `ShopClerk` (an NPC subclass, `clerk.tscn`) stands behind a
+  counter tile; `Player._interact()` looks past counters, so the player talks
+  across them. Talking adds a `ShopMenu` and awaits `run(stock)`: BUY / SELL
+  / QUIT, an item list with the highlighted item's description, a
+  `QuantityBox` (up/down ±1, left/right ±10) and a YES/NO confirmation.
+  Prices are `ItemData.price` (0 = not for sale), and the MART buys items
+  back for `sell_price()`, half of that. `GameState.money` starts at $3000
+  and is capped at $999,999. The BAG holds up to 99 of each item. To stock a
+  different MART, set the clerk's `stock` in the inspector.
 - **Saving.** SAVE writes `user://save.json`: the player's map, cell,
-  facing and surf state, plus the party, BOX, BAG, flags, Fly towns and
-  respawn. Monsters store species and move *ids*, not resource paths. A
+  facing and surf state, plus the party, BOX, BAG, money, flags, Fly towns
+  and respawn. Monsters store species and move *ids*, not resource paths. A
   save survives refactors as long as ids stay the same, and unknown species
   or moves are skipped rather than crashing. It's JSON because loading a
   `.tres` can run scripts embedded in it, and players edit and share save
@@ -339,14 +350,15 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
   damage formulas, type chart, stages, turn order and priority, all six
   abilities, winning, losing, forced switches, running, PP, STRUGGLE,
   level-ups, catch odds, orbs and POTIONs (47 checks).
-- `tests/game_state_test.gd` covers the party, BOX, BAG, flags, monster
-  serialization, a full save/load round trip, and corrupt or newer-version
-  saves (19 checks). It uses its own save file.
+- `tests/game_state_test.gd` covers the party, BOX, BAG limits, money,
+  flags, monster serialization, a full save/load round trip, and corrupt or
+  newer-version saves (27 checks). It uses its own save file.
 - `tests/smoke_test.gd` plays the real game by injecting input: movement,
   signs, NPCs, CUT, doors, the starter gate and PROF. ASTER's starter,
   ledges, ROCK SMASH, a won battle, a catch, a whiteout, MOM's healing, the
   party screen, summary and SWITCH, POTIONs from the BAG, SAVE, CONTINUE
-  from the title screen, SURF and FLY (44 checks). It uses its own save file.
+  from the title screen, SURF, buying and selling in the MART, and FLY
+  (51 checks). It uses its own save file.
 
 ```sh
 godot --headless --path . --script res://tests/battle_test.gd

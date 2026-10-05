@@ -1,0 +1,67 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/shop_menu.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/ui/choice_box.tscn" id="2_choices"]
+[ext_resource type="PackedScene" path="res://scenes/ui/quantity_box.tscn" id="3_quantity"]
+
+[node name="ShopMenu" type="CanvasLayer"]
+layer = 6
+script = ExtResource("1_script")
+
+[node name="MoneyBox" type="PanelContainer" parent="."]
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 74.0
+offset_bottom = 30.0
+
+[node name="Label" type="Label" parent="MoneyBox"]
+layout_mode = 2
+text = "MONEY
+$3000"
+
+[node name="ListArea" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+
+[node name="List" parent="ListArea" instance=ExtResource("2_choices")]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 0
+
+[node name="InfoBox" type="PanelContainer" parent="."]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = -46.0
+offset_right = -2.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Label" type="Label" parent="InfoBox"]
+layout_mode = 2
+size_flags_vertical = 1
+autowrap_mode = 3
+
+[node name="QuantityArea" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 48
+
+[node name="Quantity" parent="QuantityArea" instance=ExtResource("3_quantity")]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8

@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="1_npc"]
+[ext_resource type="Script" path="res://scenes/actors/npc/shop_clerk.gd" id="2_script"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_clerk.png" id="3_sheet"]
+[ext_resource type="Resource" path="res://data/items/mon_orb.tres" id="4_mon_orb"]
+[ext_resource type="Resource" path="res://data/items/super_orb.tres" id="5_super_orb"]
+[ext_resource type="Resource" path="res://data/items/potion.tres" id="6_potion"]
+[ext_resource type="Resource" path="res://data/items/big_potion.tres" id="7_big_potion"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="8_item"]
+
+[node name="Clerk" instance=ExtResource("1_npc")]
+script = ExtResource("2_script")
+stock = Array[ExtResource("8_item")]([ExtResource("4_mon_orb"), ExtResource("5_super_orb"), ExtResource("6_potion"), ExtResource("7_big_potion")])
+sprite_sheet = ExtResource("3_sheet")
+wander_radius = 0

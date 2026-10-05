@@ -9,3 +9,4 @@ display_name = "MON ORB"
 description = "A device for catching
 wild MONSTERS."
 icon = ExtResource("1_2gmg8")
+price = 200

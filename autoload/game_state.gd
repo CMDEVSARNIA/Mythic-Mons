@@ -8,6 +8,10 @@ extends Node
 ## Field moves that change how the player can traverse the world.
 const FIELD_MOVES: Array[StringName] = [&"cut", &"rock_smash", &"surf", &"fly"]
 const MAX_PARTY := 6
+## Most of one item the BAG holds.
+const MAX_ITEM_COUNT := 99
+const START_MONEY := 3000
+const MAX_MONEY := 999999
 const SAVE_VERSION := 1
 const STARTER_FLAG := &"got_starter"
 
@@ -26,6 +30,7 @@ var party: Array[Monster] = []
 var storage: Array[Monster] = []
 ## Item id (a file in res://data/items/) -> how many the player carries.
 var bag: Dictionary[StringName, int] = {&"potion": 2}
+var money := START_MONEY
 ## Where the player wakes up after losing a battle (last place they healed).
 var respawn_map := "res://scenes/maps/house_emberfall.tscn"
 var respawn_spawn: StringName = &"entrance"
@@ -71,17 +76,36 @@ func add_monster(monster: Monster) -> bool:
 	return false
 
 
+func item_count(id: StringName) -> int:
+	return bag.get(id, 0)
+
+
+## Adds items, up to MAX_ITEM_COUNT of each.
 func add_item(id: StringName, count := 1) -> void:
-	bag[id] = bag.get(id, 0) + count
+	bag[id] = mini(item_count(id) + count, MAX_ITEM_COUNT)
 
 
-## Removes one of an item. Returns false if there was none to remove.
-func remove_item(id: StringName) -> bool:
-	if bag.get(id, 0) <= 0:
+## Removes `count` of an item. Returns false, removing nothing, if the BAG
+## holds fewer than that.
+func remove_item(id: StringName, count := 1) -> bool:
+	if count <= 0 or item_count(id) < count:
 		return false
-	bag[id] -= 1
+	bag[id] -= count
 	if bag[id] == 0:
 		bag.erase(id)
+	return true
+
+
+func add_money(amount: int) -> void:
+	money = clampi(money + amount, 0, MAX_MONEY)
+
+
+## Pays `amount` if the player can afford it. Returns false, paying nothing,
+## if they can't.
+func spend_money(amount: int) -> bool:
+	if amount < 0 or amount > money:
+		return false
+	money -= amount
 	return true
 
 
@@ -107,6 +131,7 @@ func save_game(location: Dictionary) -> Error:
 		"party": party.map(func(monster: Monster) -> Dictionary: return monster.to_dict()),
 		"storage": storage.map(func(monster: Monster) -> Dictionary: return monster.to_dict()),
 		"bag": bag,
+		"money": money,
 		"flags": flags,
 		"visited_towns": visited_towns,
 	}
@@ -134,6 +159,7 @@ func load_game() -> Dictionary:
 	bag.clear()
 	for id: String in data.get("bag", {}):
 		bag[StringName(id)] = int(data.bag[id])
+	money = clampi(int(data.get("money", START_MONEY)), 0, MAX_MONEY)
 	flags.clear()
 	for flag: String in data.get("flags", {}):
 		flags[StringName(flag)] = bool(data.flags[flag])
