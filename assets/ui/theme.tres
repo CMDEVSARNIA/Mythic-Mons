@@ -26,4 +26,6 @@ default_font_size = 8
 Label/colors/font_color = Color(0.102, 0.11, 0.173, 1)
 Label/constants/line_spacing = 3
 PanelContainer/styles/panel = SubResource("StyleBoxFlat_box")
+GridContainer/constants/h_separation = 8
+GridContainer/constants/v_separation = 4
 VBoxContainer/constants/separation = 4

@@ -106,15 +106,32 @@ func _run() -> void:
 	await _tap(&"move_up")
 	_check(_player.get_cell() == Vector2i(2, 15), "ROCK SMASH opens the hidden pocket")
 
-	# --- Wild encounters -----------------------------------------------------
-	_main.current_map.encounter_rate = 1.0
+	# --- Wild battles ------------------------------------------------------
+	var route: Node2D = _main.current_map
+	route.encounter_rate = 1.0
+	route.wild_monsters.assign([&"sproutle"])
+	route.wild_levels = Vector2i(2, 2)
 	await _place(Vector2i(3, 1), Vector2i.DOWN)
 	await _tap(&"move_down")
-	await _wait(1.6)
-	_check(_dialogue.is_open and _main.encounter_preview.visible, "tall grass triggers a wild encounter")
-	_shot("06_encounter")
+	await _wait(2.5)
+	_check(_battle_scene() != null, "tall grass starts a wild battle")
+	_shot("06_battle_intro")
+	await _press_through_battle()
+	_check(_battle_scene() == null and _map_name() == "ROUTE 1" and not _player.is_locked(), "winning a battle returns to the overworld")
+	var game_state := root.get_node(^"GameState")
+	var lead: Resource = game_state.party[0]
+	_check(lead.experience > 125, "the winner earns EXP")
+
+	lead.hp = 1
+	route.wild_monsters.assign([&"zapkit"])
+	route.wild_levels = Vector2i(30, 30)
+	await _place(Vector2i(3, 1), Vector2i.DOWN)
+	await _tap(&"move_down")
+	await _wait(2.5)
+	await _press_through_battle()
 	await _close_dialogue()
-	_main.current_map.encounter_rate = 0.0
+	_check(_map_name() == "YOUR HOUSE" and lead.hp == lead.max_hp(), "losing whites out at home with the party healed")
+	_check(not _player.is_locked(), "control returns after whiting out")
 
 	# --- SURF ----------------------------------------------------------------
 	_main.change_map(MAPS + "town_tidewater.tscn", &"from_route")
@@ -123,13 +140,13 @@ func _run() -> void:
 	await _place(Vector2i(5, 6), Vector2i.UP)
 	await _tap(&"confirm")
 	await _wait(1.6)
-	_shot("07_surf_prompt")
+	_shot("09_surf_prompt")
 	await _tap(&"confirm") # YES
 	await _wait(0.6)
 	_check(_player.is_surfing and _player.get_cell() == Vector2i(5, 5), "SURF hops onto the water")
 	await _tap(&"move_up")
 	await _wait(0.3)
-	_shot("08_surfing")
+	_shot("10_surfing")
 	await _tap(&"move_up")
 	await _wait(0.6)
 	_check(not _player.is_surfing and _player.get_cell() == Vector2i(5, 3), "surfing into land dismounts")
@@ -140,13 +157,38 @@ func _run() -> void:
 	_check(_main.start_menu.visible, "ENTER opens the start menu")
 	await _tap(&"confirm") # FLY
 	await _wait(0.2)
-	_shot("09_fly_menu")
+	_shot("11_fly_menu")
 	await _tap(&"confirm") # First visited town: Emberfall.
 	await _wait(1.2)
 	_check(_map_name() == "EMBERFALL TOWN" and _player.get_cell() == Vector2i(10, 7), "FLY returns to a visited town")
 
 	print("\nSMOKE TEST %s (%d failed)" % ["PASSED" if _failures == 0 else "FAILED", _failures])
 	quit(1 if _failures > 0 else 0)
+
+
+## Presses A until the battle is over, taking screenshots of the menus.
+func _press_through_battle() -> void:
+	var shots := {}
+	for i in 150:
+		var battle: Control = _battle_scene()
+		if battle == null:
+			break
+		if battle.get_node(^"Menus/ActionArea/ActionMenu").visible and not shots.has("menu"):
+			shots["menu"] = true
+			_shot("07_battle_menu")
+		elif battle.get_node(^"Menus/MoveArea/MoveMenu").visible and not shots.has("moves"):
+			shots["moves"] = true
+			_shot("08_battle_moves")
+		await _tap(&"confirm")
+	await _wait(1.0)
+
+
+func _battle_scene() -> Control:
+	var layer: CanvasLayer = _main.battle_layer
+	for child in layer.get_children():
+		if not child.is_queued_for_deletion():
+			return child
+	return null
 
 
 func _map_name() -> String:

@@ -502,14 +502,57 @@ static func signpost() -> Image:
 	return img
 
 
+## 240x160 grassy battle backdrop with two platforms: the wild monster's at
+## the top right, the player's at the bottom left (see BattleScene).
+static func battle_background() -> Image:
+	var img := _new_image(240, 160)
+	# Sky fades from white to cyan through ordered dithering.
+	for y in 52:
+		for x in 240:
+			var t := y / 52.0
+			var threshold := (((x % 2) * 2 + (y % 2)) + 0.5) / 4.0
+			img.set_pixel(x, y, CYAN if t > threshold else WHITE)
+	# A band of distant trees on the horizon.
+	for x in 240:
+		var top := 44 + roundi(3.0 * sin(x * 0.35) + 2.0 * sin(x * 0.9))
+		for y in range(top, 54):
+			img.set_pixel(x, y, DEEP if y > top else INK)
+	# The field, with light stripes for depth.
+	_rect(img, Vector2i.ZERO, 0, 54, 240, 106, LIME)
+	for y in range(54, 160):
+		if (y - 54) % 6 < 2:
+			for x in range(y % 4, 240, 4):
+				img.set_pixel(x, y, GREEN)
+	_platform(img, Vector2(176, 68), Vector2(46, 10))
+	_platform(img, Vector2(64, 114), Vector2(56, 12))
+	return img
+
+
+static func _platform(img: Image, center: Vector2, radius: Vector2) -> void:
+	for y in range(floori(center.y - radius.y), ceili(center.y + radius.y) + 1):
+		for x in range(floori(center.x - radius.x), ceili(center.x + radius.x) + 1):
+			var n := (Vector2(x, y) + Vector2(0.5, 0.5) - center) / radius
+			var d := n.length_squared()
+			if d > 1.0 or x < 0 or y < 0 or x >= img.get_width() or y >= img.get_height():
+				continue
+			var c := GREEN
+			if d > 0.8:
+				c = DEEP
+			elif n.y < -0.3 and d < 0.5:
+				c = LIME
+			img.set_pixel(x, y, c)
+
+
 # =============================================================================
 # Monsters
 # =============================================================================
 
 ## A symmetric 32x32 creature built from a seed: a body, an optional head,
 ## then random ears or horns, legs, arms and a belly patch. Parts are drawn on
-## a 16x16 grid, mirrored, shaded, upscaled 2x and outlined.
-static func monster(seed_value: int, element: StringName) -> Image:
+## a 16x16 grid, mirrored, shaded, upscaled 2x and outlined. `back` draws the
+## same silhouette seen from behind (no face or belly) for the player's side
+## of a battle.
+static func monster(seed_value: int, element: StringName, back := false) -> Image:
 	var rng := RandomNumberGenerator.new()
 	rng.seed = seed_value
 	var colors: Array = ELEMENT_COLORS.get(element, ELEMENT_COLORS[&"rock"])
@@ -568,19 +611,20 @@ static func monster(seed_value: int, element: StringName) -> Image:
 				c = colors[2]
 			elif not _cell(cells, x, y + 1) or not _cell(cells, x - 1, y) or not _cell(cells, x + 1, y):
 				c = colors[1]
-			elif belly.length_squared() <= 1.0:
+			elif belly.length_squared() <= 1.0 and not back:
 				c = colors[2]
 			small.set_pixel(x, y, c)
 	var img := small.duplicate() as Image
 	img.resize(32, 32, Image.INTERPOLATE_NEAREST)
 
-	# Dark eyes with a white glint read on every body color.
-	var eye_x := floori(8.0 - head_r.x * 0.45)
-	var eye_y := floori(head_y - head_r.y * 0.15)
-	for ex: int in [eye_x, 15 - eye_x]:
-		var p := Vector2i(ex * 2, eye_y * 2)
-		img.fill_rect(Rect2i(p, Vector2i(2, 3)), INK)
-		img.set_pixel(p.x + (1 if ex < 8 else 0), p.y, WHITE)
+	if not back:
+		# Dark eyes with a white glint read on every body color.
+		var eye_x := floori(8.0 - head_r.x * 0.45)
+		var eye_y := floori(head_y - head_r.y * 0.15)
+		for ex: int in [eye_x, 15 - eye_x]:
+			var p := Vector2i(ex * 2, eye_y * 2)
+			img.fill_rect(Rect2i(p, Vector2i(2, 3)), INK)
+			img.set_pixel(p.x + (1 if ex < 8 else 0), p.y, WHITE)
 	_outline(img, INK)
 	return img
 

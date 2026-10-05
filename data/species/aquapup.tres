@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="MonsterSpecies" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/soak_up.tres" id="1_5p7vh"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/aquapup_back.png" id="2_b1v24"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/aquapup.png" id="3_elnng"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="4_l04rq"]
+[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="5_qvly0"]
+[ext_resource type="Resource" path="res://data/moves/growl.tres" id="6_fsyh5"]
+[ext_resource type="Resource" path="res://data/moves/water_gun.tres" id="7_ffq8o"]
+[ext_resource type="Resource" path="res://data/moves/harden.tres" id="8_felxb"]
+[ext_resource type="Resource" path="res://data/moves/bubblebeam.tres" id="9_7cgve"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="10_gnud2"]
+
+[sub_resource type="Resource" id="Resource_8dk0g"]
+script = ExtResource("4_l04rq")
+move = ExtResource("5_qvly0")
+
+[sub_resource type="Resource" id="Resource_ioh0p"]
+script = ExtResource("4_l04rq")
+move = ExtResource("6_fsyh5")
+
+[sub_resource type="Resource" id="Resource_7k1s1"]
+script = ExtResource("4_l04rq")
+level = 7
+move = ExtResource("7_ffq8o")
+
+[sub_resource type="Resource" id="Resource_yrpyo"]
+script = ExtResource("4_l04rq")
+level = 13
+move = ExtResource("8_felxb")
+
+[sub_resource type="Resource" id="Resource_nk378"]
+script = ExtResource("4_l04rq")
+level = 19
+move = ExtResource("9_7cgve")
+
+[resource]
+script = ExtResource("10_gnud2")
+display_name = "AQUAPUP"
+element = "water"
+ability = ExtResource("1_5p7vh")
+front_texture = ExtResource("3_elnng")
+back_texture = ExtResource("2_b1v24")
+base_hp = 44
+base_attack = 48
+base_defense = 65
+base_special = 50
+base_speed = 43
+exp_yield = 63
+learnset = Array[ExtResource("4_l04rq")]([SubResource("Resource_8dk0g"), SubResource("Resource_ioh0p"), SubResource("Resource_7k1s1"), SubResource("Resource_yrpyo"), SubResource("Resource_nk378")])
+dex_entry = "Splashes through puddles for hours and never seems to get cold."

@@ -1,21 +1,30 @@
 class_name ChoiceBox
 extends PanelContainer
-## A vertical option list with a ▶ cursor, used by the start menu and by
-## Dialogue.ask(). `await choose([...])` returns the picked index, or -1 when
-## the player cancels with B.
+## An option list with a ▶ cursor, used by the start menu, Dialogue.ask()
+## and battle menus. `await choose([...])` returns the picked index, or -1
+## when the player cancels with B. Set `columns` for a grid (e.g. FIGHT/BAG
+## over MON/RUN).
 
+signal cursor_moved(index: int)
 signal _chosen(index: int)
 
 const CURSOR := "▶"
+
+@export_range(1, 4) var columns := 1:
+	set(value):
+		columns = value
+		if is_node_ready():
+			_list.columns = value
 
 var _options: PackedStringArray = []
 var _index := 0
 var _active := false
 
-@onready var _list: VBoxContainer = $List
+@onready var _list: GridContainer = $List
 
 
 func _ready() -> void:
+	_list.columns = columns
 	hide()
 
 
@@ -30,6 +39,7 @@ func choose(options: PackedStringArray, start_index := 0) -> int:
 	_refresh()
 	show()
 	_active = true
+	cursor_moved.emit(_index)
 	var result: int = await _chosen
 	_active = false
 	hide()
@@ -40,8 +50,12 @@ func _input(event: InputEvent) -> void:
 	if not _active:
 		return
 	if event.is_action_pressed(&"move_up", true):
-		_move(-1)
+		_move(-columns)
 	elif event.is_action_pressed(&"move_down", true):
+		_move(columns)
+	elif event.is_action_pressed(&"move_left", true) and columns > 1:
+		_move(-1)
+	elif event.is_action_pressed(&"move_right", true) and columns > 1:
 		_move(1)
 	elif event.is_action_pressed(&"confirm"):
 		Audio.play_sfx(&"select")
@@ -57,6 +71,7 @@ func _input(event: InputEvent) -> void:
 func _move(step: int) -> void:
 	_index = wrapi(_index + step, 0, _options.size())
 	_refresh()
+	cursor_moved.emit(_index)
 
 
 func _refresh() -> void:

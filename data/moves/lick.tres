@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/move_data.gd" id="1_issgr"]
+
+[resource]
+script = ExtResource("1_issgr")
+display_name = "LICK"
+element = "ghost"
+power = 30
+max_pp = 30
+description = "An eerie, chilling lick."

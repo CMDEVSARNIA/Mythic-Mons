@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="EndureAbility" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/abilities/endure_ability.gd" id="1_k6kd2"]
+
+[resource]
+script = ExtResource("1_k6kd2")
+display_name = "STURDY SHELL"
+description = "Survives any hit taken at full HP."

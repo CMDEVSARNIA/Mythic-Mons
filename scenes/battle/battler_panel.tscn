@@ -1,0 +1,69 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/battler_panel.gd" id="1_script"]
+[ext_resource type="Script" path="res://scenes/battle/stat_bar.gd" id="2_bar"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_compact"]
+content_margin_left = 6.0
+content_margin_top = 4.0
+content_margin_right = 6.0
+content_margin_bottom = 4.0
+bg_color = Color(0.957, 0.957, 0.957, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.2, 0.235, 0.341, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+corner_detail = 1
+anti_aliasing = false
+
+[node name="BattlerPanel" type="PanelContainer"]
+custom_minimum_size = Vector2(132, 0)
+theme_override_styles/panel = SubResource("StyleBoxFlat_compact")
+script = ExtResource("1_script")
+
+[node name="Rows" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 3
+
+[node name="Header" type="HBoxContainer" parent="Rows"]
+layout_mode = 2
+
+[node name="Name" type="Label" parent="Rows/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "NAME"
+
+[node name="Level" type="Label" parent="Rows/Header"]
+layout_mode = 2
+text = "Lv1"
+
+[node name="HpRow" type="HBoxContainer" parent="Rows"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="HpLabel" type="Label" parent="Rows/HpRow"]
+layout_mode = 2
+text = "HP"
+
+[node name="HpBar" type="Control" parent="Rows/HpRow"]
+custom_minimum_size = Vector2(0, 6)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+script = ExtResource("2_bar")
+
+[node name="HpText" type="Label" parent="Rows"]
+layout_mode = 2
+text = "  1/  1"
+horizontal_alignment = 2
+
+[node name="ExpBar" type="Control" parent="Rows"]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+script = ExtResource("2_bar")
+hp_colors = false

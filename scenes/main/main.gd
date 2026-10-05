@@ -2,12 +2,12 @@ extends Node
 ## Root of the running game.
 ##
 ## Owns the active map (instanced under World), the persistent Player (moved
-## into each map's Entities node), the start menu and the screen fade. Maps
-## never load each other: anything that wants a map change emits
+## into each map's Entities node), battles, the start menu and the screen fade.
+## Maps never load each other: anything that wants a map change emits
 ## Events.warp_requested and this script does the rest.
 
 const FADE_SECONDS := 0.25
-const MONSTER_ART_DIR := "res://assets/placeholder/monsters/"
+const BATTLE_SCENE := preload("res://scenes/battle/battle_scene.tscn")
 
 @export_file("*.tscn") var start_map := "res://scenes/maps/town_emberfall.tscn"
 @export var start_spawn: StringName = &"default"
@@ -19,8 +19,7 @@ var current_map: WorldMap
 @onready var fade: ColorRect = $Transition/Fade
 @onready var start_menu: ChoiceBox = $UI/StartMenuArea/StartMenu
 @onready var map_banner: MapBanner = $UI/MapBanner
-@onready var encounter_preview: Control = $UI/EncounterPreview
-@onready var encounter_art: TextureRect = $UI/EncounterPreview/Art
+@onready var battle_layer: CanvasLayer = $BattleLayer
 
 
 func _ready() -> void:
@@ -105,25 +104,50 @@ func _choose_fly_destination() -> String:
 	return paths[pick] if pick >= 0 and pick < paths.size() else ""
 
 
-## Placeholder until the battle system exists: flash, show the monster, talk.
 func _on_wild_encounter(species_id: StringName) -> void:
+	var species := MonsterDB.species(species_id)
+	if species == null or not GameState.has_healthy_monster():
+		return
 	player.lock()
+	Audio.play_music(&"battle")
 	Audio.play_sfx(&"encounter")
 	for i in 3:
 		fade.color = Color(1.0, 1.0, 1.0, 0.8)
 		await get_tree().create_timer(0.07).timeout
 		fade.color = Color(1.0, 1.0, 1.0, 0.0)
 		await get_tree().create_timer(0.07).timeout
-	fade.color = Color(0.0, 0.0, 0.0, 0.0)
-	var art_path := "%s%s.png" % [MONSTER_ART_DIR, species_id]
-	encounter_art.texture = load(art_path) if ResourceLoader.exists(art_path) else null
-	encounter_preview.show()
-	await Dialogue.say([
-		"A wild %s appeared!" % String(species_id).to_upper(),
-		"Battles are the next\nmilestone... It ran away!",
-	])
-	encounter_preview.hide()
+	var levels := current_map.wild_levels
+	var wild := Monster.create(species, randi_range(levels.x, mini(levels.y, Monster.MAX_LEVEL)))
+	var outcome: Battle.Outcome = await _run_battle(wild)
+	if outcome == Battle.Outcome.LOST:
+		await _white_out()
 	player.unlock()
+
+
+## Covers the overworld with a battle, pausing the map underneath.
+func _run_battle(wild: Monster) -> Battle.Outcome:
+	await _fade_to(1.0)
+	world.process_mode = Node.PROCESS_MODE_DISABLED
+	var battle: BattleScene = BATTLE_SCENE.instantiate()
+	battle_layer.add_child(battle)
+	await _fade_to(0.0)
+	var outcome: Battle.Outcome = await battle.run(GameState.party, wild)
+	await _fade_to(1.0)
+	battle.queue_free()
+	world.process_mode = Node.PROCESS_MODE_INHERIT
+	if outcome != Battle.Outcome.LOST:
+		Audio.play_music(current_map.music)
+		await _fade_to(0.0)
+	return outcome
+
+
+## After losing: heal the party and wake up at the last respawn point.
+## Expects the screen to already be black.
+func _white_out() -> void:
+	GameState.heal_party()
+	_load_map(GameState.respawn_map, GameState.respawn_spawn)
+	await _fade_to(0.0)
+	await Dialogue.say(["MOM: You're back! Your\nMONSTERS were exhausted.", "Let them rest... There,\nall better! Be careful!"])
 
 
 func _fade_to(alpha: float) -> void:

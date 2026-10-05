@@ -1,0 +1,40 @@
+[gd_resource type="Resource" script_class="MonsterSpecies" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/dread.tres" id="1_ueniu"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/shadeling_back.png" id="2_hnptr"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/shadeling.png" id="3_4oyy4"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="4_53een"]
+[ext_resource type="Resource" path="res://data/moves/lick.tres" id="5_t7s48"]
+[ext_resource type="Resource" path="res://data/moves/scary_face.tres" id="6_ysbtf"]
+[ext_resource type="Resource" path="res://data/moves/shade_orb.tres" id="7_xq4se"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="8_sw5pf"]
+
+[sub_resource type="Resource" id="Resource_sd3it"]
+script = ExtResource("4_53een")
+move = ExtResource("5_t7s48")
+
+[sub_resource type="Resource" id="Resource_div35"]
+script = ExtResource("4_53een")
+move = ExtResource("6_ysbtf")
+
+[sub_resource type="Resource" id="Resource_jvduk"]
+script = ExtResource("4_53een")
+level = 8
+move = ExtResource("7_xq4se")
+
+[resource]
+script = ExtResource("8_sw5pf")
+display_name = "SHADELING"
+element = "ghost"
+ability = ExtResource("1_ueniu")
+front_texture = ExtResource("3_4oyy4")
+back_texture = ExtResource("2_hnptr")
+base_hp = 30
+base_attack = 35
+base_defense = 30
+base_special = 100
+base_speed = 80
+catch_rate = 120
+exp_yield = 62
+learnset = Array[ExtResource("4_53een")]([SubResource("Resource_sd3it"), SubResource("Resource_div35"), SubResource("Resource_jvduk")])
+dex_entry = "Lurks in the shadows of old houses and giggles at night."

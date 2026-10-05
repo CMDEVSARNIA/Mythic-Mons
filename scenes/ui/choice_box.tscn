@@ -5,5 +5,5 @@
 [node name="ChoiceBox" type="PanelContainer"]
 script = ExtResource("1_script")
 
-[node name="List" type="VBoxContainer" parent="."]
+[node name="List" type="GridContainer" parent="."]
 layout_mode = 2

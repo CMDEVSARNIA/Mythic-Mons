@@ -1,0 +1,51 @@
+[gd_resource type="Resource" script_class="MonsterSpecies" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/kindle.tres" id="1_7swx4"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/flamlet_back.png" id="2_0ogma"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/flamlet.png" id="3_ig8gy"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="4_g0108"]
+[ext_resource type="Resource" path="res://data/moves/scratch.tres" id="5_i8r1u"]
+[ext_resource type="Resource" path="res://data/moves/growl.tres" id="6_d0rsk"]
+[ext_resource type="Resource" path="res://data/moves/ember.tres" id="7_eb42s"]
+[ext_resource type="Resource" path="res://data/moves/leer.tres" id="8_33hny"]
+[ext_resource type="Resource" path="res://data/moves/flame_dash.tres" id="9_50eu5"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="10_v7fsn"]
+
+[sub_resource type="Resource" id="Resource_4wobf"]
+script = ExtResource("4_g0108")
+move = ExtResource("5_i8r1u")
+
+[sub_resource type="Resource" id="Resource_se78l"]
+script = ExtResource("4_g0108")
+move = ExtResource("6_d0rsk")
+
+[sub_resource type="Resource" id="Resource_4ik4h"]
+script = ExtResource("4_g0108")
+level = 7
+move = ExtResource("7_eb42s")
+
+[sub_resource type="Resource" id="Resource_vbs4v"]
+script = ExtResource("4_g0108")
+level = 13
+move = ExtResource("8_33hny")
+
+[sub_resource type="Resource" id="Resource_p5f4t"]
+script = ExtResource("4_g0108")
+level = 19
+move = ExtResource("9_50eu5")
+
+[resource]
+script = ExtResource("10_v7fsn")
+display_name = "FLAMLET"
+element = "fire"
+ability = ExtResource("1_7swx4")
+front_texture = ExtResource("3_ig8gy")
+back_texture = ExtResource("2_0ogma")
+base_hp = 39
+base_attack = 52
+base_defense = 43
+base_special = 55
+base_speed = 65
+exp_yield = 62
+learnset = Array[ExtResource("4_g0108")]([SubResource("Resource_4wobf"), SubResource("Resource_se78l"), SubResource("Resource_4ik4h"), SubResource("Resource_vbs4v"), SubResource("Resource_p5f4t")])
+dex_entry = "Its tail-flame flickers brighter whenever it is excited."

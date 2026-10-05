@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="AbsorbElementAbility" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/abilities/absorb_element_ability.gd" id="1_74ito"]
+
+[resource]
+script = ExtResource("1_74ito")
+display_name = "SOAK UP"
+description = "Water moves heal it instead of hurting it."

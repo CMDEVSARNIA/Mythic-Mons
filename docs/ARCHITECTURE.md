@@ -13,7 +13,7 @@ Mythic-Mons/
 ├── icon.png                   Generated (a monster at 4x)
 ├── autoload/                  Global singletons (Project Settings > Globals)
 │   ├── events.gd              Events: signal bus (warp_requested, wild_encounter, map_entered)
-│   ├── game_state.gd          GameState: unlocked field moves, visited towns, flags
+│   ├── game_state.gd          GameState: party, respawn point, field moves, visited towns, flags
 │   └── audio.gd               Audio: music + SFX, real files first, chiptune fallback
 ├── scenes/
 │   ├── main/                  Main scene: owns the current map, player, UI, fades
@@ -25,19 +25,27 @@ Mythic-Mons/
 │   │   ├── world_map.gd       Root script of every map (terrain lookups, spawns, encounters)
 │   │   └── *.tscn             Emberfall, its house, Route 1, Tidewater
 │   ├── objects/               Warp, SpawnPoint, Signpost, CUT tree, ROCK SMASH boulder
+│   ├── battle/                BattleScene (menus + animation), BattlerPanel, StatBar
 │   └── ui/                    Dialogue box (autoload), choice box, map-name banner
 ├── scripts/                   Non-scene code (class_name utilities)
 │   ├── core/                  Grid, PhysicsLayers, Terrain constants
+│   ├── monsters/              MonsterSpecies, MoveData, LevelMove, Monster, TypeChart,
+│   │                          MonsterDB, Ability + abilities/ (one script per behavior)
+│   ├── battle/                Battle (the rules) and Battler (a monster on the field)
 │   ├── art/pixel_art.gd       Procedural 8-bit art generator
 │   └── audio/                 ChipSynth (SFX), Chiptune (sequencer), Songs (music data)
+├── data/                      Game data as .tres, file name = id
+│   ├── species/               flamlet, aquapup, sproutle, pebblet, zapkit, shadeling
+│   ├── moves/                 tackle, ember, water_gun, ...
+│   └── abilities/             kindle, soak_up, sunsoak, sturdy_shell, jolt, dread
 ├── assets/
 │   ├── placeholder/           Generated PNGs: tiles, characters, objects, monsters
 │   ├── tilesets/              overworld_tileset.tres (physics + terrain custom data)
 │   ├── ui/theme.tres          Pixel font, text-box style
 │   ├── fonts/                 Press Start 2P (SIL OFL)
 │   └── audio/music, sfx/      Drop real audio here to replace the generated sounds
-├── tools/                     Headless generators (art, TileSet, starter maps)
-├── tests/smoke_test.gd        Plays the game by injecting input and checks the results
+├── tools/                     Headless generators (art, TileSet, starter maps, monster data)
+├── tests/                     battle_test.gd (rules) and smoke_test.gd (plays the game)
 └── docs/                      This file, ASSETS.md
 ```
 
@@ -66,17 +74,17 @@ Main (Node)                              main.gd
 ├── Player (player.tscn)                 persistent; moved into each map's Entities
 ├── UI (CanvasLayer, layer 5)
 │   ├── MapBanner (PanelContainer)       location name that slides in
-│   ├── EncounterPreview (PanelContainer)
-│   │   └── Art (TextureRect)
 │   └── StartMenuArea (MarginContainer)
 │       └── StartMenu (choice_box.tscn)
+├── BattleLayer (CanvasLayer, layer 8)   a BattleScene is added here during battles
 └── Transition (CanvasLayer, layer 20)
     └── Fade (ColorRect)                 fades and encounter flashes
 ```
 
 Main never uses `change_scene_to_file()`. It swaps maps under `World` and keeps
 the same Player node, so the player's state (facing, surfing) survives every
-map change. The text box lives in its own autoload (`Dialogue`, CanvasLayer
+map change. Battles work the same way: the BattleScene covers the screen on
+`BattleLayer` while `World` is paused underneath. The text box lives in its own autoload (`Dialogue`, CanvasLayer
 layer 10) so any script can `await Dialogue.say([...])`.
 
 ### Player (`scenes/actors/player/player.tscn`)
@@ -173,12 +181,79 @@ and react to it in `Player._try_step()` / `_on_step_finished()`.
 unlocked so the prototype is testable. Later, make it check the party's moves
 and badges.
 
+## Monsters & battles
+
+### Data
+
+| Resource | Holds |
+|---|---|
+| `MonsterSpecies` (`data/species/*.tres`) | Name, element, ability, front/back sprites, 5 base stats, catch rate, EXP yield, learnset (`LevelMove` entries) |
+| `MoveData` (`data/moves/*.tres`) | Name, element, PHYSICAL/SPECIAL/STATUS, power, accuracy, PP, priority, optional stat changes |
+| `Ability` subclasses (`data/abilities/*.tres`) | A configured behavior, e.g. `ElementBoostAbility` with element = fire is KINDLE |
+| `Monster` (runtime, a Resource so it can be saved) | Species, level, EXP, current HP, IVs, moves and remaining PP |
+
+Stats are simplified from Generation 3: five stats (HP, ATTACK, DEFENSE,
+SPECIAL, SPEED, where one SPECIAL serves for both attack and defense as in
+the 8-bit games), IVs 0-15, no EVs, and the "medium fast" n³ EXP curve. Maps
+and code refer to species and moves by id (`MonsterDB.species(&"zapkit")`),
+and the id is the file name.
+
+### Rules vs. presentation
+
+`Battle` (scripts/battle/battle.gd) holds every rule and nothing visual. Each
+call (`start()`, `take_turn(action)`, `switch_after_faint(i)`) returns an
+ordered list of events: `message`, `attack`, `hit`, `hp`, `stat`, `faint`,
+`withdraw`, `send_out`, `flee`. `BattleScene` only asks for the player's
+action and plays those events back as text, sounds and tweens. This keeps the
+rules fast to unit-test and reusable for trainer battles.
+
+Turn flow: both sides pick moves. Higher priority goes first, then higher
+SPEED. Each move checks accuracy, then type effectiveness (immunities stop
+it), crits (1/16, 2×), the Gen 3 damage formula with STAB and an 85-100%
+roll, then ability hooks and stat effects. At the end of the turn,
+end-of-turn abilities run. RUN uses Gen 3 escape odds. A monster out of PP
+uses STRUGGLE.
+
+### Abilities
+
+Each species has one ability. The battle calls these hooks on both monsters:
+
+| Hook | When | Example |
+|---|---|---|
+| `on_enter` | Sent into battle | DREAD lowers the foe's ATTACK |
+| `damage_multiplier` | Holder deals damage | KINDLE: 1.5× fire moves at ≤ 1/3 HP |
+| `modify_damage_taken` | Holder is about to take damage | SOAK UP heals from water; STURDY SHELL survives at 1 HP |
+| `on_hit` | Holder took damage and is still up | JOLT may lower the attacker's SPEED |
+| `on_turn_end` | End of every turn | SUNSOAK restores 1/16 HP |
+
+Abilities act through `battle.message()`, `battle.heal()` and
+`battle.change_stat()`, so their effects appear on screen automatically. To
+add one, reuse a script in `scripts/monsters/abilities/` with new numbers, or
+subclass `Ability` and override a hook. Then save it as a `.tres` and assign
+it to a species.
+
+### Encounter flow
+
+Tall grass emits `Events.wild_encounter(species_id)`. Main plays the battle
+music and flash, rolls a level from `WorldMap.wild_levels`, builds the wild
+`Monster`, fades to the BattleScene, and awaits `run()`. A win awards EXP
+(level-ups may teach moves, with a forget-a-move prompt once four are known).
+A loss heals the party and respawns the player at `GameState.respawn_map`.
+
+### Adding a monster or move
+
+1. Add a row to `tools/build_monster_data.gd` and run it, or duplicate a
+   `.tres` in `data/` and edit it in the inspector.
+2. Give it art: add a seed to `PixelArt.MONSTERS` and rerun the art tool,
+   or point `front_texture`/`back_texture` at real sprites.
+3. Add its id to a map's `wild_monsters`.
+
 ## Communication
 
 - **Events (signal bus):** `warp_requested(map_path, spawn_id)` is the only way
   maps change, used by warps and Fly. `wild_encounter(species_id)` is handled
-  by Main, which shows a placeholder until the battle system lands.
-  `map_entered(map)` is there for quests and achievements.
+  by Main, which runs the battle. `map_entered(map)` is there for quests and
+  achievements.
 - **Interaction protocol:** anything with an `interact(player)` method on the
   `world`, `actors` or `obstacles` layer can be talked to. Anything with
   `on_player_entered(player)` on the `triggers` layer fires when stepped on.
@@ -199,10 +274,15 @@ and badges.
 
 ## Tests
 
-`tests/smoke_test.gd` plays the real game by injecting input and checks 23
-behaviors: turning, walking, bumping, signs, NPCs, CUT, doors, map edges,
-ledges, ROCK SMASH, encounters, SURF and FLY.
+- `tests/battle_test.gd` covers the battle rules with no scene: stat and
+  damage formulas, type chart, stages, turn order and priority, all six
+  abilities, winning, losing, forced switches, running, PP, STRUGGLE and
+  level-ups (36 checks).
+- `tests/smoke_test.gd` plays the real game by injecting input: turning,
+  walking, bumping, signs, NPCs, CUT, doors, map edges, ledges, ROCK SMASH,
+  a won battle, a lost battle with whiteout, SURF and FLY (27 checks).
 
 ```sh
+godot --headless --path . --script res://tests/battle_test.gd
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
 ```

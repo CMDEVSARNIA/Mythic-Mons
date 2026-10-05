@@ -1,0 +1,133 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/battle/battle_scene.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/battle/background.png" id="2_background"]
+[ext_resource type="PackedScene" path="res://scenes/battle/battler_panel.tscn" id="3_panel"]
+[ext_resource type="PackedScene" path="res://scenes/ui/choice_box.tscn" id="4_choices"]
+
+[node name="BattleScene" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_background")
+
+[node name="EnemySprite" type="Sprite2D" parent="."]
+position = Vector2(176, 38)
+scale = Vector2(2, 2)
+
+[node name="PlayerSprite" type="Sprite2D" parent="."]
+position = Vector2(64, 86)
+scale = Vector2(2, 2)
+
+[node name="EnemyPanel" parent="." instance=ExtResource("3_panel")]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 6.0
+offset_right = 136.0
+offset_bottom = 33.0
+
+[node name="PlayerPanel" parent="." instance=ExtResource("3_panel")]
+layout_mode = 0
+offset_left = 104.0
+offset_top = 64.0
+offset_right = 236.0
+offset_bottom = 110.0
+show_details = true
+
+[node name="MessageFrame" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = -46.0
+offset_right = -2.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Prompt" type="Label" parent="MessageFrame"]
+layout_mode = 2
+size_flags_vertical = 1
+
+[node name="Menus" type="CanvasLayer" parent="."]
+layer = 11
+
+[node name="ActionArea" type="MarginContainer" parent="Menus"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 4
+
+[node name="ActionMenu" parent="Menus/ActionArea" instance=ExtResource("4_choices")]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+columns = 2
+
+[node name="MoveArea" type="MarginContainer" parent="Menus"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_bottom = 2
+
+[node name="MoveMenu" parent="Menus/MoveArea" instance=ExtResource("4_choices")]
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+
+[node name="MoveInfo" type="PanelContainer" parent="Menus"]
+visible = false
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -98.0
+offset_top = -46.0
+offset_right = -2.0
+offset_bottom = -2.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="Label" type="Label" parent="Menus/MoveInfo"]
+layout_mode = 2
+size_flags_vertical = 1
+text = "PP 35/35
+NORMAL"
+
+[node name="ListArea" type="MarginContainer" parent="Menus"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 48
+
+[node name="ListMenu" parent="Menus/ListArea" instance=ExtResource("4_choices")]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8

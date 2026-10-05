@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/move_data.gd" id="1_id7u0"]
+
+[resource]
+script = ExtResource("1_id7u0")
+display_name = "VOLT DASH"
+element = "electric"
+power = 65
+accuracy = 95
+max_pp = 15
+description = "A crackling tackle."

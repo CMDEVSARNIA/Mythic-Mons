@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="StatOnHitAbility" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/abilities/stat_on_hit_ability.gd" id="1_431vk"]
+
+[resource]
+script = ExtResource("1_431vk")
+display_name = "JOLT"
+description = "When hit, may lower the attacker's SPEED."

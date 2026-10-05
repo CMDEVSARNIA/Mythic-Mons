@@ -11,7 +11,8 @@ independently.
 | Overworld tiles | `PixelArt.overworld_tiles()` → `assets/placeholder/tiles/overworld_tiles.png` | Painting over that PNG (same 8 × 4 layout of 16 × 16 tiles), or building a new TileSet from a real tileset |
 | Player / NPC sprites | `PixelArt.character_sheet()` → `assets/placeholder/characters/*.png` | A 48 × 64 sheet: 3 columns (stand, step A, step B) × 4 rows (down, up, left, right) |
 | CUT tree, boulder, sign, surf mount | `PixelArt.*()` → `assets/placeholder/objects/` | Same-size PNGs |
-| Monsters | `PixelArt.monster(seed, element)` → `assets/placeholder/monsters/*.png` | 32 × 32 (or larger) front sprites |
+| Monsters | `PixelArt.monster(seed, element, back)` → `assets/placeholder/monsters/<id>.png` and `<id>_back.png` | Front and back sprites, set on the species' `front_texture` / `back_texture` (shown at 2×, so 32 × 32 art fills 64 × 64) |
+| Battle background | `PixelArt.battle_background()` → `assets/placeholder/battle/background.png` | A 240 × 160 image with the platforms in the same spots |
 | Sound effects | `ChipSynth.sfx(id)` at runtime | `assets/audio/sfx/<id>.ogg` / `.wav` (see `assets/audio/README.md`) |
 | Music | `Chiptune.render(Songs.*)` on a worker thread | `assets/audio/music/<id>.ogg`, with Loop enabled on import |
 

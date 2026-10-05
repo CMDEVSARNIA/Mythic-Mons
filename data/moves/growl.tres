@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/move_data.gd" id="1_x457y"]
+
+[resource]
+script = ExtResource("1_x457y")
+display_name = "GROWL"
+category = 2
+power = 0
+max_pp = 40
+stat_changes = Dictionary[StringName, int]({
+&"attack": -1
+})
+description = "Lowers the foe's ATTACK."

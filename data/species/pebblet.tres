@@ -1,0 +1,45 @@
+[gd_resource type="Resource" script_class="MonsterSpecies" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/sturdy_shell.tres" id="1_adovr"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/pebblet_back.png" id="2_md8w6"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/pebblet.png" id="3_1ecn6"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="4_qu2gx"]
+[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="5_n7xul"]
+[ext_resource type="Resource" path="res://data/moves/harden.tres" id="6_5ecmc"]
+[ext_resource type="Resource" path="res://data/moves/rock_throw.tres" id="7_x85jn"]
+[ext_resource type="Resource" path="res://data/moves/scary_face.tres" id="8_1usq5"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="9_22aip"]
+
+[sub_resource type="Resource" id="Resource_my84f"]
+script = ExtResource("4_qu2gx")
+move = ExtResource("5_n7xul")
+
+[sub_resource type="Resource" id="Resource_655ik"]
+script = ExtResource("4_qu2gx")
+move = ExtResource("6_5ecmc")
+
+[sub_resource type="Resource" id="Resource_pq44e"]
+script = ExtResource("4_qu2gx")
+level = 8
+move = ExtResource("7_x85jn")
+
+[sub_resource type="Resource" id="Resource_0q5wi"]
+script = ExtResource("4_qu2gx")
+level = 16
+move = ExtResource("8_1usq5")
+
+[resource]
+script = ExtResource("9_22aip")
+display_name = "PEBBLET"
+element = "rock"
+ability = ExtResource("1_adovr")
+front_texture = ExtResource("3_1ecn6")
+back_texture = ExtResource("2_md8w6")
+base_hp = 40
+base_attack = 80
+base_defense = 100
+base_special = 30
+base_speed = 20
+catch_rate = 190
+learnset = Array[ExtResource("4_qu2gx")]([SubResource("Resource_my84f"), SubResource("Resource_655ik"), SubResource("Resource_pq44e"), SubResource("Resource_0q5wi")])
+dex_entry = "Often mistaken for an ordinary rock, until it rolls away."

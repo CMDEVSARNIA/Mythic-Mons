@@ -1,0 +1,220 @@
+extends SceneTree
+## Unit tests for the battle rules (Battle, Battler, Monster, abilities).
+## No scene or input involved, so it runs in well under a second:
+##   godot --headless --path . --script res://tests/battle_test.gd
+## Exits with code 0 when every check passes, 1 otherwise.
+
+var _failures := 0
+
+
+func _initialize() -> void:
+	_test_stats()
+	_test_type_chart()
+	_test_damage_formula()
+	_test_stat_stages()
+	_test_turn_order()
+	_test_abilities()
+	_test_win_lose_switch_run()
+	_test_pp_and_struggle()
+	_test_experience()
+	print("\nBATTLE TEST %s (%d failed)" % ["PASSED" if _failures == 0 else "FAILED", _failures])
+	quit(1 if _failures > 0 else 0)
+
+
+func _test_stats() -> void:
+	var flamlet := _monster(&"flamlet", 5)
+	_check(flamlet.max_hp() == 18, "HP formula: (2*39)*5/100 + 5 + 10 = 18")
+	_check(flamlet.stat(&"attack") == 10, "stat formula: (2*52)*5/100 + 5 = 10")
+	_check(_names(flamlet.moves) == ["SCRATCH", "GROWL"], "new monsters know their learnset up to their level")
+
+
+func _test_type_chart() -> void:
+	_check(TypeChart.multiplier("fire", "grass") == 2.0, "fire is super effective on grass")
+	_check(TypeChart.multiplier("water", "water") == 0.5, "water resists water")
+	_check(TypeChart.multiplier("normal", "ghost") == 0.0, "normal can't touch ghost")
+	_check(TypeChart.multiplier("grass", "normal") == 1.0, "unlisted matchups are neutral")
+
+
+func _test_damage_formula() -> void:
+	var battle := _battle([_monster(&"flamlet", 5)], _monster(&"sproutle", 5))
+	var ember := MonsterDB.move(&"ember")
+	# floor(floor(4 * 40 * 10 / 11) / 50) + 2 = 4, then x2 (type) x1.5 (STAB) = 12
+	_check(battle.calculate_damage(battle.player, battle.enemy, ember, false, 2.0, 100) == 12, "Gen 3 damage formula with STAB and type bonus")
+	_check(battle.calculate_damage(battle.player, battle.enemy, ember, true, 2.0, 100) == 24, "critical hits double damage")
+	_check(battle.calculate_damage(battle.player, battle.enemy, ember, false, 2.0, 85) == 10, "the random roll scales damage down to 85%")
+	battle.player.monster.hp = 6
+	_check(battle.calculate_damage(battle.player, battle.enemy, ember, false, 2.0, 100) == 18, "KINDLE boosts fire moves at low HP")
+
+
+func _test_stat_stages() -> void:
+	_check(is_equal_approx(Battler.stage_multiplier(-1), 2.0 / 3.0), "stage -1 is 2/3")
+	_check(Battler.stage_multiplier(2) == 2.0 and Battler.stage_multiplier(-6) == 0.25, "stages +2 and -6")
+	var battle := _battle([_monster(&"flamlet", 5)], _monster(&"sproutle", 5))
+	_only_move(battle.enemy.monster, &"harden")
+	var events := battle.take_turn(Battle.fight(_index(battle.player.monster, "GROWL")))
+	_check(battle.enemy.stages[&"attack"] == -1 and _has_text(events, "ATTACK\nfell!"), "GROWL lowers the foe's ATTACK")
+	_check(battle.enemy.stages[&"defense"] == 1, "HARDEN raises the user's DEFENSE")
+	battle.enemy.stages[&"attack"] = Battler.MIN_STAGE
+	events = battle.take_turn(Battle.fight(_index(battle.player.monster, "GROWL")))
+	_check(battle.enemy.stages[&"attack"] == Battler.MIN_STAGE and _has_text(events, "won't go\nlower"), "stages stop at -6")
+
+
+func _test_turn_order() -> void:
+	var battle := _battle([_monster(&"pebblet", 5)], _monster(&"zapkit", 5))
+	_only_move(battle.enemy.monster, &"growl")
+	var events := battle.take_turn(Battle.fight(_index(battle.player.monster, "TACKLE")))
+	_check(_first_user(events) == "Wild ZAPKIT", "the faster monster moves first")
+	battle.player.monster.replace_move(0, MonsterDB.move(&"quick_hit"))
+	events = battle.take_turn(Battle.fight(0))
+	_check(_first_user(events) == "PEBBLET", "priority moves go first regardless of speed")
+
+
+func _test_abilities() -> void:
+	# DREAD: lowers the foe's ATTACK on entry.
+	var battle := _battle([_monster(&"flamlet", 5)], _monster(&"shadeling", 5))
+	var events := battle.start()
+	_check(battle.player.stages[&"attack"] == -1 and _has_text(events, "DREAD"), "DREAD lowers the foe's ATTACK on entry")
+
+	# SOAK UP: water moves heal instead of hurting.
+	battle = _battle([_monster(&"flamlet", 5)], _monster(&"aquapup", 5))
+	_only_move(battle.enemy.monster, &"growl")
+	battle.player.monster.replace_move(0, MonsterDB.move(&"water_gun"))
+	battle.enemy.monster.hp = 5
+	events = battle.take_turn(Battle.fight(0))
+	_check(battle.enemy.monster.hp > 5 and _has_text(events, "SOAK UP"), "SOAK UP turns water damage into healing")
+
+	# SUNSOAK: heals a little every turn.
+	battle = _battle([_monster(&"flamlet", 5)], _monster(&"sproutle", 5))
+	_only_move(battle.enemy.monster, &"growl")
+	battle.enemy.monster.hp = 5
+	battle.take_turn(Battle.fight(_index(battle.player.monster, "GROWL")))
+	_check(battle.enemy.monster.hp == 6, "SUNSOAK restores 1/16 HP at the end of the turn")
+
+	# STURDY SHELL: survives a one-hit KO from full HP.
+	battle = _battle([_monster(&"aquapup", 40)], _monster(&"pebblet", 5))
+	_only_move(battle.enemy.monster, &"harden")
+	events = battle.take_turn(Battle.fight(_index(battle.player.monster, "BUBBLEBEAM")))
+	_check(battle.enemy.monster.hp == 1 and _has_text(events, "endured"), "STURDY SHELL survives a hit at full HP")
+
+	# JOLT: may lower the attacker's SPEED (forced to 100% here).
+	var zapkit := _monster(&"zapkit", 5)
+	zapkit.species = zapkit.species.duplicate()
+	zapkit.species.ability = zapkit.species.ability.duplicate()
+	zapkit.species.ability.chance = 1.0
+	battle = _battle([_monster(&"flamlet", 5)], zapkit)
+	_only_move(battle.enemy.monster, &"growl")
+	battle.take_turn(Battle.fight(_index(battle.player.monster, "SCRATCH")))
+	_check(battle.player.stages[&"speed"] == -1, "JOLT lowers the attacker's SPEED")
+
+	# Element immunity.
+	battle = _battle([_monster(&"flamlet", 5)], _monster(&"shadeling", 5))
+	_only_move(battle.enemy.monster, &"scary_face")
+	var hp := battle.enemy.monster.hp
+	events = battle.take_turn(Battle.fight(_index(battle.player.monster, "SCRATCH")))
+	_check(battle.enemy.monster.hp == hp and _has_text(events, "doesn't affect"), "normal moves can't hit ghosts")
+
+
+func _test_win_lose_switch_run() -> void:
+	var battle := _battle([_monster(&"flamlet", 20)], _monster(&"sproutle", 2))
+	battle.take_turn(Battle.fight(_index(battle.player.monster, "EMBER")))
+	_check(battle.outcome == Battle.Outcome.WON, "knocking out the wild monster wins")
+	_check(battle.exp_reward() == 14, "EXP reward is exp_yield * level / 7")
+
+	var weak := _monster(&"flamlet", 3)
+	weak.hp = 1
+	battle = _battle([weak], _monster(&"zapkit", 30))
+	_only_move(battle.enemy.monster, &"spark") # 100% accurate, so the KO is certain.
+	battle.take_turn(Battle.fight(_index(weak, "GROWL")))
+	_check(battle.outcome == Battle.Outcome.LOST, "losing your only monster loses the battle")
+
+	var backup := _monster(&"aquapup", 5)
+	weak.hp = 1
+	battle = _battle([weak, backup], _monster(&"zapkit", 30))
+	_only_move(battle.enemy.monster, &"spark") # 100% accurate, so the KO is certain.
+	battle.take_turn(Battle.fight(_index(weak, "GROWL")))
+	_check(battle.player_must_switch() and battle.outcome == Battle.Outcome.ONGOING, "a fainted lead forces a switch when others can fight")
+	var events := battle.switch_after_faint(1)
+	_check(battle.player.monster == backup and _has_text(events, "Go! AQUAPUP!"), "switching in sends out the chosen monster")
+
+	battle = _battle([_monster(&"zapkit", 5)], _monster(&"pebblet", 5))
+	battle.take_turn(Battle.run_away())
+	_check(battle.outcome == Battle.Outcome.FLED, "a faster monster always escapes")
+
+
+func _test_pp_and_struggle() -> void:
+	var battle := _battle([_monster(&"flamlet", 5)], _monster(&"sproutle", 5))
+	_only_move(battle.enemy.monster, &"growl")
+	var growl := _index(battle.player.monster, "GROWL")
+	battle.take_turn(Battle.fight(growl))
+	_check(battle.player.monster.pp[growl] == MonsterDB.move(&"growl").max_pp - 1, "using a move spends 1 PP")
+	for i in battle.player.monster.pp.size():
+		battle.player.monster.pp[i] = 0
+	_check(not battle.player.monster.has_usable_move(), "no PP left is detected")
+	var events := battle.take_turn(Battle.fight(-1))
+	_check(_has_text(events, "STRUGGLE"), "STRUGGLE is used when every move is out of PP")
+
+
+func _test_experience() -> void:
+	var flamlet := _monster(&"flamlet", 6)
+	flamlet.hp -= 3
+	var missing := flamlet.max_hp() - flamlet.hp
+	var levels := flamlet.gain_exp(Monster.exp_for_level(7) - flamlet.experience)
+	_check(levels == 1 and flamlet.level == 7, "EXP follows the n^3 curve")
+	_check("EMBER" in _names(flamlet.moves), "level-ups teach the learnset's moves")
+	_check(flamlet.max_hp() - flamlet.hp == missing, "levelling up keeps the damage already taken")
+
+
+# --- Helpers -------------------------------------------------------------------
+
+## A monster with zero IVs so stats are predictable.
+func _monster(id: StringName, level: int) -> Monster:
+	var monster := Monster.create(MonsterDB.species(id), level)
+	for stat in Monster.STATS:
+		monster.ivs[stat] = 0
+	monster.hp = monster.max_hp()
+	return monster
+
+
+func _battle(party: Array[Monster], wild: Monster) -> Battle:
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 1
+	return Battle.new(party, wild, rng)
+
+
+## Makes the monster know only `move_id`, so a test controls what the foe does.
+func _only_move(monster: Monster, move_id: StringName) -> void:
+	var move := MonsterDB.move(move_id)
+	monster.moves = [move]
+	monster.pp = [move.max_pp]
+
+
+func _index(monster: Monster, move_name: String) -> int:
+	return _names(monster.moves).find(move_name)
+
+
+func _names(moves: Array[MoveData]) -> Array[String]:
+	var names: Array[String] = []
+	for move in moves:
+		names.append(move.display_name)
+	return names
+
+
+func _has_text(events: Array[Dictionary], fragment: String) -> bool:
+	for event in events:
+		if event.type == &"message" and fragment in event.text:
+			return true
+	return false
+
+
+## Who acted first this turn, from the first "X used ..." message.
+func _first_user(events: Array[Dictionary]) -> String:
+	for event in events:
+		if event.type == &"message" and " used\n" in event.text:
+			return event.text.get_slice(" used\n", 0)
+	return ""
+
+
+func _check(passed: bool, what: String) -> void:
+	print("%s  %s" % ["PASS" if passed else "FAIL", what])
+	if not passed:
+		_failures += 1

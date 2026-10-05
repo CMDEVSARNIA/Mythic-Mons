@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/move_data.gd" id="1_ditht"]
+
+[resource]
+script = ExtResource("1_ditht")
+display_name = "BUBBLEBEAM"
+element = "water"
+category = 1
+power = 65
+max_pp = 20
+stat_changes = Dictionary[StringName, int]({
+&"speed": -1
+})
+effect_chance = 10
+description = "May lower the foe's SPEED."

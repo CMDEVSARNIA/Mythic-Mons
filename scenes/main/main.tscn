@@ -26,26 +26,6 @@ script = ExtResource("4_banner")
 layout_mode = 2
 text = "MAP NAME"
 
-[node name="EncounterPreview" type="PanelContainer" parent="UI"]
-visible = false
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -40.0
-offset_top = -66.0
-offset_right = 40.0
-offset_bottom = 10.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="Art" type="TextureRect" parent="UI/EncounterPreview"]
-custom_minimum_size = Vector2(64, 64)
-layout_mode = 2
-expand_mode = 1
-stretch_mode = 5
-
 [node name="StartMenuArea" type="MarginContainer" parent="UI"]
 anchors_preset = 15
 anchor_right = 1.0
@@ -60,6 +40,9 @@ theme_override_constants/margin_right = 2
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 0
+
+[node name="BattleLayer" type="CanvasLayer" parent="."]
+layer = 8
 
 [node name="Transition" type="CanvasLayer" parent="."]
 layer = 20

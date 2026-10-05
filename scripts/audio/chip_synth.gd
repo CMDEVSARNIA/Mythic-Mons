@@ -131,6 +131,30 @@ static func sfx(id: StringName) -> AudioStreamWAV:
 				notes.append(tone(Wave.PULSE_12, hz, hz, 0.055, 0.22, 0.15))
 			notes.append(tone(Wave.PULSE_12, 1568.0, 2093.0, 0.2, 0.22))
 			samples = sequence(notes)
+		&"hit":
+			samples = layer([tone(Wave.NOISE, 7000.0, 1500.0, 0.14, 0.4), tone(Wave.PULSE_50, 180.0, 70.0, 0.12, 0.25)])
+		&"hit_super":
+			samples = layer([tone(Wave.NOISE, 9000.0, 800.0, 0.3, 0.5), tone(Wave.PULSE_50, 240.0, 50.0, 0.28, 0.3)])
+		&"hit_weak":
+			samples = tone(Wave.NOISE, 4000.0, 2000.0, 0.07, 0.3)
+		&"faint":
+			samples = layer([tone(Wave.PULSE_50, 700.0, 70.0, 0.55, 0.25), tone(Wave.NOISE, 1500.0, 300.0, 0.55, 0.12)])
+		&"stat_up", &"stat_down", &"level_up":
+			var notes: Array[PackedFloat32Array] = []
+			var scale: Array[float] = [523.25, 659.25, 783.99, 1046.5]
+			if id == &"stat_down":
+				scale.reverse()
+			for hz in scale:
+				notes.append(tone(Wave.PULSE_12 if id != &"level_up" else Wave.PULSE_25, hz, hz, 0.06, 0.22, 0.16))
+			if id == &"level_up":
+				notes.append(tone(Wave.PULSE_25, 1046.5, 1046.5, 0.35, 0.22))
+			samples = sequence(notes)
+		&"flee":
+			var steps: Array[PackedFloat32Array] = []
+			for i in 3:
+				steps.append(tone(Wave.NOISE, 6000.0, 3000.0, 0.05, 0.3))
+				steps.append(silence(0.05))
+			samples = sequence(steps)
 		&"encounter":
 			var beeps: Array[PackedFloat32Array] = []
 			for i in 8:

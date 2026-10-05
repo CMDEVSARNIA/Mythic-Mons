@@ -21,7 +21,10 @@ extends Node2D
 @export_group("Wild Encounters")
 ## Chance of an encounter per step in tall grass.
 @export_range(0.0, 1.0, 0.01) var encounter_rate := 0.1
+## Species ids (files in res://data/species/). Repeat an id to make it more common.
 @export var wild_monsters: Array[StringName] = []
+## Wild monsters appear at a random level from x to y.
+@export var wild_levels := Vector2i(2, 4)
 
 var _layers: Array[TileMapLayer] = []
 var _bounds := Rect2i()

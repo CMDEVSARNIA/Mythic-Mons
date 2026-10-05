@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/move_data.gd" id="1_n3oxq"]
+
+[resource]
+script = ExtResource("1_n3oxq")
+display_name = "SPARK"
+element = "electric"
+category = 1
+max_pp = 30
+description = "A jolt of electricity."

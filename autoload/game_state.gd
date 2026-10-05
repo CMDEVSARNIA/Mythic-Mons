@@ -13,6 +13,17 @@ var visited_towns: Dictionary[String, String] = {}
 var current_map_path := ""
 ## Story/progress switches, e.g. flags[&"got_starter"] = true.
 var flags: Dictionary[StringName, bool] = {}
+## Up to six monsters; the first healthy one leads in battle.
+var party: Array[Monster] = []
+## Where the player wakes up after losing a battle (last place they healed).
+var respawn_map := "res://scenes/maps/house_emberfall.tscn"
+var respawn_spawn: StringName = &"entrance"
+
+
+func _ready() -> void:
+	# Prototype: start with a starter until the "choose your starter" event exists.
+	if party.is_empty():
+		party.append(Monster.create(MonsterDB.species(&"flamlet"), 5))
 
 
 func can_use_field_move(move: StringName) -> bool:
@@ -21,3 +32,15 @@ func can_use_field_move(move: StringName) -> bool:
 
 func mark_town_visited(map_path: String, display_name: String) -> void:
 	visited_towns[map_path] = display_name
+
+
+func has_healthy_monster() -> bool:
+	for monster in party:
+		if not monster.is_fainted():
+			return true
+	return false
+
+
+func heal_party() -> void:
+	for monster in party:
+		monster.heal_full()

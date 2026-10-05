@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/move_data.gd" id="1_itjce"]
+
+[resource]
+script = ExtResource("1_itjce")
+display_name = "FLAME DASH"
+element = "fire"
+power = 60
+accuracy = 95
+max_pp = 20
+description = "A charge wreathed in fire."

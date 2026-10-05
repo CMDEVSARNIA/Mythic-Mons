@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="RegenerateAbility" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/abilities/regenerate_ability.gd" id="1_wkbqg"]
+
+[resource]
+script = ExtResource("1_wkbqg")
+display_name = "SUNSOAK"
+description = "Restores a little HP at the end of every turn."

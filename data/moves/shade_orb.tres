@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/move_data.gd" id="1_ivi4p"]
+
+[resource]
+script = ExtResource("1_ivi4p")
+display_name = "SHADE ORB"
+element = "ghost"
+category = 1
+power = 60
+max_pp = 15
+stat_changes = Dictionary[StringName, int]({
+&"special": -1
+})
+effect_chance = 20
+description = "May lower the foe's SPECIAL."

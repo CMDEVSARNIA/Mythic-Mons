@@ -9,7 +9,7 @@ Drop a file named after the id here and it is used instead (`.ogg`, `.wav` or
 
 | Folder   | Ids in use |
 |----------|------------|
-| `music/` | `town`, `route` (maps choose one with `WorldMap.music`) |
-| `sfx/`   | `bump`, `select`, `menu`, `door`, `jump`, `cut`, `smash`, `surf`, `fly`, `encounter` |
+| `music/` | `town`, `route` (maps choose one with `WorldMap.music`), `battle`, `victory` |
+| `sfx/`   | `bump`, `select`, `menu`, `door`, `jump`, `cut`, `smash`, `surf`, `fly`, `encounter`, `hit`, `hit_super`, `hit_weak`, `faint`, `stat_up`, `stat_down`, `flee`, `level_up` |
 
 For music, enable **Loop** in the Import dock after adding the file.
