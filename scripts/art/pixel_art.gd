@@ -36,7 +36,10 @@ const DIRT_DARK := Color("b8803f")
 const WOOD := Color("b86f50")
 const WOOD_DARK := Color("743f39")
 const SKIN := Color("f5c9a0")
+const SKIN_SHADE := Color("d9a07c")
 const HAIR := Color("4a2c2a")
+const PINK := Color("f29ab4")
+const PINK_DARK := Color("c45a7c")
 const CLEAR := Color(0, 0, 0, 0)
 
 ## Where each tile lives in overworld_tiles.png (8 columns x 4 rows of 16x16).
@@ -71,15 +74,19 @@ const TILES := {
 }
 const ATLAS_SIZE := Vector2i(8, 4)
 
-## Color sets for character_sheet(). Keys match the letters in the sprite patterns.
-const PLAYER_COLORS := {"H": RED, "h": PLUM, "A": HAIR, "B": BLUE, "b": NAVY, "P": NIGHT}
-const NPC_COLORS := {
-	&"lass": {"H": GREEN, "h": TEAL, "A": ORANGE, "B": ORANGE, "b": RED, "P": NAVY},
-	&"elder": {"H": FOG, "h": SLATE, "A": WHITE, "B": PLUM, "b": NAVY, "P": SLATE},
-	&"hiker": {"H": WOOD, "h": WOOD_DARK, "A": HAIR, "B": GREEN, "b": TEAL, "P": WOOD_DARK},
-	&"mom": {"H": ORANGE, "h": RED, "A": ORANGE, "B": SKY, "b": BLUE, "P": NAVY},
-	&"swimmer": {"H": SKY, "h": BLUE, "A": SAND, "B": CYAN, "b": SKY, "P": BLUE},
-	&"professor": {"H": HAIR, "h": INK, "A": HAIR, "B": WHITE, "b": FOG, "P": SLATE},
+## The cast: id -> [head, body, colors]. Parts are drawn in CharacterDesigns;
+## the color letters are explained there. tools/generate_placeholder_art.gd
+## saves "player" as characters/player.png and the rest as npc_<id>.png.
+const CHARACTERS := {
+	&"player": [&"cap", &"pack", {"H": RED, "h": PLUM, "A": WHITE, "R": HAIR, "r": INK, "B": BLUE, "b": NAVY, "X": SAND, "x": WOOD, "P": NIGHT, "F": RED}],
+	&"professor": [&"prof", &"coat", {"H": FOG, "h": SLATE, "G": INK, "L": CYAN, "C": WHITE, "c": FOG, "B": TEAL, "P": SLATE, "F": WOOD_DARK}],
+	&"mom": [&"long", &"apron", {"H": ORANGE, "h": RED, "B": SKY, "b": BLUE, "C": WHITE, "c": FOG, "P": SKY, "F": NIGHT}],
+	&"lass": [&"pigtails", &"dress", {"H": SAND, "h": ORANGE, "A": RED, "B": PINK, "b": PINK_DARK, "P": RED, "F": NIGHT}],
+	&"elder": [&"elder", &"robe", {"H": WHITE, "h": FOG, "B": PLUM, "b": NAVY, "F": WOOD_DARK}],
+	&"hiker": [&"bandana", &"pack", {"A": ORANGE, "a": RED, "H": HAIR, "h": INK, "B": GREEN, "b": TEAL, "X": WOOD, "x": WOOD_DARK, "P": WOOD_DARK, "F": INK}],
+	&"swimmer": [&"swimcap", &"swim", {"H": SKY, "h": BLUE, "G": INK, "L": WHITE, "B": ORANGE, "b": RED}],
+	&"rival": [&"spiky", &"jacket", {"H": WOOD, "h": WOOD_DARK, "B": PLUM, "b": NAVY, "C": WHITE, "P": NIGHT, "F": SLATE}],
+	&"nurse": [&"nurse", &"apron", {"H": PINK, "h": PINK_DARK, "A": RED, "B": PINK, "b": PINK_DARK, "C": WHITE, "c": FOG, "P": PINK, "F": WHITE}],
 }
 
 ## Catching orbs: id -> [top color, accent color].
@@ -108,69 +115,6 @@ const MONSTERS := {
 	&"zapkit": [54, &"electric"],
 	&"shadeling": [69, &"ghost"],
 }
-
-# --- Character sprite patterns (16x16, facing down / up / left) ---------------
-# K outline, H hat, h hat shade, A hair, S skin, E eye, W shine, B shirt,
-# b shirt shade, P pants. "." is transparent. Right-facing frames are mirrored.
-const _FRONT := [
-	"................",
-	".....KKKKKK.....",
-	"....KHHHHHHK....",
-	"...KHHHWWHHHK...",
-	"...KHHHHHHHHK...",
-	"..KhhhhhhhhhhK..",
-	"...KSSSSSSSSK...",
-	"...KSESSSSESK...",
-	"...KSSSSSSSSK...",
-	"....KKSSSSKK....",
-	"...KBBBBBBBBK...",
-	"..KSKBBBBBBKSK..",
-	"..KKKbBBBBbKKK..",
-	"....KPPPPPPK....",
-	"....KPPKKPPK....",
-	"....KKK..KKK....",
-]
-const _BACK := [
-	"................",
-	".....KKKKKK.....",
-	"....KHHHHHHK....",
-	"...KHHHHHHHHK...",
-	"...KHHHHHHHHK...",
-	"..KhhhhhhhhhhK..",
-	"...KAAAAAAAAK...",
-	"...KAAAAAAAAK...",
-	"...KSAAAAAASK...",
-	"....KKSSSSKK....",
-	"...KBBBBBBBBK...",
-	"..KSKBBBBBBKSK..",
-	"..KKKbBBBBbKKK..",
-	"....KPPPPPPK....",
-	"....KPPKKPPK....",
-	"....KKK..KKK....",
-]
-const _SIDE := [
-	"................",
-	"......KKKKK.....",
-	".....KHHHHHK....",
-	"....KHHWHHHHK...",
-	"....KHHHHHHHK...",
-	"..KKhhhhhhhhK...",
-	"....KSSSSAAAK...",
-	"....KESSSAAAK...",
-	"....KSSSSSAK....",
-	".....KKSSKK.....",
-	"....KBBBBBBK....",
-	"....KBBSBBBK....",
-	"....KbBSBBbK....",
-	".....KPPPPK.....",
-	".....KPPPPK.....",
-	".....KKKKKK.....",
-]
-# Leg poses for walking frames (the body above is raised 1px to bob).
-const _LEGS_FRONT_A := ["....KPPPPPPK....", "....KPPKKPPK....", "....KPPK.KKK....", "....KKK........."]
-const _LEGS_FRONT_B := ["....KPPPPPPK....", "....KPPKKPPK....", "....KKK.KPPK....", ".........KKK...."]
-const _LEGS_SIDE_A := [".....KPPPPK.....", "....KPPKKPPK....", "...KPPK..KPPK...", "...KKK....KKK..."]
-const _LEGS_SIDE_B := [".....KPPPPK.....", ".....KPPPPK.....", "......KPPK......", "......KKKK......"]
 
 # 8x8 clump repeated four times to make the tall grass tile.
 const _TALL_GRASS := [
@@ -427,28 +371,47 @@ static func _shelf(img: Image, o: Vector2i) -> void:
 # Characters & objects
 # =============================================================================
 
-## A 48x64 walking sprite sheet: columns = stand, step A, step B;
-## rows = facing down, up, left, right.
-static func character_sheet(colors: Dictionary) -> Image:
-	var palette := {"K": INK, "S": SKIN, "E": INK, "W": WHITE}
-	palette.merge(colors, true)
+## A 48x64 walking sprite sheet for a CHARACTERS id: columns = stand, step A,
+## step B; rows = facing down, up, left, right.
+static func character_sheet(id: StringName) -> Image:
+	var design: Array = CHARACTERS[id]
+	var head: Dictionary = CharacterDesigns.HEADS[design[0]]
+	var body: Dictionary = CharacterDesigns.BODIES[design[1]]
+	var palette := {"K": INK, "S": SKIN, "s": SKIN_SHADE, "E": INK, "W": WHITE}
+	palette.merge(design[2], true)
 	var img := _new_image(TILE * 3, TILE * 4)
-	var poses := [
-		[_FRONT, _LEGS_FRONT_A, _LEGS_FRONT_B, false],
-		[_BACK, _LEGS_FRONT_A, _LEGS_FRONT_B, false],
-		[_SIDE, _LEGS_SIDE_A, _LEGS_SIDE_B, false],
-		[_SIDE, _LEGS_SIDE_A, _LEGS_SIDE_B, true],
+	var views := [ # [head view, body view, leg poses, mirrored]
+		["front", "front", "walk_front", false],
+		["back", "back", "walk_front", false],
+		["side", "side", "walk_side", false],
+		["side", "side", "walk_side", true],
 	]
-	for row in poses.size():
-		var pose: Array = poses[row]
-		var frames := [pose[0], _walk_frame(pose[0], pose[1]), _walk_frame(pose[0], pose[2])]
+	for row in views.size():
+		var view: Array = views[row]
+		var stand := _compose(head[view[0]], body.get(view[1], body["front"]))
+		var legs: Array = body[view[2]]
+		var frames := [stand, stand.slice(1, 13) + legs[0], stand.slice(1, 13) + legs[1]]
 		for col in frames.size():
-			_pattern(img, Vector2i(col * TILE, row * TILE), frames[col], palette, pose[3])
+			_pattern(img, Vector2i(col * TILE, row * TILE), frames[col], palette, view[3])
 	return img
 
 
-static func _walk_frame(stand: Array, legs: Array) -> Array:
-	return stand.slice(1, 13) + legs
+## Lays a head over a body: body rows fill 10-15, then head rows (from row 0)
+## are drawn on top, so long hair and beards can overlap the shoulders.
+static func _compose(head_rows: Array, body_rows: Array) -> Array:
+	var grid: Array = []
+	for y in TILE:
+		grid.append(".".repeat(TILE))
+	for layer: Array in [[body_rows, 10], [head_rows, 0]]:
+		var rows: Array = layer[0]
+		for i in rows.size():
+			var line: String = grid[layer[1] + i]
+			var part: String = rows[i]
+			for x in TILE:
+				if part[x] != ".":
+					line[x] = part[x]
+			grid[layer[1] + i] = line
+	return grid
 
 
 ## Two 16x16 frames of a sea monster the player rides while surfing.

@@ -11,9 +11,9 @@ const OUT_DIR := "res://assets/placeholder/"
 
 func _initialize() -> void:
 	_save(PixelArt.overworld_tiles(), "tiles/overworld_tiles.png")
-	_save(PixelArt.character_sheet(PixelArt.PLAYER_COLORS), "characters/player.png")
-	for id: StringName in PixelArt.NPC_COLORS:
-		_save(PixelArt.character_sheet(PixelArt.NPC_COLORS[id]), "characters/npc_%s.png" % id)
+	for id: StringName in PixelArt.CHARACTERS:
+		var file := "player" if id == &"player" else "npc_%s" % id
+		_save(PixelArt.character_sheet(id), "characters/%s.png" % file)
 	_save(PixelArt.surf_mount(), "objects/surf_mount.png")
 	_save(PixelArt.shadow(), "objects/shadow.png")
 	_save(PixelArt.cut_tree(), "objects/cut_tree.png")

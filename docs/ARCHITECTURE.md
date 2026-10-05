@@ -34,7 +34,8 @@ Mythic-Mons/
 │   │                          Ability + abilities/ (one script per behavior)
 │   ├── items/                 ItemData (orbs, potions)
 │   ├── battle/                Battle (the rules) and Battler (a monster on the field)
-│   ├── art/pixel_art.gd       Procedural 8-bit art generator
+│   ├── art/                   pixel_art.gd (tiles, objects, monsters, sheets) and
+│   │                          character_designs.gd (hand-drawn character parts)
 │   └── audio/                 ChipSynth (SFX), Chiptune (sequencer), Songs (music data)
 ├── data/                      Game data as .tres, file name = id
 │   ├── species/               flamlet, aquapup, sproutle, pebblet, zapkit, shadeling
