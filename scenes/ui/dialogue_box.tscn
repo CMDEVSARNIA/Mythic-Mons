@@ -1,0 +1,55 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/dialogue_box.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/ui/choice_box.tscn" id="2_choices"]
+
+[node name="Dialogue" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_script")
+
+[node name="Box" type="PanelContainer" parent="."]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = -46.0
+offset_right = -2.0
+offset_bottom = -2.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="Text" type="Label" parent="Box"]
+layout_mode = 2
+size_flags_vertical = 1
+text = "Text goes here."
+autowrap_mode = 3
+
+[node name="Arrow" type="Label" parent="."]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -16.0
+offset_top = -14.0
+offset_right = -8.0
+offset_bottom = -6.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "▼"
+
+[node name="ChoiceArea" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 48
+
+[node name="Choices" parent="ChoiceArea" instance=ExtResource("2_choices")]
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8

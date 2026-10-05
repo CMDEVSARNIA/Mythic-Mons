@@ -1,0 +1,37 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/actors/player/player.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/player.png" id="2_sheet"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/objects/surf_mount.png" id="3_mount"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/objects/shadow.png" id="4_shadow"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_cell"]
+size = Vector2(12, 12)
+
+[node name="Player" type="CharacterBody2D" groups=["player"]]
+collision_layer = 4
+collision_mask = 15
+motion_mode = 1
+script = ExtResource("1_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_cell")
+
+[node name="Shadow" type="Sprite2D" parent="."]
+visible = false
+texture = ExtResource("4_shadow")
+
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="SurfMount" type="Sprite2D" parent="Visual"]
+visible = false
+position = Vector2(0, 3)
+texture = ExtResource("3_mount")
+hframes = 2
+
+[node name="Sprite2D" type="Sprite2D" parent="Visual"]
+texture = ExtResource("2_sheet")
+hframes = 3
+vframes = 4
+
+[node name="Camera2D" type="Camera2D" parent="Visual"]

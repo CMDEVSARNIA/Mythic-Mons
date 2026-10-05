@@ -1,0 +1,45 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_hrei7"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_b0nca"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="3_3msva"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_mom.png" id="4_ku54w"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="5_bs8na"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="6_5m2f2"]
+
+[node name="HouseEmberfall" type="Node2D" unique_id=492692838]
+script = ExtResource("1_hrei7")
+display_name = "YOUR HOUSE"
+allow_fly = false
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=2096790057]
+tile_map_data = PackedByteArray("AAAAAAAAAAACAAIAAAABAAAAAAACAAIAAAACAAAAAAAGAAIAAAADAAAAAAAGAAIAAAAEAAAAAAACAAIAAAAFAAAAAAACAAIAAAAGAAAAAAACAAIAAAAHAAAAAAACAAIAAAAIAAAAAAACAAIAAAAJAAAAAAACAAIAAAAAAAEAAAABAAIAAAABAAEAAAABAAIAAAACAAEAAAABAAIAAAADAAEAAAABAAIAAAAEAAEAAAABAAIAAAAFAAEAAAABAAIAAAAGAAEAAAABAAIAAAAHAAEAAAABAAIAAAAIAAEAAAAFAAIAAAAJAAEAAAABAAIAAAAAAAIAAAABAAIAAAABAAIAAAABAAIAAAACAAIAAAABAAIAAAADAAIAAAABAAIAAAAEAAIAAAABAAIAAAAFAAIAAAABAAIAAAAGAAIAAAABAAIAAAAHAAIAAAABAAIAAAAIAAIAAAABAAIAAAAJAAIAAAABAAIAAAAAAAMAAAABAAIAAAABAAMAAAABAAIAAAACAAMAAAAEAAIAAAADAAMAAAABAAIAAAAEAAMAAAABAAIAAAAFAAMAAAABAAIAAAAGAAMAAAABAAIAAAAHAAMAAAABAAIAAAAIAAMAAAABAAIAAAAJAAMAAAABAAIAAAAAAAQAAAABAAIAAAABAAQAAAABAAIAAAACAAQAAAAEAAIAAAADAAQAAAABAAIAAAAEAAQAAAABAAIAAAAFAAQAAAABAAIAAAAGAAQAAAABAAIAAAAHAAQAAAABAAIAAAAIAAQAAAABAAIAAAAJAAQAAAABAAIAAAAAAAUAAAABAAIAAAABAAUAAAABAAIAAAACAAUAAAABAAIAAAADAAUAAAABAAIAAAAEAAUAAAABAAIAAAAFAAUAAAABAAIAAAAGAAUAAAABAAIAAAAHAAUAAAABAAIAAAAIAAUAAAABAAIAAAAJAAUAAAABAAIAAAAAAAYAAAABAAIAAAABAAYAAAABAAIAAAACAAYAAAABAAIAAAADAAYAAAABAAIAAAAEAAYAAAADAAIAAAAFAAYAAAABAAIAAAAGAAYAAAABAAIAAAAHAAYAAAABAAIAAAAIAAYAAAABAAIAAAAJAAYAAAABAAIAAAA=")
+tile_set = ExtResource("2_b0nca")
+
+[node name="Entities" type="Node2D" parent="." unique_id=2035167945]
+y_sort_enabled = true
+
+[node name="NPC_Mom1" parent="Entities" unique_id=373525920 instance=ExtResource("3_3msva")]
+position = Vector2(104, 56)
+sprite_sheet = ExtResource("4_ku54w")
+lines = PackedStringArray("MOM: Off exploring again?\nBe careful out there!", "Step on the mat by the\ndoor to head outside.")
+wander_radius = 1
+
+[node name="Warps" type="Node2D" parent="." unique_id=1857587768]
+
+[node name="Warp1" parent="Warps" unique_id=2128118990 instance=ExtResource("5_bs8na")]
+position = Vector2(72, 104)
+target_map = "res://scenes/maps/town_emberfall.tscn"
+target_spawn = &"from_house"
+
+[node name="Spawns" type="Node2D" parent="." unique_id=45281229]
+
+[node name="default" type="Marker2D" parent="Spawns" unique_id=1325950838]
+position = Vector2(72, 88)
+script = ExtResource("6_5m2f2")
+facing = 1
+
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=2063692274]
+position = Vector2(72, 88)
+script = ExtResource("6_5m2f2")
+facing = 1
