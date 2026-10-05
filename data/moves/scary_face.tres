@@ -13,3 +13,4 @@ stat_changes = Dictionary[StringName, int]({
 &"speed": -2
 })
 description = "Sharply lowers the foe's SPEED."
+animation = &"scary_face"

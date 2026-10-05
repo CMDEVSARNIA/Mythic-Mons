@@ -11,3 +11,4 @@ power = 90
 accuracy = 90
 max_pp = 10
 description = "A scorching blast of hot air."
+animation = &"heat_wave"

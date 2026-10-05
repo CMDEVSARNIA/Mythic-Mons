@@ -27,8 +27,8 @@ Mythic-Mons/
 │   │   └── *.tscn             Emberfall (home, lab, REN's house), Route 1, Tidewater
 │   │                          (MART, MONSTER CENTER, seaside house)
 │   ├── objects/               Warp, SpawnPoint, Signpost, CUT tree, ROCK SMASH boulder
-│   ├── battle/                BattleScene (menus + animation), BattlerPanel, StatBar,
-│   │                          EvolutionScene
+│   ├── battle/                BattleScene (menus + animation), MoveAnimator (move and
+│   │                          orb effects), BattlerPanel, StatBar, EvolutionScene
 │   └── ui/                    Dialogue box (autoload), choice box, map banner, party menu,
 │                              monster summary, shop menu, quantity box, MONDEX,
 │                              MoveTutor (learning a move, forgetting one if needed)
@@ -38,18 +38,21 @@ Mythic-Mons/
 │   │                          TypeChart, Ability + abilities/ (one script per behavior)
 │   ├── items/                 ItemData (orbs, potions, evolution stones)
 │   ├── battle/                Battle (the rules) and Battler (a monster on the field)
-│   ├── art/                   pixel_art.gd (tiles, objects, monsters, sheets),
-│   │                          character_designs.gd (hand-drawn character parts) and
-│   │                          monster_designs.gd (hand-drawn battle sprites),
+│   ├── art/                   pixel_art.gd (palettes; draws characters, monsters, items,
+│   │                          effects), hand-drawn designs: character_designs.gd,
+│   │                          monster_designs.gd, item_designs.gd (icons and orbs),
+│   │                          effect_designs.gd (battle effects), trainer_designs.gd
+│   │                          (the player's battle back sprite), and
 │   │                          world_tiles.gd (WorldTiles: the map atlas layout)
 │   └── audio/                 ChipSynth (SFX), Chiptune (sequencer), Songs (music data)
 ├── data/                      Game data as .tres, file name = id
 │   ├── species/               flamlet, blazard, aquapup, tidehound, ... (12, in dex order)
 │   ├── moves/                 tackle, ember, water_gun, ...
 │   ├── abilities/             kindle, soak_up, sunsoak, sturdy_shell, jolt, dread
-│   └── items/                 mon_orb, super_orb, master_orb, potion, bolt_stone, ...
+│   └── items/                 ten orbs (mon_orb ... gala_orb), potion, big_potion, stones
 ├── assets/
-│   ├── placeholder/           Generated PNGs: tiles, characters, objects, monsters
+│   ├── placeholder/           Generated PNGs: characters, objects, monsters, items,
+│   │                          effects
 │   ├── characters/townsfolk/  NPC sheets converted from a downloaded pack (source/)
 │   ├── world/                 world_tiles.png, signs, CUT tree, boulder, battle backdrop,
 │   │                          source/ (ArMM1998's CC0 overworld sheet)
@@ -216,9 +219,10 @@ and badges.
 |---|---|
 | `MonsterSpecies` (`data/species/*.tres`) | Name, element, ability, front/back sprites, 5 base stats, catch rate, EXP yield, EXP curve (`growth`), learnset (`LevelMove` entries), `evolutions`, MONDEX number and entry |
 | `Evolution` (inside a species) | What it evolves `into`, and how: `LEVEL` (at `level` or above) or `ITEM` (an evolution stone's id) |
-| `MoveData` (`data/moves/*.tres`) | Name, element, PHYSICAL/SPECIAL/STATUS, power, accuracy, PP, priority, optional stat changes |
+| `MoveData` (`data/moves/*.tres`) | Name, element, PHYSICAL/SPECIAL/STATUS, power, accuracy, PP, priority, optional stat changes, the `animation` recipe |
+| `ItemData` (`data/items/*.tres`) | Name, kind (BALL/HEAL/EVOLUTION), price, description, a 16 × 16 `icon`; orbs add a catch multiplier, a special-orb `bonus`, and an `open_icon` |
 | `Ability` subclasses (`data/abilities/*.tres`) | A configured behavior, e.g. `ElementBoostAbility` with element = fire is KINDLE |
-| `Monster` (runtime, a Resource so it can be saved) | Species, level, EXP, current HP, IVs, nature, moves and remaining PP |
+| `Monster` (runtime, a Resource so it can be saved) | Species, level, EXP, current HP, IVs, nature, the orb it was caught in, moves and remaining PP |
 
 Stats follow Generation 3 with two simplifications: five stats (HP, ATTACK,
 DEFENSE, SPECIAL, SPEED, where one SPECIAL serves for both attack and defense
@@ -240,11 +244,42 @@ Maps and code refer to species, moves and items by id
 
 `Battle` (scripts/battle/battle.gd) holds every rule and nothing visual. Each
 call (`start()`, `take_turn(action)`, `switch_after_faint(i)`) returns an
-ordered list of events: `message`, `attack`, `hit`, `hp`, `stat`, `faint`,
-`withdraw`, `send_out`, `flee`, `restore`, `throw`, `shake`, `caught`,
-`break_free`. `BattleScene` only asks for the player's
-action and plays those events back as text, sounds and tweens. This keeps the
-rules fast to unit-test and reusable for trainer battles.
+ordered list of events: `message`, `attack` (with the move), `hit`, `hp`,
+`stat`, `faint`, `withdraw`, `send_out`, `flee`, `restore`, `throw`, `shake`,
+`caught`, `break_free`. `BattleScene` only asks for the player's action and
+plays those events back as text, sounds and animation. This keeps the rules
+fast to unit-test and reusable for trainer battles.
+
+### Battle animation
+
+`BattleScene` animates the events with tweens:
+
+- **Opening.** The wild monster slides in from the left as the trainer's
+  back sprite (`characters/player_back.png`: stand, wind up, throw) slides in
+  from the right. While "Go! X!" is on screen, the trainer throws the lead
+  monster's orb and steps away.
+- **Send-outs and recalls.** Each `Monster` remembers its `orb`. A send-out
+  arcs that orb in, pops it open (its `open_icon`) in a flash, and the
+  monster grows out of a white glow. A recall shrinks it into red light.
+- **Catches.** A `throw` arcs the orb to the wild monster, opens it, pulls
+  the monster in as red light, then drops and bounces the orb onto the
+  platform. Each `shake` tips the orb on its base. `caught` dims it with a
+  burst of stars, and `break_free` pops it open and lets the monster out.
+- **Faints.** The monster sinks out of sight: its sprite's region shrinks as
+  it moves down, so it looks cut off by the platform.
+
+`MoveAnimator` (the `Effects` node, above the monsters and below the HP
+panels) plays each move's animation for an `attack` event:
+`play_move(move, user_sprite, target_sprite)`. `MoveData.animation` names a
+recipe in `MoveAnimator.RECIPES`. A move without a recipe falls back to one
+for its category and element (for example, a special fire move uses EMBER's).
+Recipes combine a few building blocks: effect sprites from `EffectDesigns`
+(drawn at 2×, like the monsters) that fly, pop, or burst outward; a lunge
+toward the target; Line2D vines and lightning; a tint over the backdrop
+(`BackdropTint`); and a full-screen `Flash`. MoveAnimator also draws orb
+light, catch stars, stat arrows and healing sparkles for BattleScene. To add
+a recipe, write a method in MoveAnimator, add it to `RECIPES`, and set the
+move's `animation`.
 
 Turn flow: both sides pick moves. Higher priority goes first, then higher
 SPEED. Each move checks accuracy, then type effectiveness (immunities stop
@@ -261,15 +296,27 @@ and the engine applies it:
 
 - **Orbs** (`ItemData.Kind.BALL`) run the Gen 3 check in
   `Battle.catch_shakes()`:
-  `rate = (3·maxHP − 2·HP) · catch_rate · ball / (3·maxHP)`.
+  `rate = (3·maxHP − 2·HP) · catch_rate · ball / (3·maxHP)`, where `ball` is
+  `Battle.ball_multiplier(orb)`. That's the orb's `catch_multiplier`, unless
+  its `bonus` applies:
+
+  | `ItemData.Bonus` | Orb | Multiplier |
+  |---|---|---|
+  | `ELEMENT` | NET ORB | `bonus_multiplier` (3×) if the wild monster's element is in `bonus_elements` (WATER) |
+  | `IN_WATER` | DIVE ORB | 3.5× when `Battle.in_water` (Main sets it when you meet the monster while surfing) |
+  | `LOW_LEVEL` | NEST ORB | (40 − level) / 10, at least 1× |
+  | `REPEAT` | REPEAT ORB | 3× when `Battle.already_caught` (its species is in the MONDEX as caught) |
+  | `TIMER` | TIMER ORB | (turns + 10) / 10, at most 4×; `Battle.turns` counts finished turns |
+
   At 255 or more the catch is certain. Otherwise four checks each pass with
   probability `1048560 / ⁴√(16711680 / rate) / 65536`. The orb wobbles once
   per passed check, up to three times, and all four passing is a catch. A
   SPROUTLE (catch rate 190) is about a 25% catch at full HP and 74% at 1 HP.
 - **Healing items** (`Kind.HEAL`) restore HP to the active monster.
 
-On a catch the battle ends with `Outcome.CAUGHT`, and
-`GameState.add_monster()` puts the monster in the party, or in
+On a catch the battle ends with `Outcome.CAUGHT`, the monster's `orb` is set
+to the orb's id, and `GameState.add_monster()` puts the monster in the
+party, or in
 `GameState.storage` (the BOX) when the party has six. A caught monster keeps
 its current HP and earns you no EXP, as in Gen 3.
 
@@ -362,9 +409,16 @@ marks the new species as caught in the MONDEX.
   / QUIT, an item list with the highlighted item's description, a
   `QuantityBox` (up/down ±1, left/right ±10) and a YES/NO confirmation.
   Prices are `ItemData.price` (0 = not for sale), and the MART buys items
-  back for `sell_price()`, half of that. `GameState.money` starts at $3000
-  and is capped at $999,999. The BAG holds up to 99 of each item. To stock a
-  different MART, set the clerk's `stock` in the inspector.
+  back for `sell_price()`, half of that. Buying 10 MON ORBs at once adds a
+  free GALA ORB (`ShopMenu.BONUS_*`), like Emerald's Premier Ball.
+  `GameState.money` starts at $3000 and is capped at $999,999. The BAG holds
+  up to 99 of each item. Each clerk sells its own `stock`. The Tidewater MART
+  has two counters (everyday goods, and specialty orbs and stones), set by a
+  `"stock"` list of item ids in `tools/build_world.gd`, or in the inspector.
+- **Menus.** `ChoiceBox` is every option list. With `max_rows` set (the
+  start menu, BAG and shop lists show 8, battle lists 7), longer lists
+  scroll to follow the cursor, with ▲ and ▼ marking more options. Item lists
+  show the highlighted item's `icon` next to its description.
 - **MONDEX.** `GameState.seen` and `GameState.caught` hold species ids.
   Wild encounters mark a species as seen, and `GameState.add_monster()`
   (starter or catch) marks it as caught. A new catch also gets "data was
@@ -375,9 +429,9 @@ marks the new species as caught in the MONDEX.
 - **Saving.** SAVE writes `user://save.json`: the player's map, cell,
   facing and surf state, plus the party, BOX, BAG, money, MONDEX, flags,
   Fly towns and respawn. Saves from before the MONDEX count everything you
-  own as caught, monsters without a nature get HARDY (neutral), and EXP is
-  clamped to each species' curve. Monsters store species and move *ids*, not
-  resource paths. A
+  own as caught, monsters without a nature get HARDY (neutral) and a MON
+  ORB, and EXP is clamped to each species' curve. Monsters store species,
+  move and orb *ids*, not resource paths. A
   save survives refactors as long as ids stay the same, and unknown species
   or moves are skipped rather than crashing. It's JSON because loading a
   `.tres` can run scripts embedded in it, and players edit and share save
@@ -417,30 +471,32 @@ marks the new species as caught in the MONDEX.
 - `tests/battle_test.gd` covers the battle rules with no scene: stat and
   damage formulas, type chart, stages, turn order and priority, all six
   abilities, winning, losing, forced switches, running, PP, STRUGGLE,
-  level-ups, catch odds, orbs and POTIONs (47 checks).
+  level-ups, catch odds, every special orb's bonus, orbs and POTIONs
+  (61 checks).
 - `tests/monster_test.gd` covers the four EXP curves, IV ranges, every
   nature turning up, nature effects on stats, level and stone evolution
   (what's kept and what changes), and that evolutions share their
   pre-evolution's curve (20 checks).
 - `tests/game_state_test.gd` covers the party, BOX, BAG limits, money, the
-  MONDEX, flags, monster serialization (natures included, and older saves
-  without one), a full save/load round trip, and corrupt or newer-version
-  saves (34 checks). It uses its own save file.
+  MONDEX, flags, monster serialization (natures and orbs included, and older
+  saves without them), a full save/load round trip, and corrupt or
+  newer-version saves (36 checks). It uses its own save file.
 - `tests/smoke_test.gd` plays the real game by injecting input: movement,
   signs, NPCs, CUT, doors, the starter gate and PROF. ASTER's starter,
   ledges, ROCK SMASH, a won battle whose level-up evolution is stopped with
-  B, a catch, a whiteout, MOM's healing, the
-  MONDEX list and page, party screen, summary and SWITCH, POTIONs from the
-  BAG, SAVE, CONTINUE from the title screen, SURF and a battle at sea
-  (SPROUTLE evolves into GROVETLE afterwards), buying and selling in the
-  MART, a BOLT STONE from the BAG (on the wrong monster, then on ZAPKIT),
+  B, a catch (which remembers its orb), a whiteout, MOM's healing, the
+  MONDEX list and page, party screen, summary and SWITCH, a scrolling BAG
+  and POTIONs from it, SAVE, CONTINUE from the title screen, SURF and a
+  battle at sea (SPROUTLE evolves into GROVETLE afterwards), buying 10 MON
+  ORBs (and the free GALA ORB), selling, a DIVE ORB from the specialty
+  counter, a BOLT STONE from the BAG (on the wrong monster, then on ZAPKIT),
   healing at the MONSTER CENTER, entering and leaving every building, and
-  FLY (78 checks).
+  FLY (84 checks).
   It uses its own save file.
 - `tests/npc_test.gd` visits every map and talks to every NPC and sign,
   standing where a player could (a reachable neighboring cell, counting CUT,
   ROCK SMASH and SURF, or across a counter), then examines a bookshelf
-  (28 checks).
+  (29 checks).
 
 ```sh
 godot --headless --path . --script res://tests/battle_test.gd

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/dive_orb.png" id="1_kmoiy"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/dive_orb_open.png" id="2_8re6k"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="3_bdgod"]
+
+[resource]
+script = ExtResource("3_bdgod")
+display_name = "DIVE ORB"
+description = "Works especially well
+on MONSTERS met in
+the water."
+icon = ExtResource("1_kmoiy")
+price = 1000
+bonus = 2
+bonus_multiplier = 3.5
+open_icon = ExtResource("2_8re6k")

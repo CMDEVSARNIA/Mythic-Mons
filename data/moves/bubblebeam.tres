@@ -14,3 +14,4 @@ stat_changes = Dictionary[StringName, int]({
 })
 effect_chance = 10
 description = "May lower the foe's SPEED."
+animation = &"bubblebeam"

@@ -15,6 +15,7 @@ var _index := 0
 var _page := 0
 
 @onready var _art: TextureRect = $Art
+@onready var _orb: TextureRect = $Orb
 @onready var _header: Label = $Header
 @onready var _info: Label = $InfoText
 @onready var _skills: Label = $SkillsText
@@ -61,6 +62,8 @@ func _refresh() -> void:
 	var monster := _party[_index]
 	var species := monster.species
 	_art.texture = species.front_texture
+	var orb := GameData.item(monster.orb)
+	_orb.texture = orb.icon if orb else null
 	_header.text = "%s\nLv%d  %s\nHP %d/%d\n%s nature" % [monster.get_display_name(), monster.level,
 		species.element.to_upper(), monster.hp, monster.max_hp(), monster.nature]
 	var next := "MAX" if monster.level >= Monster.MAX_LEVEL else str(monster.exp_to_next_level())
@@ -80,5 +83,6 @@ func _refresh() -> void:
 	_info.visible = _page == 0
 	_skills.visible = _page == 1
 	_art.visible = _page == 0
+	_orb.visible = _page == 0
 	_header.visible = _page == 0
 	_footer.text = "%s %d/%d   <> PAGE  B BACK" % [PAGES[_page], _page + 1, PAGES.size()]

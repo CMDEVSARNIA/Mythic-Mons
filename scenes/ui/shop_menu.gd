@@ -4,10 +4,16 @@ extends CanvasLayer
 ## frees it. Items cost ItemData.price, and the MART buys them back for
 ## ItemData.sell_price(). Money and items go through GameState.
 
+## Buying BONUS_COUNT of BONUS_FOR at once adds one BONUS_ITEM.
+const BONUS_FOR := &"mon_orb"
+const BONUS_COUNT := 10
+const BONUS_ITEM := &"gala_orb"
+
 @onready var _money: Label = $MoneyBox/Label
 @onready var _list: ChoiceBox = $ListArea/List
 @onready var _info_box: Control = $InfoBox
 @onready var _info: Label = $InfoBox/Label
+@onready var _icon: TextureRect = $InfoBox/Icon
 @onready var _quantity: QuantityBox = $QuantityArea/Quantity
 
 
@@ -63,6 +69,10 @@ func _buy(stock: Array[ItemData]) -> void:
 		_refresh_money()
 		Audio.play_sfx(&"purchase")
 		await Dialogue.say(["Here you are!\nThank you very much!"])
+		# Like Emerald's Premier Ball: 10 or more MON ORBs at once earn a bonus.
+		if id == BONUS_FOR and count >= BONUS_COUNT and GameState.item_count(BONUS_ITEM) < GameState.MAX_ITEM_COUNT:
+			GameState.add_item(BONUS_ITEM)
+			await Dialogue.say(["I'll throw in a\n%s, too." % GameData.item(BONUS_ITEM).display_name])
 
 
 func _sell() -> void:
@@ -108,6 +118,7 @@ func _sell() -> void:
 func _pick(options: PackedStringArray, items: Array[ItemData], start: int) -> int:
 	var describe := func(index: int) -> void:
 		_info.text = items[index].description if index < items.size() else "Go back."
+		_icon.texture = items[index].icon if index < items.size() else null
 	_list.cursor_moved.connect(describe)
 	_info_box.show()
 	var index: int = await _list.choose(options, start)

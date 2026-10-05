@@ -9,3 +9,4 @@ element = "water"
 category = 1
 max_pp = 25
 description = "Squirts water at the foe."
+animation = &"water_gun"

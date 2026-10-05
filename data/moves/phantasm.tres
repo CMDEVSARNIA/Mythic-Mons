@@ -14,3 +14,4 @@ stat_changes = Dictionary[StringName, int]({
 })
 effect_chance = 20
 description = "May lower the foe's ATTACK."
+animation = &"phantasm"

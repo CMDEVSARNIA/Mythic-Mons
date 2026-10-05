@@ -119,11 +119,27 @@ const BALL := ItemData.Kind.BALL
 const HEAL := ItemData.Kind.HEAL
 const EVOLUTION := ItemData.Kind.EVOLUTION
 
-## id: [name, kind, catch multiplier or heal amount, price (0 = not sold), description]
+## id: [name, kind, catch multiplier or heal amount, price (0 = not sold),
+##      description, optional extra properties]
+## The orbs follow Gen 3's balls: MON/SUPER/HYPER/MASTER are Poke/Great/Ultra/
+## Master, then Net, Dive, Nest, Repeat and Timer, and GALA is the Premier
+## Ball (a free bonus for buying 10 MON ORBs at once).
 const ITEMS := {
 	"mon_orb": ["MON ORB", BALL, 1.0, 200, "A device for catching\nwild MONSTERS."],
-	"super_orb": ["SUPER ORB", BALL, 1.5, 600, "A better orb with a\nhigher catch rate."],
+	"super_orb": ["SUPER ORB", BALL, 1.5, 600, "A good orb with a\nhigher catch rate\nthan a MON ORB."],
+	"hyper_orb": ["HYPER ORB", BALL, 2.0, 1200, "A high-performance\norb. Better than a\nSUPER ORB."],
 	"master_orb": ["MASTER ORB", BALL, 255.0, 0, "Catches any wild\nMONSTER without fail."],
+	"net_orb": ["NET ORB", BALL, 1.0, 1000, "Works especially well\non WATER MONSTERS.",
+		{"bonus": ItemData.Bonus.ELEMENT, "bonus_multiplier": 3.0, "bonus_elements": [&"water"]}],
+	"dive_orb": ["DIVE ORB", BALL, 1.0, 1000, "Works especially well\non MONSTERS met in\nthe water.",
+		{"bonus": ItemData.Bonus.IN_WATER, "bonus_multiplier": 3.5}],
+	"nest_orb": ["NEST ORB", BALL, 1.0, 1000, "Works better the\nlower the wild\nMONSTER's level.",
+		{"bonus": ItemData.Bonus.LOW_LEVEL}],
+	"repeat_orb": ["REPEAT ORB", BALL, 1.0, 1000, "Works especially well\non kinds of MONSTER\nyou've caught before.",
+		{"bonus": ItemData.Bonus.REPEAT, "bonus_multiplier": 3.0}],
+	"timer_orb": ["TIMER ORB", BALL, 1.0, 1000, "Works better the\nlonger the battle\ngoes on.",
+		{"bonus": ItemData.Bonus.TIMER}],
+	"gala_orb": ["GALA ORB", BALL, 1.0, 200, "A rare orb made to\ncelebrate a MART\nopening."],
 	"potion": ["POTION", HEAL, 20, 300, "Restores 20 HP to\none MONSTER."],
 	"big_potion": ["BIG POTION", HEAL, 50, 700, "Restores 50 HP to\none MONSTER."],
 	"bolt_stone": ["BOLT STONE", EVOLUTION, 0, 2100, "Makes certain MONSTERS\nevolve. It crackles\nwith static."],
@@ -137,7 +153,7 @@ func _initialize() -> void:
 	_force = "--force" in OS.get_cmdline_user_args()
 	var moves := {}
 	for id: String in MOVES:
-		moves[id] = _save_or_keep(MOVE_DIR + id + ".tres", _build_move.bind(MOVES[id]))
+		moves[id] = _save_or_keep(MOVE_DIR + id + ".tres", _build_move.bind(id, MOVES[id]))
 	var abilities := {}
 	for id: String in ABILITIES:
 		abilities[id] = _save_or_keep(ABILITY_DIR + id + ".tres", _build_ability.bind(ABILITIES[id]))
@@ -157,7 +173,7 @@ func _initialize() -> void:
 	quit()
 
 
-func _build_move(row: Array) -> MoveData:
+func _build_move(id: String, row: Array) -> MoveData:
 	var move := MoveData.new()
 	move.display_name = row[0]
 	move.element = row[1]
@@ -172,6 +188,7 @@ func _build_move(row: Array) -> MoveData:
 	move.stat_target = row[8]
 	move.effect_chance = row[9] if not changes.is_empty() else 100
 	move.description = row[10]
+	move.animation = StringName(id) # MoveAnimator has a recipe for every built-in move.
 	return move
 
 
@@ -254,13 +271,20 @@ func _build_item(id: String, row: Array) -> ItemData:
 	var item := ItemData.new()
 	item.display_name = row[0]
 	item.kind = row[1]
+	item.icon = load(ITEM_SPRITE_DIR + id + ".png")
 	if item.kind == BALL:
 		item.catch_multiplier = row[2]
-		item.icon = load(ITEM_SPRITE_DIR + id + ".png")
+		item.open_icon = load(ITEM_SPRITE_DIR + id + "_open.png")
 	elif item.kind == HEAL:
 		item.heal_amount = row[2]
 	item.price = row[3]
 	item.description = row[4]
+	var extras: Dictionary = row[5] if row.size() > 5 else {}
+	for property: String in extras:
+		if property == "bonus_elements":
+			item.bonus_elements.assign(extras[property])
+		else:
+			item.set(property, extras[property])
 	return item
 
 

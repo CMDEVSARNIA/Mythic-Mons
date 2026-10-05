@@ -9,8 +9,18 @@ extends Control
 const MESSAGE_SECONDS := 1.0
 const ENEMY_HOME := Vector2(176, 36)
 const PLAYER_HOME := Vector2(64, 86)
-## Where a thrown orb lands: on the wild monster's platform.
-const BALL_REST := Vector2(176, 58)
+## Orb positions are its base (the Ball sprite pivots there to wobble).
+## A thrown orb pops open in front of the wild monster, then drops onto its
+## platform.
+const BALL_OPEN := Vector2(176, 42)
+const BALL_REST := Vector2(176, 64)
+## Orbs thrown mid-battle come in from off-screen, bottom left.
+const THROW_FROM := Vector2(16, 112)
+## Where the trainer's hand lets go of the first orb, from the trainer's spot.
+const HAND_OFFSET := Vector2(26, -26)
+## The white-hot, then red, glow of a monster turning into light.
+const LIGHT := Color(3, 3, 3)
+const RED_LIGHT := Color(3, 1.3, 1.3)
 ## On-screen height of a monster: 32x32 sprites are doubled, 64x64 sprites
 ## (the size most monster packs use) are drawn as they are.
 const SPRITE_HEIGHT := 64.0
@@ -18,17 +28,24 @@ const SPRITE_HEIGHT := 64.0
 const CANCELLED := -2
 
 var battle: Battle
+## Set before run(): the wild monster was met in the water (DIVE ORB).
+var in_water := false
 ## Monsters that leveled up this battle; Main checks them for evolutions.
 var leveled_up: Array[Monster] = []
 var _last_action := 0
 var _last_move := 0
+## The orb in flight, for break_free.
+var _thrown: ItemData
 
 @onready var _enemy_sprite: Sprite2D = $EnemySprite
 @onready var _player_sprite: Sprite2D = $PlayerSprite
 @onready var _ball: Sprite2D = $Ball
+@onready var _trainer: Sprite2D = $Trainer
+@onready var _effects: MoveAnimator = $Effects
 @onready var _enemy_panel: BattlerPanel = $EnemyPanel
 @onready var _player_panel: BattlerPanel = $PlayerPanel
 @onready var _prompt: Label = $MessageFrame/Prompt
+@onready var _item_icon: TextureRect = $MessageFrame/ItemIcon
 @onready var _action_menu: ChoiceBox = $Menus/ActionArea/ActionMenu
 @onready var _move_menu: ChoiceBox = $Menus/MoveArea/MoveMenu
 @onready var _move_info: Control = $Menus/MoveInfo
@@ -46,6 +63,8 @@ func _ready() -> void:
 func run(party: Array[Monster], wild: Monster, rng: RandomNumberGenerator = null) -> Battle.Outcome:
 	battle = Battle.new(party, wild, rng)
 	battle.trainer_name = GameState.player_name
+	battle.in_water = in_water
+	battle.already_caught = GameState.caught.has(GameData.id_of(wild.species))
 	await _intro()
 	await _play(battle.start())
 	while battle.outcome == Battle.Outcome.ONGOING:
@@ -148,7 +167,9 @@ func _choose_item() -> StringName:
 	options.append("CANCEL")
 	var describe := func(index: int) -> void:
 		_prompt.text = items[index].description if index < items.size() else ""
+		_item_icon.texture = items[index].icon if index < items.size() else null
 	_list_menu.cursor_moved.connect(describe)
+	_item_icon.show()
 	var picked: StringName = &""
 	while true:
 		var index: int = await _list_menu.choose(options)
@@ -161,6 +182,7 @@ func _choose_item() -> StringName:
 		picked = ids[index]
 		break
 	_list_menu.cursor_moved.disconnect(describe)
+	_item_icon.hide()
 	_prompt.text = ""
 	return picked
 
@@ -199,7 +221,7 @@ func _play(events: Array[Dictionary]) -> void:
 			&"message":
 				await _say([event.text], 0.0 if event.wait else MESSAGE_SECONDS)
 			&"attack":
-				await _lunge(side)
+				await _attack(side, event.get("move"))
 			&"hit":
 				await _hit(side, event.effectiveness)
 			&"hp":
@@ -226,19 +248,28 @@ func _play(events: Array[Dictionary]) -> void:
 				await _break_free()
 
 
+## The wild monster slides in from the left as the trainer slides in from
+## the right; then the trainer throws out the lead monster.
 func _intro() -> void:
 	var wild := battle.enemy.monster
 	_enemy_sprite.texture = wild.species.front_texture
 	_enemy_sprite.scale = _full_scale(_enemy_sprite)
 	_enemy_sprite.position = ENEMY_HOME - Vector2(240.0, 0.0)
 	_enemy_panel.show_monster(wild)
-	var tween := create_tween()
-	tween.tween_property(_enemy_sprite, "position", ENEMY_HOME, 0.8).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	_trainer.frame = 0
+	_trainer.position = PLAYER_HOME + Vector2(240.0, 0.0)
+	_trainer.show()
+	var tween := create_tween().set_parallel().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	tween.tween_property(_enemy_sprite, "position", ENEMY_HOME, 0.8)
+	tween.tween_property(_trainer, "position", PLAYER_HOME, 0.8)
 	await tween.finished
 	_enemy_panel.show()
 	await _say(["Wild %s appeared!" % wild.get_display_name()])
-	await _say(["Go! %s!" % battle.player.monster.get_display_name()], MESSAGE_SECONDS * 0.5)
-	await _send_out()
+	# The throw plays while "Go!" is on screen.
+	_say(["Go! %s!" % battle.player.monster.get_display_name()], MESSAGE_SECONDS)
+	await _send_out(true)
+	while Dialogue.is_open:
+		await get_tree().process_frame
 
 
 func _victory() -> void:
@@ -277,14 +308,10 @@ func _add_caught_monster() -> void:
 
 # --- Animation ---------------------------------------------------------------
 
-func _lunge(side: StringName) -> void:
-	var sprite := _sprite(side)
-	var home := sprite.position
-	var reach := Vector2(10, -6) if side == Battle.PLAYER else Vector2(-10, 6)
-	var tween := create_tween()
-	tween.tween_property(sprite, "position", home + reach, 0.08)
-	tween.tween_property(sprite, "position", home, 0.12)
-	await tween.finished
+func _attack(side: StringName, move: MoveData) -> void:
+	var foe := Battle.ENEMY if side == Battle.PLAYER else Battle.PLAYER
+	if move:
+		await _effects.play_move(move, _sprite(side), _sprite(foe))
 
 
 func _hit(side: StringName, effectiveness: float) -> void:
@@ -305,23 +332,31 @@ func _hit(side: StringName, effectiveness: float) -> void:
 func _stat_change(side: StringName, stages: int) -> void:
 	Audio.play_sfx(&"stat_up" if stages > 0 else &"stat_down")
 	var sprite := _sprite(side)
+	_effects.stat_arrows(sprite, stages > 0)
 	var tint := Color(1.6, 1.6, 1.6) if stages > 0 else Color(0.5, 0.5, 0.9)
 	var tween := create_tween()
 	for i in 2:
-		tween.tween_property(sprite, "modulate", tint, 0.12)
-		tween.tween_property(sprite, "modulate", Color.WHITE, 0.12)
+		tween.tween_property(sprite, "modulate", tint, 0.15)
+		tween.tween_property(sprite, "modulate", Color.WHITE, 0.15)
 	await tween.finished
 
 
+## The monster sinks out of sight below its platform.
 func _faint(side: StringName) -> void:
 	Audio.play_sfx(&"faint")
 	var sprite := _sprite(side)
-	var tween := create_tween().set_parallel()
-	tween.tween_property(sprite, "position:y", sprite.position.y + 24.0, 0.35)
-	tween.tween_property(sprite, "modulate:a", 0.0, 0.35)
+	var home := sprite.position
+	var size := sprite.texture.get_size()
+	sprite.region_enabled = true
+	var sink := func(t: float) -> void:
+		var hidden := size.y * t
+		sprite.region_rect = Rect2(0.0, 0.0, size.x, size.y - hidden)
+		sprite.position.y = home.y + hidden * sprite.scale.y / 2.0
+	var tween := create_tween()
+	tween.tween_method(sink, 0.0, 1.0, 0.4).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
 	await tween.finished
 	sprite.hide()
-	sprite.modulate.a = 1.0
+	sprite.region_enabled = false
 	sprite.position = PLAYER_HOME if side == Battle.PLAYER else ENEMY_HOME
 	if side == Battle.PLAYER:
 		_player_panel.hide()
@@ -329,6 +364,7 @@ func _faint(side: StringName) -> void:
 
 func _restore(side: StringName) -> void:
 	Audio.play_sfx(&"heal")
+	_effects.heal_sparkles(_sprite(side))
 	var tween := create_tween()
 	for i in 2:
 		tween.tween_property(_sprite(side), "modulate", Color(0.7, 1.6, 0.9), 0.12)
@@ -336,80 +372,147 @@ func _restore(side: StringName) -> void:
 	await tween.finished
 
 
+## A catch attempt: the orb arcs over, pops open and draws the wild monster
+## in as red light, snaps shut, then drops and bounces onto the platform.
 func _throw(item: ItemData) -> void:
-	_ball.texture = item.icon
-	_ball.modulate = Color.WHITE
-	_ball.show()
+	_thrown = item
 	Audio.play_sfx(&"throw")
-	var tween := create_tween()
-	tween.tween_method(_ball_arc.bind(Vector2(40, 104), ENEMY_HOME + Vector2(0, 4)), 0.0, 1.0, 0.5)
-	await tween.finished
-	# The wild monster is drawn into the orb in a flash of light.
-	tween = create_tween().set_parallel()
-	tween.tween_property(_enemy_sprite, "scale", Vector2.ZERO, 0.25)
-	tween.tween_property(_enemy_sprite, "modulate", Color(3, 3, 3), 0.25)
-	await tween.finished
-	_enemy_sprite.hide()
-	_enemy_sprite.modulate = Color.WHITE
-	tween = create_tween()
-	tween.tween_property(_ball, "position", BALL_REST, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BOUNCE)
-	await tween.finished
-	await _wait(0.3)
+	await _toss(item, THROW_FROM, BALL_OPEN, 0.55, 46.0)
+	await _pop_open(item)
+	Audio.play_sfx(&"recall")
+	await _into_light(_enemy_sprite, BALL_OPEN + Vector2(0, -6))
+	_ball.texture = item.icon
+	Audio.play_sfx(&"orb_bounce")
+	await _wait(0.2)
+	var drop := create_tween()
+	drop.tween_property(_ball, "position:y", BALL_REST.y, 0.22).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	drop.tween_callback(Audio.play_sfx.bind(&"orb_bounce"))
+	for height: float in [10.0, 4.0]:
+		drop.tween_property(_ball, "position:y", BALL_REST.y - height, 0.12).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+		drop.tween_property(_ball, "position:y", BALL_REST.y, 0.12).set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+		drop.tween_callback(Audio.play_sfx.bind(&"orb_bounce"))
+	await drop.finished
+	await _wait(0.35)
 
 
-func _ball_arc(t: float, from: Vector2, to: Vector2) -> void:
-	_ball.position = from.lerp(to, t) + Vector2(0.0, -40.0 * sin(t * PI))
-	_ball.rotation = t * TAU * 2.0
-
-
+## One wobble, tipping on the orb's base.
 func _shake() -> void:
 	Audio.play_sfx(&"ball_shake")
 	var tween := create_tween()
-	tween.tween_property(_ball, "rotation", -0.45, 0.1)
-	tween.tween_property(_ball, "rotation", 0.45, 0.16)
+	tween.tween_property(_ball, "rotation", -0.5, 0.1)
+	tween.tween_property(_ball, "rotation", 0.5, 0.18)
 	tween.tween_property(_ball, "rotation", 0.0, 0.1)
-	tween.tween_interval(0.35)
+	tween.tween_interval(0.45)
 	await tween.finished
 
 
-## The orb clicks shut: the monster is caught.
+## The orb clicks shut, stars pop out, and it dims: the monster is caught.
 func _seal() -> void:
 	Audio.play_sfx(&"catch")
+	_effects.catch_stars(_ball.position + Vector2(0, -8))
 	var tween := create_tween()
-	tween.tween_property(_ball, "modulate", Color(0.55, 0.55, 0.65), 0.3)
+	tween.tween_property(_ball, "modulate", Color(0.6, 0.6, 0.7), 0.3)
 	await tween.finished
 	await _wait(0.6)
 
 
+## The orb bursts open and the monster pours back out.
 func _break_free() -> void:
 	Audio.play_sfx(&"break_free")
+	_ball.rotation = 0.0
+	await _pop_open(_thrown)
+	var fade := create_tween()
+	fade.tween_property(_ball, "modulate:a", 0.0, 0.25)
+	await _out_of_light(_enemy_sprite, _ball.position + Vector2(0, -10), ENEMY_HOME)
 	_ball.hide()
-	_enemy_sprite.scale = Vector2.ZERO
-	_enemy_sprite.show()
-	var tween := create_tween()
-	tween.tween_property(_enemy_sprite, "scale", _full_scale(_enemy_sprite), 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
-	await tween.finished
+	_ball.modulate = Color.WHITE
 
 
+## The player's monster turns to red light and zips back into its orb.
 func _withdraw() -> void:
-	var tween := create_tween()
-	tween.tween_property(_player_sprite, "scale", Vector2.ZERO, 0.2)
-	await tween.finished
-	_player_sprite.hide()
+	Audio.play_sfx(&"recall")
+	await _into_light(_player_sprite, PLAYER_HOME + Vector2(-48, 16))
 	_player_panel.hide()
 
 
-func _send_out() -> void:
+## Sends the player's active monster out of the orb it was caught in. With
+## `from_trainer` (the battle's start) the trainer winds up and throws it,
+## then steps away; otherwise it comes from off-screen.
+func _send_out(from_trainer := false) -> void:
 	var monster := battle.player.monster
+	var orb := _orb_of(monster)
 	_player_sprite.texture = monster.species.back_texture
-	_player_sprite.position = PLAYER_HOME
-	_player_sprite.scale = Vector2.ZERO
-	_player_sprite.show()
+	var from := THROW_FROM
+	if from_trainer:
+		_trainer.frame = 1
+		await _wait(0.2)
+		_trainer.frame = 2
+		from = _trainer.position + HAND_OFFSET
+		var leave := create_tween()
+		leave.tween_interval(0.1)
+		leave.tween_property(_trainer, "position:x", -48.0, 0.45).set_ease(Tween.EASE_IN)
+		leave.tween_callback(_trainer.hide)
+	Audio.play_sfx(&"throw")
+	var open_at := PLAYER_HOME + Vector2(0, 10)
+	await _toss(orb, from, open_at, 0.45, 30.0)
+	await _pop_open(orb)
+	var fade := create_tween()
+	fade.tween_property(_ball, "modulate:a", 0.0, 0.2)
+	await _out_of_light(_player_sprite, open_at + Vector2(0, -10), PLAYER_HOME)
+	_ball.hide()
+	_ball.modulate = Color.WHITE
 	_player_panel.show_monster(monster)
 	_player_panel.show()
-	Audio.play_sfx(&"menu")
+
+
+## Throws an orb along an arc, spinning, from `from` to `to`.
+func _toss(orb: ItemData, from: Vector2, to: Vector2, seconds: float, arc: float) -> void:
+	_ball.texture = orb.icon
+	_ball.modulate = Color.WHITE
+	_ball.rotation = 0.0
+	_ball.position = from
+	_ball.show()
+	var flight := func(t: float) -> void:
+		_ball.position = from.lerp(to, t) + Vector2(0.0, -arc * sin(t * PI))
+		_ball.rotation = t * TAU * 2.0
 	var tween := create_tween()
-	tween.tween_property(_player_sprite, "scale", _full_scale(_player_sprite), 0.25).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tween.tween_method(flight, 0.0, 1.0, seconds)
+	await tween.finished
+	_ball.rotation = 0.0
+
+
+func _pop_open(orb: ItemData) -> void:
+	Audio.play_sfx(&"orb_open")
+	_ball.texture = orb.open_icon if orb.open_icon else orb.icon
+	_effects.orb_light(_ball.position + Vector2(0, -6))
+	await _wait(0.15)
+
+
+## `sprite` glows red and shrinks into a point at `to`, then hides.
+func _into_light(sprite: Sprite2D, to: Vector2) -> void:
+	var home := sprite.position
+	var size := sprite.scale
+	var tween := create_tween()
+	tween.tween_property(sprite, "modulate", RED_LIGHT, 0.15)
+	tween.tween_property(sprite, "scale", Vector2.ZERO, 0.3).set_ease(Tween.EASE_IN)
+	tween.parallel().tween_property(sprite, "position", to, 0.3).set_ease(Tween.EASE_IN)
+	await tween.finished
+	sprite.hide()
+	sprite.modulate = Color.WHITE
+	sprite.scale = size
+	sprite.position = home
+
+
+## `sprite` grows out of a point of light at `from` into its place at `home`.
+func _out_of_light(sprite: Sprite2D, from: Vector2, home: Vector2) -> void:
+	sprite.position = from
+	sprite.scale = Vector2.ZERO
+	sprite.modulate = LIGHT
+	sprite.show()
+	var tween := create_tween().set_parallel()
+	tween.tween_property(sprite, "scale", _full_scale(sprite), 0.3).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	tween.tween_property(sprite, "position", home, 0.3).set_ease(Tween.EASE_OUT)
+	tween.tween_property(sprite, "modulate", Color.WHITE, 0.4)
 	await tween.finished
 
 
@@ -421,6 +524,12 @@ func _say(pages: PackedStringArray, auto_advance := 0.0) -> void:
 
 func _wait(seconds: float) -> void:
 	await get_tree().create_timer(seconds).timeout
+
+
+## The orb `monster` was caught in (starters and old saves: a MON ORB).
+func _orb_of(monster: Monster) -> ItemData:
+	var orb := GameData.item(monster.orb)
+	return orb if orb else GameData.item(&"mon_orb")
 
 
 func _full_scale(sprite: Sprite2D) -> Vector2:

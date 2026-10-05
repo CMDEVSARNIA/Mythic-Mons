@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/nest_orb.png" id="1_72fth"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/nest_orb_open.png" id="2_t3pos"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="3_6xee3"]
+
+[resource]
+script = ExtResource("3_6xee3")
+display_name = "NEST ORB"
+description = "Works better the
+lower the wild
+MONSTER's level."
+icon = ExtResource("1_72fth")
+price = 1000
+bonus = 3
+open_icon = ExtResource("2_t3pos")

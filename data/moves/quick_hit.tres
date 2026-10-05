@@ -8,3 +8,4 @@ display_name = "QUICK HIT"
 max_pp = 30
 priority = 1
 description = "So fast it always strikes first."
+animation = &"quick_hit"

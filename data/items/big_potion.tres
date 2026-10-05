@@ -1,12 +1,14 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1_gosiy"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/big_potion.png" id="1_yuaeb"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="2_8uvul"]
 
 [resource]
-script = ExtResource("1_gosiy")
+script = ExtResource("2_8uvul")
 display_name = "BIG POTION"
 description = "Restores 50 HP to
 one MONSTER."
 kind = 1
+icon = ExtResource("1_yuaeb")
 price = 700
 heal_amount = 50

@@ -18,6 +18,7 @@ func _initialize() -> void:
 	_test_pp_and_struggle()
 	_test_experience()
 	_test_catching()
+	_test_special_orbs()
 	_test_items()
 	print("\nBATTLE TEST %s (%d failed)" % ["PASSED" if _failures == 0 else "FAILED", _failures])
 	quit(1 if _failures > 0 else 0)
@@ -181,6 +182,7 @@ func _test_catching() -> void:
 	_check(battle.outcome == Battle.Outcome.CAUGHT, "a caught monster ends the battle")
 	_check(_count(events, &"shake") == 3 and _count(events, &"caught") == 1 and _has_text(events, "Gotcha!"), "a catch shakes three times then clicks")
 	_check(not _used_move(events, "Wild SPROUTLE"), "the wild monster doesn't act after being caught")
+	_check(battle.enemy.monster.orb == &"master_orb", "a caught monster remembers its orb")
 
 	var tough := _monster(&"shadeling", 3)
 	tough.species = tough.species.duplicate()
@@ -189,6 +191,33 @@ func _test_catching() -> void:
 	events = battle.take_turn(Battle.use_item(GameData.item(&"mon_orb")))
 	_check(_count(events, &"break_free") == 1 and battle.outcome == Battle.Outcome.ONGOING, "a failed catch breaks free")
 	_check(_used_move(events, "Wild SHADELING"), "the wild monster acts after breaking free")
+
+
+func _test_special_orbs() -> void:
+	var water := _battle([_monster(&"flamlet", 5)], _monster(&"aquapup", 25))
+	var land := _battle([_monster(&"flamlet", 5)], _monster(&"sproutle", 25))
+	var orb := func(id: StringName) -> ItemData: return GameData.item(id)
+	_check(water.ball_multiplier(orb.call(&"mon_orb")) == 1.0 and water.ball_multiplier(orb.call(&"super_orb")) == 1.5 and water.ball_multiplier(orb.call(&"hyper_orb")) == 2.0, "MON, SUPER and HYPER ORBs are 1x, 1.5x and 2x")
+	_check(water.ball_multiplier(orb.call(&"net_orb")) == 3.0 and land.ball_multiplier(orb.call(&"net_orb")) == 1.0, "a NET ORB is 3x on WATER monsters only")
+	_check(water.ball_multiplier(orb.call(&"dive_orb")) == 1.0, "a DIVE ORB is 1x on land")
+	water.in_water = true
+	_check(water.ball_multiplier(orb.call(&"dive_orb")) == 3.5, "...and 3.5x in the water")
+	_check(land.ball_multiplier(orb.call(&"repeat_orb")) == 1.0, "a REPEAT ORB is 1x on a new species")
+	land.already_caught = true
+	_check(land.ball_multiplier(orb.call(&"repeat_orb")) == 3.0, "...and 3x on one caught before")
+	_check(land.ball_multiplier(orb.call(&"nest_orb")) == 1.5, "a NEST ORB is (40 - level) / 10: 1.5x at level 25")
+	land.enemy.monster.level = 5
+	_check(land.ball_multiplier(orb.call(&"nest_orb")) == 3.5, "...3.5x at level 5")
+	land.enemy.monster.level = 35
+	_check(land.ball_multiplier(orb.call(&"nest_orb")) == 1.0, "...and never below 1x")
+	_check(land.ball_multiplier(orb.call(&"timer_orb")) == 1.0, "a TIMER ORB starts at 1x")
+	land.turns = 15
+	_check(land.ball_multiplier(orb.call(&"timer_orb")) == 2.5, "...grows by 0.1x a turn")
+	land.turns = 50
+	_check(land.ball_multiplier(orb.call(&"timer_orb")) == 4.0, "...up to 4x")
+	var turns_before := water.turns
+	water.take_turn(Battle.fight(0))
+	_check(water.turns == turns_before + 1, "each turn counts toward the TIMER ORB")
 
 
 func _test_items() -> void:

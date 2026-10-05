@@ -9,3 +9,4 @@ element = "fire"
 category = 1
 max_pp = 25
 description = "A small burst of flame."
+animation = &"ember"

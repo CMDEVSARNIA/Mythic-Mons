@@ -8,3 +8,4 @@ display_name = "STRUGGLE"
 power = 50
 max_pp = 1
 description = "Used only when no move has PP left."
+animation = &"struggle"

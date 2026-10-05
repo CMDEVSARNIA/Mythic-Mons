@@ -59,7 +59,7 @@ const TILE_RULES := {
 ## What the player reads on pressing A at a tile, like Emerald's furniture.
 const EXAMINE := {
 	&"shelf": "It's crammed full of\nbooks about MONSTERS.",
-	&"mart_shelf": "Rows of MON ORBs and\nPOTIONs, all lined up.",
+	&"mart_shelf": "Rows of ORBs and POTIONs,\nall lined up.",
 	&"bed": "A soft, comfy bed.\nNo time for a nap now!",
 	&"plant": "A leafy potted plant.\nSomeone waters it daily.",
 	&"crate": "A sturdy wooden crate.\nIt won't budge.",
@@ -363,8 +363,13 @@ const MAPS := [
 			[Vector2i(4, 6), "town_tidewater.tscn", "from_mart", &"door"],
 		],
 		"npcs": [
-			[Vector2i(1, 2), "clerk", 0, [], {"scene": "clerk", "start_facing": 3}],
-			[Vector2i(8, 4), "hiker", 1, ["I always stock up on\nPOTIONs before a long\ntrip.", "BIG POTIONs heal even\nmore. They're worth it!"]],
+			# Two counters, like a department store: everyday goods, and
+			# specialty orbs plus evolution stones.
+			[Vector2i(1, 2), "clerk", 0, [], {"scene": "clerk", "start_facing": 3,
+				"stock": ["mon_orb", "super_orb", "hyper_orb", "potion", "big_potion"]}],
+			[Vector2i(1, 1), "clerk", 0, [], {"scene": "clerk", "start_facing": 3,
+				"stock": ["net_orb", "dive_orb", "nest_orb", "repeat_orb", "timer_orb", "bolt_stone", "dusk_stone"]}],
+			[Vector2i(8, 4), "hiker", 1, ["I always stock up on\nPOTIONs before a long\ntrip.", "The upper counter sells\nspecial ORBs. A DIVE ORB\nis great at sea!", "Buy 10 MON ORBs at once\nand they throw in a\nGALA ORB for free!"]],
 		],
 	},
 	{
@@ -575,13 +580,20 @@ func _sprite_path(id: String) -> String:
 	return path if ResourceLoader.exists(path) else CHARACTER_DIR + "npc_%s.png" % id
 
 
-## Sets extra properties from a map table; lists become PackedStringArrays.
+## Sets extra properties from a map table; lists become PackedStringArrays,
+## except a clerk's "stock", which lists item ids.
 func _apply(node: Node, props: Dictionary) -> void:
 	for property: String in props:
 		if property == "scene":
 			continue
 		var value: Variant = props[property]
-		node.set(property, PackedStringArray(value) if value is Array else value)
+		if property == "stock":
+			var items: Array[ItemData] = []
+			for id: String in value:
+				items.append(load("res://data/items/%s.tres" % id))
+			node.set(property, items)
+		else:
+			node.set(property, PackedStringArray(value) if value is Array else value)
 
 
 func _instance(kind: String, cell: Vector2i, parent: Node, root: Node, node_name: String) -> Node:

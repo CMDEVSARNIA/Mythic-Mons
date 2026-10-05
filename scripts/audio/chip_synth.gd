@@ -178,6 +178,49 @@ static func sfx(id: StringName) -> AudioStreamWAV:
 				fanfare.append(tone(Wave.PULSE_25, hz, hz, 0.09, 0.22, 0.18))
 			fanfare.append(tone(Wave.PULSE_25, 1318.51, 1318.51, 0.5, 0.22))
 			samples = sequence(fanfare)
+		&"orb_open":
+			samples = layer([tone(Wave.NOISE, 4000.0, 10000.0, 0.15, 0.3), tone(Wave.PULSE_25, 600.0, 1800.0, 0.15, 0.25)])
+		&"orb_bounce":
+			samples = tone(Wave.PULSE_50, 300.0, 180.0, 0.04, 0.3)
+		&"recall":
+			samples = tone(Wave.PULSE_25, 1600.0, 300.0, 0.3, 0.22)
+		# Move sounds, by element; MoveAnimator plays them.
+		&"swish":
+			samples = tone(Wave.NOISE, 3000.0, 9000.0, 0.12, 0.25)
+		&"slash":
+			samples = sequence([tone(Wave.NOISE, 20000.0, 6000.0, 0.08, 0.35), tone(Wave.NOISE, 12000.0, 4000.0, 0.08, 0.3)])
+		&"burn":
+			samples = layer([tone(Wave.NOISE, 1200.0, 400.0, 0.4, 0.35), tone(Wave.NOISE, 4000.0, 1500.0, 0.3, 0.15)])
+		&"splash":
+			samples = layer([tone(Wave.NOISE, 8000.0, 2000.0, 0.3, 0.3), tone(Wave.TRIANGLE, 400.0, 150.0, 0.2, 0.3)])
+		&"bubble":
+			var pops: Array[PackedFloat32Array] = []
+			for hz: float in [600.0, 900.0, 750.0, 1100.0]:
+				pops.append(tone(Wave.PULSE_25, hz, hz * 1.6, 0.05, 0.2))
+				pops.append(silence(0.03))
+			samples = sequence(pops)
+		&"leaf":
+			samples = sequence([tone(Wave.NOISE, 6000.0, 12000.0, 0.08, 0.2), silence(0.04), tone(Wave.NOISE, 6000.0, 12000.0, 0.08, 0.2)])
+		&"zap":
+			var crackle: Array[PackedFloat32Array] = []
+			for i in 3:
+				crackle.append(layer([tone(Wave.PULSE_12, 1800.0, 600.0, 0.07, 0.25), tone(Wave.NOISE, 12000.0, 12000.0, 0.07, 0.2)]))
+				crackle.append(silence(0.02))
+			samples = sequence(crackle)
+		&"thunder":
+			samples = layer([tone(Wave.NOISE, 9000.0, 300.0, 0.7, 0.55), tone(Wave.TRIANGLE, 90.0, 40.0, 0.6, 0.6)])
+		&"rock":
+			samples = layer([tone(Wave.NOISE, 900.0, 200.0, 0.3, 0.45), tone(Wave.TRIANGLE, 110.0, 55.0, 0.25, 0.5)])
+		&"ghost":
+			var wail: Array[PackedFloat32Array] = []
+			for i in 6:
+				var hz := 330.0 - 20.0 * i + (30.0 if i % 2 == 0 else -30.0)
+				wail.append(tone(Wave.TRIANGLE, hz, hz - 15.0, 0.07, 0.35, 0.3))
+			samples = sequence(wail)
+		&"growl":
+			samples = layer([tone(Wave.PULSE_50, 110.0, 80.0, 0.35, 0.3), tone(Wave.NOISE, 600.0, 300.0, 0.35, 0.2)])
+		&"glint":
+			samples = sequence([tone(Wave.PULSE_12, 2093.0, 2093.0, 0.04, 0.2, 0.1), tone(Wave.PULSE_12, 3136.0, 3136.0, 0.08, 0.2)])
 		&"purchase":
 			samples = sequence([tone(Wave.PULSE_25, 1567.98, 1567.98, 0.06, 0.22, 0.15), tone(Wave.PULSE_25, 2093.0, 2093.0, 0.18, 0.22)])
 		&"encounter":

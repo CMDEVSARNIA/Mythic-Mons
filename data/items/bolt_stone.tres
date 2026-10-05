@@ -1,12 +1,14 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1_qmt6g"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/bolt_stone.png" id="1_b2du5"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="2_7qjet"]
 
 [resource]
-script = ExtResource("1_qmt6g")
+script = ExtResource("2_7qjet")
 display_name = "BOLT STONE"
 description = "Makes certain MONSTERS
 evolve. It crackles
 with static."
 kind = 2
+icon = ExtResource("1_b2du5")
 price = 2100

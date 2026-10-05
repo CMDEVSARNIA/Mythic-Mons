@@ -4,6 +4,8 @@
 [ext_resource type="Texture2D" path="res://assets/world/battle_background.png" id="2_background"]
 [ext_resource type="PackedScene" path="res://scenes/battle/battler_panel.tscn" id="3_panel"]
 [ext_resource type="PackedScene" path="res://scenes/ui/choice_box.tscn" id="4_choices"]
+[ext_resource type="Script" path="res://scenes/battle/move_animator.gd" id="5_animator"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/player_back.png" id="6_trainer"]
 
 [node name="BattleScene" type="Control"]
 layout_mode = 3
@@ -23,9 +25,26 @@ grow_horizontal = 2
 grow_vertical = 2
 texture = ExtResource("2_background")
 
+[node name="BackdropTint" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0)
+
 [node name="EnemySprite" type="Sprite2D" parent="."]
 position = Vector2(176, 36)
 scale = Vector2(2, 2)
+
+[node name="Trainer" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(64, 86)
+scale = Vector2(2, 2)
+texture = ExtResource("6_trainer")
+hframes = 3
 
 [node name="PlayerSprite" type="Sprite2D" parent="."]
 position = Vector2(64, 86)
@@ -33,7 +52,23 @@ scale = Vector2(2, 2)
 
 [node name="Ball" type="Sprite2D" parent="."]
 visible = false
-position = Vector2(176, 58)
+position = Vector2(176, 64)
+offset = Vector2(0, -6)
+
+[node name="Effects" type="Node2D" parent="." node_paths=PackedStringArray("backdrop_tint", "flash")]
+script = ExtResource("5_animator")
+backdrop_tint = NodePath("../BackdropTint")
+flash = NodePath("../Flash")
+
+[node name="Flash" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(1, 1, 1, 0)
 
 [node name="EnemyPanel" parent="." instance=ExtResource("3_panel")]
 layout_mode = 0
@@ -66,6 +101,15 @@ grow_vertical = 0
 [node name="Prompt" type="Label" parent="MessageFrame"]
 layout_mode = 2
 size_flags_vertical = 1
+
+[node name="ItemIcon" type="TextureRect" parent="MessageFrame"]
+visible = false
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 4
+expand_mode = 1
+stretch_mode = 5
 
 [node name="Menus" type="CanvasLayer" parent="."]
 layer = 11
@@ -135,3 +179,4 @@ theme_override_constants/margin_bottom = 48
 layout_mode = 2
 size_flags_horizontal = 8
 size_flags_vertical = 8
+max_rows = 7

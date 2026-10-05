@@ -25,6 +25,7 @@ var current_map: WorldMap
 @onready var dex_menu: DexMenu = $UI/DexMenu
 @onready var hint_box: Control = $UI/HintBox
 @onready var hint_label: Label = $UI/HintBox/Label
+@onready var hint_icon: TextureRect = $UI/HintBox/Icon
 @onready var title_screen: Control = $UI/TitleScreen
 @onready var title_menu: ChoiceBox = $UI/TitleScreen/MenuArea/Menu
 @onready var battle_layer: CanvasLayer = $BattleLayer
@@ -177,6 +178,7 @@ func _open_bag() -> void:
 		options.append("CANCEL")
 		var describe := func(index: int) -> void:
 			hint_label.text = items[index].description if index < items.size() else "Close the BAG."
+			hint_icon.texture = items[index].icon if index < items.size() else null
 		start_menu.cursor_moved.connect(describe)
 		hint_box.show()
 		var index: int = await start_menu.choose(options)
@@ -289,17 +291,19 @@ func _on_wild_encounter(species_id: StringName) -> void:
 		await get_tree().create_timer(0.07).timeout
 	var levels := current_map.wild_levels
 	var wild := Monster.create(species, randi_range(levels.x, mini(levels.y, Monster.MAX_LEVEL)))
-	var outcome: Battle.Outcome = await _run_battle(wild)
+	var outcome: Battle.Outcome = await _run_battle(wild, player.is_surfing)
 	if outcome == Battle.Outcome.LOST:
 		await _white_out()
 	player.unlock()
 
 
 ## Covers the overworld with a battle, pausing the map underneath.
-func _run_battle(wild: Monster) -> Battle.Outcome:
+## `in_water`: the wild monster was met while surfing (DIVE ORBs work best).
+func _run_battle(wild: Monster, in_water := false) -> Battle.Outcome:
 	await _fade_to(1.0)
 	world.process_mode = Node.PROCESS_MODE_DISABLED
 	var battle: BattleScene = BATTLE_SCENE.instantiate()
+	battle.in_water = in_water
 	battle_layer.add_child(battle)
 	await _fade_to(0.0)
 	var outcome: Battle.Outcome = await battle.run(GameState.party, wild)

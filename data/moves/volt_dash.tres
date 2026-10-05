@@ -10,3 +10,4 @@ power = 65
 accuracy = 95
 max_pp = 15
 description = "A crackling tackle."
+animation = &"volt_dash"

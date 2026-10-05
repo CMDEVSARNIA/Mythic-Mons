@@ -11,3 +11,4 @@ power = 90
 accuracy = 90
 max_pp = 10
 description = "A crashing jet of seawater."
+animation = &"aqua_blast"

@@ -61,6 +61,7 @@ func _test_monster_round_trip() -> void:
 	var original := _monster(&"flamlet", 12)
 	original.nickname = "BLAZE"
 	original.nature = &"ADAMANT"
+	original.orb = &"dive_orb"
 	original.hp = 7
 	original.pp[0] = 3
 	var copy := Monster.from_dict(JSON.parse_string(JSON.stringify(original.to_dict())))
@@ -68,9 +69,13 @@ func _test_monster_round_trip() -> void:
 	_check(copy.level == 12 and copy.hp == 7 and copy.experience == original.experience, "level, HP and EXP are kept")
 	_check(copy.moves == original.moves and copy.pp == original.pp and copy.ivs == original.ivs, "moves, PP and IVs are kept")
 	_check(copy.nature == &"ADAMANT", "the nature is kept")
+	_check(copy.orb == &"dive_orb", "the orb it was caught in is kept")
 	var old_save := original.to_dict()
 	old_save.erase("nature")
-	_check(Monster.from_dict(old_save).nature == &"HARDY", "monsters from older saves get a neutral nature")
+	old_save.erase("orb")
+	var old_monster := Monster.from_dict(old_save)
+	_check(old_monster.nature == &"HARDY", "monsters from older saves get a neutral nature")
+	_check(old_monster.orb == &"mon_orb", "...and a MON ORB")
 	_check(Monster.from_dict({"species": "missingno"}) == null, "unknown species are skipped instead of crashing")
 
 

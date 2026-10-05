@@ -1,13 +1,16 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Texture2D" path="res://assets/placeholder/items/super_orb.png" id="1_gyyi6"]
-[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="2_pfe5m"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/super_orb.png" id="1_pfe5m"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/super_orb_open.png" id="2_uj621"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="3_libgy"]
 
 [resource]
-script = ExtResource("2_pfe5m")
+script = ExtResource("3_libgy")
 display_name = "SUPER ORB"
-description = "A better orb with a
-higher catch rate."
-icon = ExtResource("1_gyyi6")
+description = "A good orb with a
+higher catch rate
+than a MON ORB."
+icon = ExtResource("1_pfe5m")
 price = 600
 catch_multiplier = 1.5
+open_icon = ExtResource("2_uj621")

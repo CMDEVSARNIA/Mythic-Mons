@@ -13,3 +13,4 @@ stat_changes = Dictionary[StringName, int]({
 })
 stat_target = 1
 description = "Raises the user's DEFENSE."
+animation = &"harden"

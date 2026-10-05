@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/repeat_orb.png" id="1_5lloj"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/repeat_orb_open.png" id="2_fg3qy"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="3_tonxo"]
+
+[resource]
+script = ExtResource("3_tonxo")
+display_name = "REPEAT ORB"
+description = "Works especially well
+on kinds of MONSTER
+you've caught before."
+icon = ExtResource("1_5lloj")
+price = 1000
+bonus = 4
+bonus_multiplier = 3.0
+open_icon = ExtResource("2_fg3qy")

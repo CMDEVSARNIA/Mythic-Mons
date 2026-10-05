@@ -1,12 +1,14 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1_ejwp5"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/dusk_stone.png" id="1_jnhlh"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="2_xsmb4"]
 
 [resource]
-script = ExtResource("1_ejwp5")
+script = ExtResource("2_xsmb4")
 display_name = "DUSK STONE"
 description = "Makes certain MONSTERS
 evolve. It's cold to
 the touch."
 kind = 2
+icon = ExtResource("1_jnhlh")
 price = 2100

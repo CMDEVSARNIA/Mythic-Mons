@@ -10,3 +10,4 @@ power = 50
 accuracy = 90
 max_pp = 15
 description = "Hurls a small rock."
+animation = &"rock_throw"

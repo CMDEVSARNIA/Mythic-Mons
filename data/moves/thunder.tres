@@ -11,3 +11,4 @@ power = 110
 accuracy = 70
 max_pp = 10
 description = "A huge but wild lightning bolt."
+animation = &"thunder"

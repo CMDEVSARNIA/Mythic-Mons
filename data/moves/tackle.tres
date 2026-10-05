@@ -6,3 +6,4 @@
 script = ExtResource("1_lih0l")
 display_name = "TACKLE"
 description = "A full-body charge."
+animation = &"tackle"

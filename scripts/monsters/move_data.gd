@@ -24,6 +24,10 @@ enum Target { FOE, SELF }
 @export_range(0, 100) var effect_chance := 100
 
 @export_multiline var description := ""
+## Which MoveAnimator recipe plays when the move is used (see
+## MoveAnimator.RECIPES). Leave empty to pick one from the element and
+## category.
+@export var animation: StringName
 
 
 func is_damaging() -> bool:

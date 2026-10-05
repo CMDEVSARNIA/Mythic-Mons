@@ -10,3 +10,4 @@ power = 75
 accuracy = 90
 max_pp = 10
 description = "Buries the foe under boulders."
+animation = &"rock_slide"

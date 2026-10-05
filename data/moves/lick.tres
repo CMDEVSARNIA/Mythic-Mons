@@ -9,3 +9,4 @@ element = "ghost"
 power = 30
 max_pp = 30
 description = "An eerie, chilling lick."
+animation = &"lick"

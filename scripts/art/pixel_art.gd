@@ -1,7 +1,7 @@
 class_name PixelArt
 extends RefCounted
-## Procedural 8-bit art: characters, monsters, catching orbs, the surf mount
-## and the hop shadow. (Map tiles, signs and the battle backdrop come from
+## Procedural 8-bit art: characters, monsters, items, battle effects, the
+## player's battle back sprite, the surf mount and the hop shadow. (Map tiles, signs and the battle backdrop come from
 ## ArMM1998's sheet instead; see WorldTiles and tools/import_world_art.gd.)
 ##
 ## Every function returns an Image. tools/generate_placeholder_art.gd saves them
@@ -61,11 +61,49 @@ const CHARACTERS := {
 	&"clerk": [&"cap", &"apron", {"H": GREEN, "h": DEEP, "A": WHITE, "R": HAIR, "r": INK, "B": GREEN, "b": DEEP, "C": WHITE, "c": FOG, "P": NIGHT, "F": INK}],
 }
 
-## Catching orbs: id -> [top color, accent color].
-const ORBS := {
-	&"mon_orb": [RED, ORANGE],
-	&"super_orb": [BLUE, RED],
-	&"master_orb": [PLUM, SAND],
+## Item icons: id -> colors for the letters in ItemDesigns.
+## tools/generate_placeholder_art.gd saves items/<id>.png, plus
+## items/<id>_open.png for orbs.
+const ITEMS := {
+	&"mon_orb": {"A": RED, "a": PLUM, "H": PINK},
+	&"super_orb": {"A": BLUE, "a": NAVY, "H": SKY, "X": RED, "x": PLUM},
+	&"hyper_orb": {"A": NIGHT, "a": INK, "H": SLATE, "X": SAND, "x": ORANGE},
+	&"master_orb": {"A": PLUM, "a": NAVY, "H": MAUVE, "X": PINK, "Y": SAND},
+	&"net_orb": {"A": TEAL, "a": NAVY, "H": CYAN, "X": CYAN},
+	&"dive_orb": {"A": BLUE, "a": NAVY, "H": SKY, "X": CYAN},
+	&"nest_orb": {"A": LIME, "a": GREEN, "H": WHITE, "X": GREEN, "x": DEEP},
+	&"repeat_orb": {"A": ORANGE, "a": RED, "H": WHITE, "X": SAND},
+	&"timer_orb": {"A": WHITE, "a": FOG, "X": RED},
+	&"gala_orb": {"A": WHITE, "a": FOG, "X": RED},
+	&"potion": {"A": MAUVE, "a": PLUM, "H": PINK, "X": RED},
+	&"big_potion": {"A": ORANGE, "a": RED, "H": SAND, "X": BLUE},
+	&"bolt_stone": {"A": GREEN, "a": DEEP, "H": LIME, "X": SAND},
+	&"dusk_stone": {"A": NIGHT, "a": NAVY, "H": SLATE, "X": PLUM, "Y": CYAN},
+}
+
+## Battle effects: id -> colors for the letters in EffectDesigns.
+## tools/generate_placeholder_art.gd saves effects/<id>.png.
+const EFFECTS := {
+	&"flame": {"R": RED, "O": ORANGE, "Y": SAND, "W": WHITE},
+	&"drop": {"L": CYAN, "B": SKY, "b": BLUE, "W": WHITE},
+	&"bubble": {"B": SKY, "b": BLUE, "W": WHITE},
+	&"leaf": {"G": GREEN, "L": LIME, "g": DEEP},
+	&"rock": {"R": FOG, "r": SLATE, "L": WHITE},
+	&"spark": {"W": WHITE, "Y": SAND},
+	&"shadow": {"P": PLUM, "M": MAUVE, "n": NAVY},
+	&"glint": {"W": WHITE, "Y": SAND},
+	&"arrow_up": {"A": SAND, "a": ORANGE},
+	&"arrow_down": {"A": SKY, "a": BLUE},
+	&"impact": {"W": WHITE, "Y": SAND},
+	&"slash": {"W": WHITE},
+}
+
+## Colors for the letters in TrainerDesigns.PLAYER_BACK: the player's cap,
+## hair, skin, shirt, backpack, and the orb in hand.
+const TRAINER_BACK := {
+	"L": PINK, "R": RED, "r": PLUM, "P": PLUM, "H": HAIR, "h": INK, "S": SKIN, "s": SKIN_SHADE,
+	"B": BLUE, "b": NAVY, "X": SAND, "x": WOOD, "y": WOOD_DARK, "F": FOG,
+	"K": INK, "W": WHITE, "w": FOG, "O": RED, "o": PLUM,
 }
 
 ## Base / shade / highlight colors per monster element.
@@ -174,27 +212,54 @@ static func shadow() -> Image:
 	return img
 
 
-## A 16x16 catching orb: colored top, white bottom, dark band and a button.
-static func orb(top: Color, accent: Color) -> Image:
+## The 96x32 battle sheet of the player from behind: stand, wind up, throw.
+static func trainer_back_sheet() -> Image:
+	var sheet := _new_image(96, 32)
+	for i in TrainerDesigns.PLAYER_BACK.size():
+		var frame := _new_image(32, 32)
+		_pattern(frame, Vector2i.ZERO, TrainerDesigns.PLAYER_BACK[i], TRAINER_BACK)
+		_outline(frame, INK)
+		sheet.blit_rect(frame, Rect2i(0, 0, 32, 32), Vector2i(i * 32, 0))
+	return sheet
+
+
+# =============================================================================
+# Items & effects
+# =============================================================================
+
+## A 16x16 item icon drawn in ItemDesigns.
+static func item(id: StringName) -> Image:
+	var palette := {"K": INK, "W": WHITE, "w": FOG, "s": SLATE}
+	palette.merge(ITEMS[id], true)
 	var img := _new_image(TILE, TILE)
-	var center := Vector2(8.0, 8.0)
-	for y in TILE:
-		for x in TILE:
-			var d := (Vector2(x, y) + Vector2(0.5, 0.5)).distance_to(center)
-			if d > 6.5:
-				continue
-			var c := top if y < 7 else WHITE
-			if d > 5.6 or y == 7 or y == 8:
-				c = INK
-			if d <= 2.2:
-				c = INK if d > 1.3 else WHITE
-			img.set_pixel(x, y, c)
-	_px(img, Vector2i(4, 4), WHITE)
-	_px(img, Vector2i(5, 3), WHITE)
-	# Accent marks on the top half tell the orbs apart.
-	for x: int in [6, 9]:
-		_px(img, Vector2i(x, 3), accent)
-		_px(img, Vector2i(x, 4), accent)
+	_pattern(img, Vector2i.ZERO, ItemDesigns.ITEMS[id], palette)
+	return img
+
+
+## The orb popped open: its lid (rows 2-7) lifts two pixels and light pours
+## out where the band was. Every orb shares the silhouette this assumes.
+static func orb_open(id: StringName) -> Image:
+	var closed := item(id)
+	var img := _new_image(TILE, TILE)
+	img.blit_rect(closed, Rect2i(0, 2, TILE, 6), Vector2i(0, 0))
+	img.blit_rect(closed, Rect2i(0, 9, TILE, 7), Vector2i(0, 9))
+	for x in range(3, 14):
+		img.set_pixel(x, 6, INK) # Underside of the lid.
+		img.set_pixel(x, 9, INK) # Rim of the bottom half.
+	for y in [7, 8]:
+		for x in range(2, 15):
+			var c := CYAN if x < 5 or x > 11 else WHITE
+			img.set_pixel(x, y, INK if x == 2 or x == 14 else c)
+	return img
+
+
+## A battle effect drawn in EffectDesigns.
+static func effect(id: StringName) -> Image:
+	var rows: Array = EffectDesigns.EFFECTS[id]
+	var img := _new_image(rows[0].length(), rows.size())
+	_pattern(img, Vector2i.ZERO, rows, EFFECTS[id])
+	if id in EffectDesigns.OUTLINED:
+		_outline(img, INK)
 	return img
 
 

@@ -36,6 +36,9 @@ const NATURES := {
 @export var ivs: Dictionary[StringName, int] = {}
 ## A key of NATURES.
 @export var nature: StringName = &"HARDY"
+## Id of the orb it was caught in (starters come in a MON ORB). It's sent
+## out of this orb, and the summary shows it.
+@export var orb: StringName = &"mon_orb"
 @export var moves: Array[MoveData] = []
 ## Remaining PP, one entry per move.
 @export var pp: PackedInt32Array = []
@@ -163,6 +166,7 @@ func to_dict() -> Dictionary:
 		"hp": hp,
 		"ivs": ivs,
 		"nature": String(nature),
+		"orb": String(orb),
 		"moves": move_ids,
 		"pp": Array(pp),
 	}
@@ -186,6 +190,8 @@ static func from_dict(data: Dictionary) -> Monster:
 		monster.ivs[stat] = clampi(int(saved_ivs.get(stat, 0)), 0, MAX_IV)
 	var saved_nature := StringName(str(data.get("nature", "HARDY"))) # Neutral for older saves.
 	monster.nature = saved_nature if NATURES.has(saved_nature) else &"HARDY"
+	var saved_orb := StringName(str(data.get("orb", "mon_orb")))
+	monster.orb = saved_orb if ResourceLoader.exists("%s%s.tres" % [GameData.ITEMS_DIR, saved_orb]) else &"mon_orb"
 	var saved_pp: Array = data.get("pp", [])
 	var saved_moves: Array = data.get("moves", [])
 	for i in saved_moves.size():

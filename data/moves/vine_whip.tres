@@ -9,3 +9,4 @@ element = "grass"
 power = 45
 max_pp = 25
 description = "Strikes with slender vines."
+animation = &"vine_whip"

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/hyper_orb.png" id="1_14tbg"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/hyper_orb_open.png" id="2_d401k"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="3_hs7fl"]
+
+[resource]
+script = ExtResource("3_hs7fl")
+display_name = "HYPER ORB"
+description = "A high-performance
+orb. Better than a
+SUPER ORB."
+icon = ExtResource("1_14tbg")
+price = 1200
+catch_multiplier = 2.0
+open_icon = ExtResource("2_d401k")

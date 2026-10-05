@@ -1,12 +1,14 @@
 [gd_resource type="Resource" script_class="ItemData" format=3]
 
-[ext_resource type="Texture2D" path="res://assets/placeholder/items/master_orb.png" id="1_c2akk"]
-[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="2_cr0rq"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/master_orb.png" id="1_cr0rq"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/master_orb_open.png" id="2_iwphn"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="3_jpc56"]
 
 [resource]
-script = ExtResource("2_cr0rq")
+script = ExtResource("3_jpc56")
 display_name = "MASTER ORB"
 description = "Catches any wild
 MONSTER without fail."
-icon = ExtResource("1_c2akk")
+icon = ExtResource("1_cr0rq")
 catch_multiplier = 255.0
+open_icon = ExtResource("2_iwphn")

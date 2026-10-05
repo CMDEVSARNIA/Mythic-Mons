@@ -9,7 +9,7 @@ extends RefCounted
 ##
 ## Event types. Most also carry "side" (&"player" or &"enemy"):
 ##   message   {text, wait}        wait = needs a button press, else auto-advances
-##   attack    {side}              attacker lunges
+##   attack    {side, move}        the move's animation (MoveAnimator)
 ##   hit       {side, effectiveness}
 ##   hp        {side, hp}          animate the HP bar to this value
 ##   stat      {side, stat, stages}
@@ -48,6 +48,12 @@ var rng: RandomNumberGenerator
 var outcome := Outcome.ONGOING
 ## Used in "<trainer> used <item>!" messages.
 var trainer_name := "YOU"
+## Set before the first turn: was the wild monster met in the water (DIVE
+## ORB), and has its species been caught before (REPEAT ORB)?
+var in_water := false
+var already_caught := false
+## Turns played so far (TIMER ORB).
+var turns := 0
 
 var _events: Array[Dictionary] = []
 var _after_hit: PackedStringArray = []
@@ -122,6 +128,7 @@ func take_turn(action: Dictionary) -> Array[Dictionary]:
 				_use_move(enemy, player, enemy_move)
 	if outcome == Outcome.ONGOING:
 		_end_of_turn()
+	turns += 1
 	return _flush()
 
 
@@ -153,6 +160,27 @@ func catch_shakes(target: Monster, ball_multiplier: float) -> int:
 	while shakes < 4 and rng.randi_range(0, 65535) < shake_odds:
 		shakes += 1
 	return shakes
+
+
+## The catch multiplier `ball` has right now, counting special-orb bonuses.
+## As in Gen 3, a NEST ORB gives (40 - level) / 10 (at least 1x), and a
+## TIMER ORB (turns + 10) / 10 (at most 4x).
+func ball_multiplier(ball: ItemData) -> float:
+	match ball.bonus:
+		ItemData.Bonus.ELEMENT:
+			if StringName(enemy.element) in ball.bonus_elements:
+				return ball.bonus_multiplier
+		ItemData.Bonus.IN_WATER:
+			if in_water:
+				return ball.bonus_multiplier
+		ItemData.Bonus.REPEAT:
+			if already_caught:
+				return ball.bonus_multiplier
+		ItemData.Bonus.LOW_LEVEL:
+			return maxf(1.0, (40 - enemy.monster.level) / 10.0)
+		ItemData.Bonus.TIMER:
+			return minf(4.0, (turns + 10) / 10.0)
+	return ball.catch_multiplier
 
 
 ## EXP for defeating the wild monster: exp_yield * level / 7.
@@ -250,6 +278,7 @@ func _use_move(user: Battler, target: Battler, move: MoveData) -> void:
 		message("%s's attack missed!" % user.name)
 		return
 	if not move.is_damaging():
+		_push(&"attack", {"side": user.side, "move": move})
 		_apply_stat_effect(user, target, move)
 		return
 
@@ -259,7 +288,7 @@ func _use_move(user: Battler, target: Battler, move: MoveData) -> void:
 		return
 	var crit := rng.randf() < CRIT_CHANCE
 	var damage := calculate_damage(user, target, move, crit, effectiveness, rng.randi_range(85, 100))
-	_push(&"attack", {"side": user.side})
+	_push(&"attack", {"side": user.side, "move": move})
 	if target.ability:
 		damage = target.ability.modify_damage_taken(self, target, user, move, damage)
 	if damage > 0:
@@ -296,12 +325,14 @@ func _use_item(item: ItemData) -> void:
 
 func _throw_ball(ball: ItemData) -> void:
 	_push(&"throw", {"item": ball})
-	var shakes := catch_shakes(enemy.monster, ball.catch_multiplier)
+	var shakes := catch_shakes(enemy.monster, ball_multiplier(ball))
 	for i in mini(shakes, 3):
 		_push(&"shake", {})
 	if shakes >= 4:
 		_push(&"caught", {})
 		message("Gotcha!\n%s was caught!" % enemy.monster.get_display_name(), true)
+		if not ball.resource_path.is_empty():
+			enemy.monster.orb = GameData.id_of(ball)
 		outcome = Outcome.CAUGHT
 	else:
 		_push(&"break_free", {})

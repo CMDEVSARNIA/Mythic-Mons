@@ -22,9 +22,13 @@ func _initialize() -> void:
 		var recipe: Array = PixelArt.GENERATED_MONSTERS[id]
 		_save(PixelArt.generated_monster(recipe[0], recipe[1]), "monsters/%s.png" % id)
 		_save(PixelArt.generated_monster(recipe[0], recipe[1], true), "monsters/%s_back.png" % id)
-	for id: StringName in PixelArt.ORBS:
-		var colors: Array = PixelArt.ORBS[id]
-		_save(PixelArt.orb(colors[0], colors[1]), "items/%s.png" % id)
+	_save(PixelArt.trainer_back_sheet(), "characters/player_back.png")
+	for id: StringName in PixelArt.ITEMS:
+		_save(PixelArt.item(id), "items/%s.png" % id)
+		if String(id).ends_with("_orb"):
+			_save(PixelArt.orb_open(id), "items/%s_open.png" % id)
+	for id: StringName in PixelArt.EFFECTS:
+		_save(PixelArt.effect(id), "effects/%s.png" % id)
 
 	# Project icon: the fire starter at 4x.
 	var icon := PixelArt.monster(&"flamlet")

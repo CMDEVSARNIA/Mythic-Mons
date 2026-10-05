@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/gala_orb.png" id="1_mue1a"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/gala_orb_open.png" id="2_sxsdn"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="3_fte5a"]
+
+[resource]
+script = ExtResource("3_fte5a")
+display_name = "GALA ORB"
+description = "A rare orb made to
+celebrate a MART
+opening."
+icon = ExtResource("1_mue1a")
+price = 200
+open_icon = ExtResource("2_sxsdn")

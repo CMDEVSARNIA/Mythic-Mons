@@ -6,3 +6,4 @@
 script = ExtResource("1_3m5vs")
 display_name = "SCRATCH"
 description = "Rakes the foe with sharp claws."
+animation = &"scratch"

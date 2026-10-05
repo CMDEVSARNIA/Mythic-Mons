@@ -10,3 +10,4 @@ power = 60
 accuracy = 95
 max_pp = 20
 description = "A charge wreathed in fire."
+animation = &"flame_dash"

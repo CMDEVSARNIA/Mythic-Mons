@@ -12,3 +12,4 @@ stat_changes = Dictionary[StringName, int]({
 &"attack": -1
 })
 description = "Lowers the foe's ATTACK."
+animation = &"growl"

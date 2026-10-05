@@ -9,3 +9,4 @@ element = "electric"
 category = 1
 max_pp = 30
 description = "A jolt of electricity."
+animation = &"spark"

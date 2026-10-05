@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/net_orb.png" id="1_ynh7u"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/net_orb_open.png" id="2_cutjg"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="3_wbntw"]
+
+[resource]
+script = ExtResource("3_wbntw")
+display_name = "NET ORB"
+description = "Works especially well
+on WATER MONSTERS."
+icon = ExtResource("1_ynh7u")
+price = 1000
+bonus = 1
+bonus_multiplier = 3.0
+bonus_elements = Array[StringName]([&"water"])
+open_icon = ExtResource("2_cutjg")

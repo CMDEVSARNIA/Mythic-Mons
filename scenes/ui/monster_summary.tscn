@@ -32,6 +32,13 @@ offset_bottom = 72.0
 expand_mode = 1
 stretch_mode = 5
 
+[node name="Orb" type="TextureRect" parent="."]
+layout_mode = 0
+offset_left = 6.0
+offset_top = 6.0
+offset_right = 22.0
+offset_bottom = 22.0
+
 [node name="Header" type="Label" parent="."]
 layout_mode = 0
 offset_left = 82.0

@@ -13,7 +13,9 @@ piece can be swapped for real assets independently.
 | Sign, CUT tree, boulder | `tools/import_world_art.gd` → `assets/world/` | Same-size PNGs |
 | Surf mount, hop shadow | `PixelArt.*()` → `assets/placeholder/objects/` | Same-size PNGs |
 | Monsters | Hand-drawn in `MonsterDesigns`, colored by `PixelArt.MONSTERS` → `assets/placeholder/monsters/<id>.png` and `<id>_back.png` (see below) | Front and back sprites, set on the species' `front_texture` / `back_texture`. Battles draw 32 × 32 art at 2× and 64 × 64 art (most packs) at 1× |
-| Catching orbs | `PixelArt.orb(top, accent)` → `assets/placeholder/items/<id>.png` | 16 × 16 sprites, set on the item's `icon` |
+| Item icons and orbs | Hand-drawn in `ItemDesigns`, colored by `PixelArt.ITEMS` → `assets/placeholder/items/<id>.png`, plus `<id>_open.png` for orbs (see below) | 16 × 16 sprites, set on the item's `icon` (and `open_icon` for orbs) |
+| Battle effects | Hand-drawn in `EffectDesigns`, colored by `PixelArt.EFFECTS` → `assets/placeholder/effects/<id>.png` | Same-name PNGs (MoveAnimator draws them at 2×) |
+| The player in battle | Hand-drawn in `TrainerDesigns`, colored by `PixelArt.TRAINER_BACK` → `assets/placeholder/characters/player_back.png` | A 96 × 32 sheet of three 32 × 32 frames: stand, wind up, throw (drawn at 2×) |
 | Battle background | `tools/import_world_art.gd` → `assets/world/battle_background.png` (the sheet's grass and bushes) | A 240 × 160 image with the platforms in the same spots |
 | Sound effects | `ChipSynth.sfx(id)` at runtime | `assets/audio/sfx/<id>.ogg` / `.wav` (see `assets/audio/README.md`) |
 | Music | `Chiptune.render(Songs.*)` on a worker thread | `assets/audio/music/<id>.ogg`, with Loop enabled on import |
@@ -143,6 +145,27 @@ one looks right.
 and set `front_texture` and `back_texture` to the pack's PNGs. 64 × 64
 sprites (isaiah658, Tuxemon) work as they are. For a pack with front sprites
 only, a mirrored copy of the front makes a passable back sprite.
+
+## Items, orbs and battle effects
+
+![The ten orbs and their catch bonuses](images/orbs.png)
+
+Item icons are 16 × 16 ASCII grids in `scripts/art/item_designs.gd`, colored
+by `PixelArt.ITEMS`: ten orbs, two potions and two evolution stones. They
+show in the BAG and MART, and orbs are thrown in battle. Every orb keeps one
+silhouette (13 pixels across, with the band on row 8). That way
+`PixelArt.orb_open()` can lift any orb's lid for its "open" frame, and they
+all wobble on the same base. To add an orb, copy a design, recolor the top
+half, add its colors to `PixelArt.ITEMS`, add a row to `ITEMS` in
+`tools/build_game_data.gd`, and rebuild.
+
+Battle effects (flame, drop, bubble, leaf, rock, spark, shadow, glint, stat
+arrows, impact and claw marks) are in `scripts/art/effect_designs.gd`.
+`MoveAnimator` loads them by name from `assets/placeholder/effects/`, so a
+pack's sprite with the same name replaces one. Vines and lightning are drawn
+as lines at runtime.
+
+![Throwing an orb, catching, and five move animations](images/battle.png)
 
 ## Free sources
 

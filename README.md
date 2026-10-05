@@ -6,13 +6,14 @@ built with **Godot 4.7** and GDScript.
 ![The cast: player, professor, mom, rival, lass, elder, hiker, swimmer and nurse](docs/images/characters.png)
 
 So far: tile-locked movement, a multi-town world, dialogue, field moves,
-a starter from the local professor, turn-based wild battles with unique
-abilities, EXP and level-ups, evolution, catching, a MONDEX, a MART, a party
-screen, and saving.
+a starter from the local professor, animated turn-based wild battles with
+unique abilities, EXP and level-ups, evolution, catching with ten kinds of
+orb, a MONDEX, a MART, a party screen, and saving.
 The world (towns, routes, interiors, signs and the battle backdrop) is built
 from ArMM1998's CC0 overworld tileset, with matching pieces drawn for this
-project in its colors. The characters, monsters, chiptune music and sound
-effects are made in code, and five townsfolk come from a CC0 character sheet.
+project in its colors. The characters, monsters, items, battle effects,
+chiptune music and sound effects are made in code, and five townsfolk come
+from a CC0 character sheet.
 Real assets slot in later without code changes.
 
 ## Quick start
@@ -44,22 +45,46 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   hiker trapped behind a **ROCK SMASH** boulder.
 - **Tidewater City.** A beach and an island you reach with **SURF**, a
   seaside house, the **MONSTER CENTER** (red roof), where the nurse heals
-  your team for free, and the **TIDEWATER MART** (blue roof). At the MART,
-  talk to the clerk across the counter to BUY or SELL. You start with $3000.
-  Orbs and potions cost $200 to $700, evolution stones $2100, and the MART
-  buys items back for half.
+  your team for free, and the **TIDEWATER MART** (blue roof). Like a
+  department store, it has two counters: talk to a clerk across one to BUY
+  or SELL. The lower clerk sells MON, SUPER and HYPER ORBs and potions ($200
+  to $1200). The upper one sells the specialty orbs ($1000) and evolution
+  stones ($2100). Buy 10 MON ORBs at once and you get a GALA ORB free. You
+  start with $3000, and the MART buys items back for half.
 - **FLY** from the start menu (Enter) to any town you've visited.
 - Emerald-style feel: tap to turn in place, hold to walk, bump into walls,
   run at double speed, location banner on entering a map, typewriter text box.
 - **Wild battles** in tall grass, Emerald style: FIGHT / BAG / MON / RUN,
   type matchups, critical hits, stat changes, PP, EXP and level-ups that teach
   new moves. Losing sends you home with your party healed.
+- **Battle animations.** Your trainer throws your lead monster's orb, which
+  pops open in a flash, and the monster grows out of the light. Every move
+  has its own animation: flames, water jets, bubbles, whirling leaves,
+  falling rocks, lightning, shadow orbs, sound waves and more, each with its
+  own sound. Stats rise and fall with colored arrows, and fainted monsters
+  sink out of sight.
+
+  ![Throwing an orb, catching, and the EMBER, WATER GUN, RAZOR LEAF, THUNDER and PHANTASM animations](docs/images/battle.png)
 - **Catching.** Wild monsters appear in tall grass, and in the sea while you
   SURF. Open the BAG in battle and throw an orb. Weaken a monster first: the
-  lower its HP, the better the odds (Emerald's formula). The orb shakes up to
-  three times, and caught monsters join your party, or the BOX once you have
-  six. POTIONs heal 20 HP and BIG POTIONs 50. You start with 2 POTIONs, and
-  the professor adds 5 MON ORBs.
+  lower its HP, the better the odds (Emerald's formula). The orb pops open,
+  pulls the monster in as red light, drops, and wobbles up to three times,
+  and a catch clicks shut with a burst of stars. Caught monsters join your
+  party, or the BOX once you have six, and are sent out of the orb they were
+  caught in (the summary shows it). POTIONs heal 20 HP and BIG POTIONs 50.
+  You start with 2 POTIONs, and the professor adds 5 MON ORBs.
+- **Ten orbs, after Gen 3's balls.** MON, SUPER and HYPER ORBs are the
+  Poké, Great and Ultra Balls, and a MASTER ORB never fails. The specialty
+  orbs work like their Gen 3 counterparts:
+  - NET ORB: 3× on WATER monsters.
+  - DIVE ORB: 3.5× on monsters met while surfing.
+  - NEST ORB: (40 − level) / 10, so the lower the level the better.
+  - REPEAT ORB: 3× on species you've caught before.
+  - TIMER ORB: grows by 0.1× a turn, up to 4×.
+
+  The GALA ORB is the Premier Ball: it catches like a MON ORB.
+
+  ![The ten orbs and their catch bonuses](docs/images/orbs.png)
 - **MONDEX.** PROF. ASTER gives it to you with your starter. It lists every
   species by number: unseen ones as dashes, ones you've battled by name, and
   caught ones with an orb. Caught entries open a page with the picture,
@@ -86,10 +111,12 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   medium fast, medium slow or slow, as in Gen 3), and evolutions share their
   pre-evolution's curve.
 - **Start menu (Enter):** MONDEX, MONSTERS (party list, a two-page summary, and
-  SWITCH to change your lead), BAG (use POTIONs on any party member), FLY and
-  SAVE. With a save, the game opens on a title screen with CONTINUE / NEW GAME.
+  SWITCH to change your lead), BAG (use POTIONs on any party member; every
+  item has an icon, and long lists scroll), FLY and SAVE. With a save, the
+  game opens on a title screen with CONTINUE / NEW GAME.
 - **A hand-drawn cast** of nine 16 × 16 characters (above) that mix and
-  match heads and bodies, so adding a new trainer is a few lines of data.
+  match heads and bodies, so adding a new trainer is a few lines of data,
+  plus the player seen from behind in battle, with throwing frames.
 - **Townsfolk** with tips: a GARDENER in Emberfall, a YOUNGSTER and a
   FIGHTER on Route 1, an OFFICER and a MYSTIC in Tidewater. They're
   converted from a downloaded sprite sheet into the game's palette.
@@ -143,15 +170,15 @@ from their CC0 sheets in `assets/`.
 ## Tests
 
 ```sh
-# Battle rules: formulas, turn order, abilities, catching, items, PP, EXP (47 checks)
+# Battle rules: formulas, turn order, abilities, catching, special orbs, items, PP, EXP (61 checks)
 godot --headless --path . --script res://tests/battle_test.gd
 # EXP curves, IVs, natures and evolution (20 checks)
 godot --headless --path . --script res://tests/monster_test.gd
-# Party, BOX, BAG, money, MONDEX, flags and save/load round trips (34 checks)
+# Party, BOX, BAG, money, MONDEX, flags and save/load round trips (36 checks)
 godot --headless --path . --script res://tests/game_state_test.gd
-# Plays the whole game by injecting input: starter, battles, evolutions, MONDEX, buildings, shop (78 checks)
+# Plays the whole game by injecting input: starter, battles, evolutions, MONDEX, buildings, shops (84 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
-# Talks to every NPC and reads every sign on every map, from where a player can stand (28 checks)
+# Talks to every NPC and reads every sign on every map, from where a player can stand (29 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/npc_test.gd
 ```
 
@@ -189,5 +216,5 @@ your real save.
 - Townsfolk (YOUNGSTER, OFFICER, MYSTIC, FIGHTER, GARDENER): recolored from
   [16x16 8-bit RPG character set](https://opengameart.org/content/16x16-8-bit-rpg-character-set)
   by devurandom, CC0 (`assets/characters/townsfolk/source/`).
-- Everything else (characters, monsters, music, SFX) was drawn or generated
-  by this project.
+- Everything else (characters, monsters, items, battle effects, music, SFX)
+  was drawn or generated by this project.

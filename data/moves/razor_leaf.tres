@@ -11,3 +11,4 @@ power = 55
 accuracy = 95
 max_pp = 25
 description = "Launches sharp-edged leaves."
+animation = &"razor_leaf"

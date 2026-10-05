@@ -56,8 +56,8 @@ No time for a nap now!"
 6:6/0/custom_data_0 = &"counter"
 7:6/0 = 0
 7:6/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
-7:6/0/custom_data_1 = "Rows of MON ORBs and
-POTIONs, all lined up."
+7:6/0/custom_data_1 = "Rows of ORBs and POTIONs,
+all lined up."
 8:6/0 = 0
 8:6/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
 8:6/0/custom_data_1 = "A leafy potted plant.

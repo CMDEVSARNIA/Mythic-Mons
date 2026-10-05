@@ -188,6 +188,7 @@ func _run() -> void:
 	_check(_game_state.party.size() == 2 and _game_state.party[1].species.display_name == "SPROUTLE", "a caught monster joins the party")
 	_check(_game_state.caught.has(&"sproutle") and _game_state.caught.has(&"flamlet"), "the starter and the catch are registered as caught")
 	_check(not _game_state.bag.has(&"master_orb"), "throwing an orb uses it up")
+	_check(_game_state.party[1].orb == &"master_orb", "...and the catch remembers which orb it came in")
 
 	# --- Losing --------------------------------------------------------------
 	_game_state.party[1].hp = 0 # Only the lead can fight, so losing it ends the battle.
@@ -247,7 +248,8 @@ func _run() -> void:
 	await _tap(&"cancel") # then the start menu.
 	_check(not party_menu.visible and not _player.is_locked(), "closing the menus returns control")
 
-	_game_state.bag.assign({&"potion": 1})
+	_game_state.bag.assign({&"potion": 1, &"mon_orb": 3, &"super_orb": 2, &"hyper_orb": 1, &"net_orb": 1,
+		&"dive_orb": 1, &"nest_orb": 1, &"repeat_orb": 1, &"timer_orb": 1, &"gala_orb": 1})
 	var hurt: Resource = _game_state.party[0]
 	hurt.hp = 1
 	await _tap(&"menu")
@@ -255,11 +257,17 @@ func _run() -> void:
 	await _tap(&"move_down") # BAG
 	await _tap(&"confirm")
 	_shot_once("15_bag")
+	var rows: Node = _main.start_menu.get_node(^"List")
+	_check(rows.get_child_count() == 8 and "▼" in rows.get_child(7).text, "a long BAG shows 8 rows and a ▼ for more")
+	await _tap(&"move_up") # Wraps around to CANCEL at the bottom...
+	_check("CANCEL" in rows.get_child(7).text and "▲" in rows.get_child(0).text, "...and scrolls to keep the cursor on screen")
+	await _tap(&"move_down") # ...and back to the top.
 	await _tap(&"confirm") # POTION
 	await _tap(&"confirm") # On the first party member.
 	await _close_dialogue()
 	_check(hurt.hp == mini(21, hurt.max_hp()) and not _game_state.bag.has(&"potion"), "POTIONs work from the BAG")
-	await _tap(&"cancel")
+	await _tap(&"cancel") # Close the BAG,
+	await _tap(&"cancel") # then the start menu.
 
 	await _tap(&"menu")
 	for i in 4: # MONDEX, MONSTERS, BAG, FLY, SAVE
@@ -328,7 +336,7 @@ func _run() -> void:
 	await _tap(&"move_up")
 	await _wait(1.0)
 	_check(_map_name() == "TIDEWATER MART", "the MART door leads inside")
-	_game_state.money = 3000
+	_game_state.money = 5000
 	_game_state.bag.assign({&"potion": 3})
 	var clerk: Node = _main.current_map.entities.get_node(^"NPC_Clerk1")
 	var choices: Control = _dialogue.get_node(^"ChoiceArea/Choices")
@@ -342,13 +350,15 @@ func _run() -> void:
 	_check(shop.get_node(^"ListArea/List").visible, "BUY lists the clerk's stock")
 	_shot("21_shop_buy")
 	await _tap(&"confirm") # MON ORB
-	await _tap(&"move_up") # 2 of them
+	await _tap(&"move_right") # +10: 11,
+	await _tap(&"move_down") # then 10.
 	_shot("22_shop_quantity")
 	await _tap(&"confirm")
 	await _wait(1.2)
 	await _tap(&"confirm") # YES
 	await _close_dialogue()
-	_check(_game_state.money == 2600 and _game_state.item_count(&"mon_orb") == 2, "buying 2 MON ORBs costs $400")
+	_check(_game_state.money == 3000 and _game_state.item_count(&"mon_orb") == 10, "buying 10 MON ORBs costs $2000")
+	_check(_game_state.item_count(&"gala_orb") == 1, "...and the clerk throws in a GALA ORB")
 	await _tap(&"cancel") # Back to BUY / SELL / QUIT.
 	await _wait(1.0)
 	await _tap(&"move_down")
@@ -358,12 +368,31 @@ func _run() -> void:
 	await _wait(1.0)
 	await _tap(&"confirm") # YES
 	await _close_dialogue()
-	_check(_game_state.money == 2750 and _game_state.item_count(&"potion") == 2, "selling a POTION pays half its price")
+	_check(_game_state.money == 3150 and _game_state.item_count(&"potion") == 2, "selling a POTION pays half its price")
 	await _tap(&"cancel")
 	await _wait(1.0)
 	await _tap(&"cancel") # QUIT
 	await _close_dialogue()
 	_check(not is_instance_valid(shop) and not _player.is_locked(), "leaving the shop returns control")
+	var specialist: Node = _main.current_map.entities.get_node(^"NPC_Clerk2")
+	await _place(Vector2i(3, 1), Vector2i.LEFT)
+	await _tap(&"confirm")
+	await _wait(0.8)
+	await _tap(&"confirm") # BUY
+	shop = specialist.get_node_or_null(^"ShopMenu")
+	_check(shop != null and "NET ORB" in shop.get_node(^"ListArea/List/List").get_child(0).text, "the upper counter sells specialty orbs")
+	await _tap(&"move_down") # DIVE ORB
+	_shot("22_shop_orbs")
+	await _tap(&"confirm")
+	await _tap(&"confirm") # Just one.
+	await _wait(1.2)
+	await _tap(&"confirm") # YES
+	await _close_dialogue()
+	_check(_game_state.money == 2150 and _game_state.item_count(&"dive_orb") == 1, "a DIVE ORB costs $1000")
+	await _tap(&"cancel")
+	await _wait(1.0)
+	await _tap(&"cancel") # QUIT
+	await _close_dialogue()
 	await _place(Vector2i(4, 5), Vector2i.DOWN)
 	await _tap(&"move_down")
 	await _wait(1.0)
