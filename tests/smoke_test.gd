@@ -16,6 +16,7 @@ var _failures := 0
 var _main: Node
 var _player: Node2D # Untyped on purpose: game scripts must compile after the autoloads exist.
 var _dialogue: Node # The Dialogue autoload (globals aren't visible to a --script main loop).
+var _shots_taken := {}
 
 
 func _initialize() -> void:
@@ -122,6 +123,24 @@ func _run() -> void:
 	var lead: Resource = game_state.party[0]
 	_check(lead.experience > 125, "the winner earns EXP")
 
+	# --- Catching ------------------------------------------------------------
+	game_state.bag.assign({&"master_orb": 1})
+	await _place(Vector2i(3, 1), Vector2i.DOWN)
+	await _tap(&"move_down")
+	await _wait(2.5)
+	await _until_action_menu()
+	await _tap(&"move_right") # FIGHT -> BAG
+	await _tap(&"confirm")
+	_shot_once("09_bag")
+	await _tap(&"confirm") # MASTER ORB
+	await _wait(3.2) # Message, throw and landing; the orb is now shaking.
+	_shot_once("10_catch")
+	await _press_through_battle()
+	_check(game_state.party.size() == 2 and game_state.party[1].species.display_name == "SPROUTLE", "a caught monster joins the party")
+	_check(not game_state.bag.has(&"master_orb"), "throwing an orb uses it up")
+
+	# Only the lead can fight, so losing it ends the battle.
+	game_state.party[1].hp = 0
 	lead.hp = 1
 	route.wild_monsters.assign([&"zapkit"])
 	route.wild_levels = Vector2i(30, 30)
@@ -130,7 +149,7 @@ func _run() -> void:
 	await _wait(2.5)
 	await _press_through_battle()
 	await _close_dialogue()
-	_check(_map_name() == "YOUR HOUSE" and lead.hp == lead.max_hp(), "losing whites out at home with the party healed")
+	_check(_map_name() == "YOUR HOUSE" and lead.hp == lead.max_hp() and game_state.party[1].hp > 0, "losing whites out at home with the party healed")
 	_check(not _player.is_locked(), "control returns after whiting out")
 
 	# --- SURF ----------------------------------------------------------------
@@ -140,13 +159,13 @@ func _run() -> void:
 	await _place(Vector2i(5, 6), Vector2i.UP)
 	await _tap(&"confirm")
 	await _wait(1.6)
-	_shot("09_surf_prompt")
+	_shot("11_surf_prompt")
 	await _tap(&"confirm") # YES
 	await _wait(0.6)
 	_check(_player.is_surfing and _player.get_cell() == Vector2i(5, 5), "SURF hops onto the water")
 	await _tap(&"move_up")
 	await _wait(0.3)
-	_shot("10_surfing")
+	_shot("12_surfing")
 	await _tap(&"move_up")
 	await _wait(0.6)
 	_check(not _player.is_surfing and _player.get_cell() == Vector2i(5, 3), "surfing into land dismounts")
@@ -157,7 +176,7 @@ func _run() -> void:
 	_check(_main.start_menu.visible, "ENTER opens the start menu")
 	await _tap(&"confirm") # FLY
 	await _wait(0.2)
-	_shot("11_fly_menu")
+	_shot("13_fly_menu")
 	await _tap(&"confirm") # First visited town: Emberfall.
 	await _wait(1.2)
 	_check(_map_name() == "EMBERFALL TOWN" and _player.get_cell() == Vector2i(10, 7), "FLY returns to a visited town")
@@ -168,19 +187,25 @@ func _run() -> void:
 
 ## Presses A until the battle is over, taking screenshots of the menus.
 func _press_through_battle() -> void:
-	var shots := {}
 	for i in 150:
 		var battle: Control = _battle_scene()
 		if battle == null:
 			break
-		if battle.get_node(^"Menus/ActionArea/ActionMenu").visible and not shots.has("menu"):
-			shots["menu"] = true
-			_shot("07_battle_menu")
-		elif battle.get_node(^"Menus/MoveArea/MoveMenu").visible and not shots.has("moves"):
-			shots["moves"] = true
-			_shot("08_battle_moves")
+		if battle.get_node(^"Menus/ActionArea/ActionMenu").visible:
+			_shot_once("07_battle_menu")
+		elif battle.get_node(^"Menus/MoveArea/MoveMenu").visible:
+			_shot_once("08_battle_moves")
 		await _tap(&"confirm")
 	await _wait(1.0)
+
+
+## Presses A through the intro until FIGHT/BAG/MON/RUN is showing.
+func _until_action_menu() -> void:
+	for i in 40:
+		var battle: Control = _battle_scene()
+		if battle == null or battle.get_node(^"Menus/ActionArea/ActionMenu").visible:
+			return
+		await _tap(&"confirm")
 
 
 func _battle_scene() -> Control:
@@ -234,6 +259,12 @@ func _check(passed: bool, what: String) -> void:
 	print("%s  %s" % ["PASS" if passed else "FAIL", what])
 	if not passed:
 		_failures += 1
+
+
+func _shot_once(shot_name: String) -> void:
+	if not _shots_taken.has(shot_name):
+		_shots_taken[shot_name] = true
+		_shot(shot_name)
 
 
 func _shot(shot_name: String) -> void:

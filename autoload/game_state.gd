@@ -3,6 +3,7 @@ extends Node
 
 ## Field moves that change how the player can traverse the world.
 const FIELD_MOVES: Array[StringName] = [&"cut", &"rock_smash", &"surf", &"fly"]
+const MAX_PARTY := 6
 
 var player_name := "KAI"
 ## Until the party and badge systems exist every field move is unlocked so each
@@ -15,6 +16,10 @@ var current_map_path := ""
 var flags: Dictionary[StringName, bool] = {}
 ## Up to six monsters; the first healthy one leads in battle.
 var party: Array[Monster] = []
+## Caught monsters that didn't fit in the party (a PC box comes later).
+var storage: Array[Monster] = []
+## Item id (a file in res://data/items/) -> how many the player carries.
+var bag: Dictionary[StringName, int] = {&"mon_orb": 5, &"super_orb": 2, &"potion": 3}
 ## Where the player wakes up after losing a battle (last place they healed).
 var respawn_map := "res://scenes/maps/house_emberfall.tscn"
 var respawn_spawn: StringName = &"entrance"
@@ -23,7 +28,7 @@ var respawn_spawn: StringName = &"entrance"
 func _ready() -> void:
 	# Prototype: start with a starter until the "choose your starter" event exists.
 	if party.is_empty():
-		party.append(Monster.create(MonsterDB.species(&"flamlet"), 5))
+		party.append(Monster.create(GameData.species(&"flamlet"), 5))
 
 
 func can_use_field_move(move: StringName) -> bool:
@@ -44,3 +49,27 @@ func has_healthy_monster() -> bool:
 func heal_party() -> void:
 	for monster in party:
 		monster.heal_full()
+
+
+## Adds a newly caught monster. Returns true if it joined the party, false if
+## the party was full and it went to storage.
+func add_monster(monster: Monster) -> bool:
+	if party.size() < MAX_PARTY:
+		party.append(monster)
+		return true
+	storage.append(monster)
+	return false
+
+
+func add_item(id: StringName, count := 1) -> void:
+	bag[id] = bag.get(id, 0) + count
+
+
+## Removes one of an item. Returns false if there was none to remove.
+func remove_item(id: StringName) -> bool:
+	if bag.get(id, 0) <= 0:
+		return false
+	bag[id] -= 1
+	if bag[id] == 0:
+		bag.erase(id)
+	return true

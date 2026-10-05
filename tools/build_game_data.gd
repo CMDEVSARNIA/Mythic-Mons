@@ -1,10 +1,10 @@
 extends SceneTree
-## Writes the starter monster data (moves, abilities, species) to res://data/
-## as .tres files you can then tweak in the inspector.
+## Writes the starter game data (moves, abilities, species, items) to
+## res://data/ as .tres files you can then tweak in the inspector.
 ##
 ## Usually run through tools/rebuild_placeholders.sh (it needs the monster PNGs
 ## to be imported first). To run it alone:
-##   godot --headless --path . --script res://tools/build_monster_data.gd
+##   godot --headless --path . --script res://tools/build_game_data.gd
 ##
 ## Existing files are kept so inspector edits are safe. Pass `-- --force` to
 ## rewrite them all from the tables below.
@@ -12,7 +12,9 @@ extends SceneTree
 const MOVE_DIR := "res://data/moves/"
 const ABILITY_DIR := "res://data/abilities/"
 const SPECIES_DIR := "res://data/species/"
+const ITEM_DIR := "res://data/items/"
 const SPRITE_DIR := "res://assets/placeholder/monsters/"
+const ITEM_SPRITE_DIR := "res://assets/placeholder/items/"
 const ABILITY_SCRIPT_DIR := "res://scripts/monsters/abilities/"
 
 const PHYSICAL := MoveData.Category.PHYSICAL
@@ -76,6 +78,17 @@ const SPECIES := {
 		"Lurks in the shadows of old houses and giggles at night."],
 }
 
+const BALL := ItemData.Kind.BALL
+const HEAL := ItemData.Kind.HEAL
+
+## id: [name, kind, catch multiplier or heal amount, description]
+const ITEMS := {
+	"mon_orb": ["MON ORB", BALL, 1.0, "A device for catching\nwild MONSTERS."],
+	"super_orb": ["SUPER ORB", BALL, 1.5, "A better orb with a\nhigher catch rate."],
+	"master_orb": ["MASTER ORB", BALL, 255.0, "Catches any wild\nMONSTER without fail."],
+	"potion": ["POTION", HEAL, 20, "Restores 20 HP to\nthe active MONSTER."],
+}
+
 var _force := false
 
 
@@ -89,6 +102,8 @@ func _initialize() -> void:
 		abilities[id] = _save_or_keep(ABILITY_DIR + id + ".tres", _build_ability.bind(ABILITIES[id]))
 	for id: String in SPECIES:
 		_save_or_keep(SPECIES_DIR + id + ".tres", _build_species.bind(id, SPECIES[id], moves, abilities))
+	for id: String in ITEMS:
+		_save_or_keep(ITEM_DIR + id + ".tres", _build_item.bind(id, ITEMS[id]))
 	quit()
 
 
@@ -141,6 +156,19 @@ func _build_species(id: String, row: Array, moves: Dictionary, abilities: Dictio
 		species.learnset.append(level_move)
 	species.dex_entry = row[7]
 	return species
+
+
+func _build_item(id: String, row: Array) -> ItemData:
+	var item := ItemData.new()
+	item.display_name = row[0]
+	item.kind = row[1]
+	if item.kind == BALL:
+		item.catch_multiplier = row[2]
+		item.icon = load(ITEM_SPRITE_DIR + id + ".png")
+	else:
+		item.heal_amount = row[2]
+	item.description = row[3]
+	return item
 
 
 ## Saves a freshly built resource, or loads the existing file unless --force.

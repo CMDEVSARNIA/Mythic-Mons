@@ -24,12 +24,16 @@ grow_vertical = 2
 texture = ExtResource("2_background")
 
 [node name="EnemySprite" type="Sprite2D" parent="."]
-position = Vector2(176, 38)
+position = Vector2(176, 36)
 scale = Vector2(2, 2)
 
 [node name="PlayerSprite" type="Sprite2D" parent="."]
 position = Vector2(64, 86)
 scale = Vector2(2, 2)
+
+[node name="Ball" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(176, 58)
 
 [node name="EnemyPanel" parent="." instance=ExtResource("3_panel")]
 layout_mode = 0
@@ -41,7 +45,7 @@ offset_bottom = 33.0
 [node name="PlayerPanel" parent="." instance=ExtResource("3_panel")]
 layout_mode = 0
 offset_left = 104.0
-offset_top = 64.0
+offset_top = 68.0
 offset_right = 236.0
 offset_bottom = 110.0
 show_details = true

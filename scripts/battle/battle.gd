@@ -16,24 +16,38 @@ extends RefCounted
 ##   faint     {side}
 ##   withdraw  {side}, send_out {side}
 ##   flee      {}
+##   restore   {side}             healing-item sparkle (before its hp event)
+##   throw     {item}             a ball flies at the wild monster
+##   shake     {}                 the ball wobbles (0-3 times)
+##   caught    {} / break_free {}
 ##
 ## Damage is the Generation 3 formula (STAB 1.5x, type matchups, 1/16 crits
 ## worth 2x, a random 85-100% roll), simplified to the five stats of Monster.
+## Catching uses the Generation 3 formula too (see catch_shakes()).
 
-enum Outcome { ONGOING, WON, LOST, FLED }
-enum Action { FIGHT, SWITCH, RUN }
+enum Outcome { ONGOING, WON, LOST, FLED, CAUGHT }
+enum Action { FIGHT, SWITCH, RUN, ITEM }
 
 const PLAYER := &"player"
 const ENEMY := &"enemy"
 const CRIT_CHANCE := 1.0 / 16.0
 const STRUGGLE_PATH := "res://data/moves/struggle.tres"
 const STAT_NAMES := {&"attack": "ATTACK", &"defense": "DEFENSE", &"special": "SPECIAL", &"speed": "SPEED"}
+## What the game says after the ball breaks open, by how many times it shook.
+const BREAK_FREE_TEXT: Array[String] = [
+	"Oh, no! The MONSTER\nbroke free!",
+	"Aww! It appeared to\nbe caught!",
+	"Aargh!\nAlmost had it!",
+	"Shoot! It was so\nclose, too!",
+]
 
 var party: Array[Monster]
 var player: Battler
 var enemy: Battler
 var rng: RandomNumberGenerator
 var outcome := Outcome.ONGOING
+## Used in "<trainer> used <item>!" messages.
+var trainer_name := "YOU"
 
 var _events: Array[Dictionary] = []
 var _after_hit: PackedStringArray = []
@@ -66,6 +80,11 @@ static func run_away() -> Dictionary:
 	return {"action": Action.RUN}
 
 
+## Balls and healing items. The caller removes the item from the BAG.
+static func use_item(item: ItemData) -> Dictionary:
+	return {"action": Action.ITEM, "item": item}
+
+
 # --- Flow --------------------------------------------------------------------
 
 ## Abilities that trigger as the battle begins (call once, after the intro).
@@ -88,6 +107,9 @@ func take_turn(action: Dictionary) -> Array[Dictionary]:
 			_use_move(enemy, player, _enemy_move())
 		Action.SWITCH:
 			_switch_player(action.index, false)
+			_use_move(enemy, player, _enemy_move())
+		Action.ITEM:
+			_use_item(action.item)
 			_use_move(enemy, player, _enemy_move())
 		Action.FIGHT:
 			var player_move := _player_move(action.move)
@@ -116,6 +138,21 @@ func switch_after_faint(party_index: int) -> Array[Dictionary]:
 func can_switch_to(party_index: int) -> bool:
 	var monster := party[party_index]
 	return not monster.is_fainted() and monster != player.monster
+
+
+## Generation 3 catch check. Returns how many of the four shake checks pass:
+## 4 means caught; 0-3 is how many times the ball wobbles before it breaks.
+## Lower HP and a better ball raise the odds.
+func catch_shakes(target: Monster, ball_multiplier: float) -> int:
+	var max_hp := target.max_hp()
+	var rate := (3 * max_hp - 2 * target.hp) * target.species.catch_rate * ball_multiplier / (3.0 * max_hp)
+	if rate >= 255.0:
+		return 4
+	var shake_odds := floori(1048560.0 / sqrt(sqrt(16711680.0 / maxf(rate, 1.0))))
+	var shakes := 0
+	while shakes < 4 and rng.randi_range(0, 65535) < shake_odds:
+		shakes += 1
+	return shakes
 
 
 ## EXP for defeating the wild monster: exp_yield * level / 7.
@@ -244,6 +281,31 @@ func _use_move(user: Battler, target: Battler, move: MoveData) -> void:
 		target.ability.on_hit(self, target, user, move, damage)
 	if not move.stat_changes.is_empty() and rng.randi_range(1, 100) <= move.effect_chance:
 		_apply_stat_effect(user, target, move)
+
+
+func _use_item(item: ItemData) -> void:
+	message("%s used\n%s!" % [trainer_name, item.display_name])
+	match item.kind:
+		ItemData.Kind.BALL:
+			_throw_ball(item)
+		ItemData.Kind.HEAL:
+			_push(&"restore", {"side": player.side})
+			var healed := heal(player, item.heal_amount)
+			message("%s's HP was\nrestored by %d point%s." % [player.name, healed, "" if healed == 1 else "s"])
+
+
+func _throw_ball(ball: ItemData) -> void:
+	_push(&"throw", {"item": ball})
+	var shakes := catch_shakes(enemy.monster, ball.catch_multiplier)
+	for i in mini(shakes, 3):
+		_push(&"shake", {})
+	if shakes >= 4:
+		_push(&"caught", {})
+		message("Gotcha!\n%s was caught!" % enemy.monster.get_display_name(), true)
+		outcome = Outcome.CAUGHT
+	else:
+		_push(&"break_free", {})
+		message(BREAK_FREE_TEXT[shakes])
 
 
 func _apply_stat_effect(user: Battler, target: Battler, move: MoveData) -> void:

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="1_0jtar"]
+
+[resource]
+script = ExtResource("1_0jtar")
+display_name = "POTION"
+description = "Restores 20 HP to
+the active MONSTER."
+kind = 1

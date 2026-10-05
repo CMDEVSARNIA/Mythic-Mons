@@ -7,8 +7,10 @@ extends Control
 
 ## How long routine battle text stays up before advancing on its own.
 const MESSAGE_SECONDS := 1.0
-const ENEMY_HOME := Vector2(176, 38)
+const ENEMY_HOME := Vector2(176, 36)
 const PLAYER_HOME := Vector2(64, 86)
+## Where a thrown orb lands: on the wild monster's platform.
+const BALL_REST := Vector2(176, 58)
 const SPRITE_SCALE := Vector2(2, 2)
 ## _choose_move() result when the player backs out of the move list.
 const CANCELLED := -2
@@ -19,6 +21,7 @@ var _last_move := 0
 
 @onready var _enemy_sprite: Sprite2D = $EnemySprite
 @onready var _player_sprite: Sprite2D = $PlayerSprite
+@onready var _ball: Sprite2D = $Ball
 @onready var _enemy_panel: BattlerPanel = $EnemyPanel
 @onready var _player_panel: BattlerPanel = $PlayerPanel
 @onready var _prompt: Label = $MessageFrame/Prompt
@@ -38,6 +41,7 @@ func _ready() -> void:
 
 func run(party: Array[Monster], wild: Monster, rng: RandomNumberGenerator = null) -> Battle.Outcome:
 	battle = Battle.new(party, wild, rng)
+	battle.trainer_name = GameState.player_name
 	await _intro()
 	await _play(battle.start())
 	while battle.outcome == Battle.Outcome.ONGOING:
@@ -50,6 +54,8 @@ func run(party: Array[Monster], wild: Monster, rng: RandomNumberGenerator = null
 	match battle.outcome:
 		Battle.Outcome.WON:
 			await _victory()
+		Battle.Outcome.CAUGHT:
+			await _add_caught_monster()
 		Battle.Outcome.LOST:
 			var trainer := GameState.player_name
 			await _say(["%s is out of\nusable MONSTERS!" % trainer, "%s whited out!" % trainer])
@@ -73,7 +79,10 @@ func _choose_action() -> Dictionary:
 				if move != CANCELLED:
 					action = Battle.fight(move)
 			1:
-				await _say(["There's nothing in\nthe BAG yet!"]) # Items come with catching.
+				var item_id: StringName = await _choose_item()
+				if not item_id.is_empty():
+					GameState.remove_item(item_id)
+					action = Battle.use_item(GameData.item(item_id))
 			2:
 				var index: int = await _choose_party_member(false)
 				if index >= 0:
@@ -114,6 +123,41 @@ func _on_move_cursor_moved(index: int) -> void:
 	if index < monster.moves.size():
 		var move := monster.moves[index]
 		_move_info_label.text = "PP %2d/%2d\n%s" % [monster.pp[index], move.max_pp, move.element.to_upper()]
+
+
+## Lists the BAG with each item's description. Returns the chosen item id,
+## or &"" if the player backs out.
+func _choose_item() -> StringName:
+	var ids: Array[StringName] = []
+	var items: Array[ItemData] = []
+	var options := PackedStringArray()
+	for id: StringName in GameState.bag:
+		var item := GameData.item(id)
+		if item and GameState.bag[id] > 0:
+			ids.append(id)
+			items.append(item)
+			options.append("%-10s x%2d" % [item.display_name, GameState.bag[id]])
+	if ids.is_empty():
+		await _say(["Your BAG is empty!"])
+		return &""
+	options.append("CANCEL")
+	var describe := func(index: int) -> void:
+		_prompt.text = items[index].description if index < items.size() else ""
+	_list_menu.cursor_moved.connect(describe)
+	var picked: StringName = &""
+	while true:
+		var index: int = await _list_menu.choose(options)
+		if index < 0 or index >= ids.size():
+			break
+		var monster := battle.player.monster
+		if items[index].kind == ItemData.Kind.HEAL and monster.hp >= monster.max_hp():
+			await _say(["It won't have any effect."])
+			continue
+		picked = ids[index]
+		break
+	_list_menu.cursor_moved.disconnect(describe)
+	_prompt.text = ""
+	return picked
 
 
 ## Returns a party index, or -1 if the player cancels (only when not `forced`).
@@ -165,6 +209,16 @@ func _play(events: Array[Dictionary]) -> void:
 				await _send_out()
 			&"flee":
 				Audio.play_sfx(&"flee")
+			&"restore":
+				await _restore(side)
+			&"throw":
+				await _throw(event.item)
+			&"shake":
+				await _shake()
+			&"caught":
+				await _seal()
+			&"break_free":
+				await _break_free()
 
 
 func _intro() -> void:
@@ -200,6 +254,15 @@ func _victory() -> void:
 			for move in new_moves:
 				await _learn_move(monster, move)
 	monster.experience += remaining
+
+
+func _add_caught_monster() -> void:
+	Audio.play_music(&"victory")
+	var monster := battle.enemy.monster
+	if GameState.add_monster(monster):
+		await _say(["%s joined\nyour party!" % monster.get_display_name()])
+	else:
+		await _say(["Your party is full.\n%s was sent\nto the BOX." % monster.get_display_name()])
 
 
 func _learn_move(monster: Monster, move: MoveData) -> void:
@@ -280,6 +343,70 @@ func _faint(side: StringName) -> void:
 	sprite.position = PLAYER_HOME if side == Battle.PLAYER else ENEMY_HOME
 	if side == Battle.PLAYER:
 		_player_panel.hide()
+
+
+func _restore(side: StringName) -> void:
+	Audio.play_sfx(&"heal")
+	var tween := create_tween()
+	for i in 2:
+		tween.tween_property(_sprite(side), "modulate", Color(0.7, 1.6, 0.9), 0.12)
+		tween.tween_property(_sprite(side), "modulate", Color.WHITE, 0.12)
+	await tween.finished
+
+
+func _throw(item: ItemData) -> void:
+	_ball.texture = item.icon
+	_ball.modulate = Color.WHITE
+	_ball.show()
+	Audio.play_sfx(&"throw")
+	var tween := create_tween()
+	tween.tween_method(_ball_arc.bind(Vector2(40, 104), ENEMY_HOME + Vector2(0, 4)), 0.0, 1.0, 0.5)
+	await tween.finished
+	# The wild monster is drawn into the orb in a flash of light.
+	tween = create_tween().set_parallel()
+	tween.tween_property(_enemy_sprite, "scale", Vector2.ZERO, 0.25)
+	tween.tween_property(_enemy_sprite, "modulate", Color(3, 3, 3), 0.25)
+	await tween.finished
+	_enemy_sprite.hide()
+	_enemy_sprite.modulate = Color.WHITE
+	tween = create_tween()
+	tween.tween_property(_ball, "position", BALL_REST, 0.35).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BOUNCE)
+	await tween.finished
+	await _wait(0.3)
+
+
+func _ball_arc(t: float, from: Vector2, to: Vector2) -> void:
+	_ball.position = from.lerp(to, t) + Vector2(0.0, -40.0 * sin(t * PI))
+	_ball.rotation = t * TAU * 2.0
+
+
+func _shake() -> void:
+	Audio.play_sfx(&"ball_shake")
+	var tween := create_tween()
+	tween.tween_property(_ball, "rotation", -0.45, 0.1)
+	tween.tween_property(_ball, "rotation", 0.45, 0.16)
+	tween.tween_property(_ball, "rotation", 0.0, 0.1)
+	tween.tween_interval(0.35)
+	await tween.finished
+
+
+## The orb clicks shut: the monster is caught.
+func _seal() -> void:
+	Audio.play_sfx(&"catch")
+	var tween := create_tween()
+	tween.tween_property(_ball, "modulate", Color(0.55, 0.55, 0.65), 0.3)
+	await tween.finished
+	await _wait(0.6)
+
+
+func _break_free() -> void:
+	Audio.play_sfx(&"break_free")
+	_ball.hide()
+	_enemy_sprite.scale = Vector2.ZERO
+	_enemy_sprite.show()
+	var tween := create_tween()
+	tween.tween_property(_enemy_sprite, "scale", SPRITE_SCALE, 0.2).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+	await tween.finished
 
 
 func _withdraw() -> void:

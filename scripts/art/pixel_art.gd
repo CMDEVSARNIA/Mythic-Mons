@@ -81,6 +81,13 @@ const NPC_COLORS := {
 	&"swimmer": {"H": SKY, "h": BLUE, "A": SAND, "B": CYAN, "b": SKY, "P": BLUE},
 }
 
+## Catching orbs: id -> [top color, accent color].
+const ORBS := {
+	&"mon_orb": [RED, ORANGE],
+	&"super_orb": [BLUE, RED],
+	&"master_orb": [PLUM, SAND],
+}
+
 ## Base / shade / highlight colors per monster element.
 const ELEMENT_COLORS := {
 	&"fire": [ORANGE, RED, SAND],
@@ -541,6 +548,30 @@ static func _platform(img: Image, center: Vector2, radius: Vector2) -> void:
 			elif n.y < -0.3 and d < 0.5:
 				c = LIME
 			img.set_pixel(x, y, c)
+
+
+## A 16x16 catching orb: colored top, white bottom, dark band and a button.
+static func orb(top: Color, accent: Color) -> Image:
+	var img := _new_image(TILE, TILE)
+	var center := Vector2(8.0, 8.0)
+	for y in TILE:
+		for x in TILE:
+			var d := (Vector2(x, y) + Vector2(0.5, 0.5)).distance_to(center)
+			if d > 6.5:
+				continue
+			var c := top if y < 7 else WHITE
+			if d > 5.6 or y == 7 or y == 8:
+				c = INK
+			if d <= 2.2:
+				c = INK if d > 1.3 else WHITE
+			img.set_pixel(x, y, c)
+	_px(img, Vector2i(4, 4), WHITE)
+	_px(img, Vector2i(5, 3), WHITE)
+	# Accent marks on the top half tell the orbs apart.
+	for x: int in [6, 9]:
+		_px(img, Vector2i(x, 3), accent)
+		_px(img, Vector2i(x, 4), accent)
+	return img
 
 
 # =============================================================================

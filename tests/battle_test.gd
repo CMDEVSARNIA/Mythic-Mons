@@ -17,6 +17,8 @@ func _initialize() -> void:
 	_test_win_lose_switch_run()
 	_test_pp_and_struggle()
 	_test_experience()
+	_test_catching()
+	_test_items_and_party()
 	print("\nBATTLE TEST %s (%d failed)" % ["PASSED" if _failures == 0 else "FAILED", _failures])
 	quit(1 if _failures > 0 else 0)
 
@@ -37,7 +39,7 @@ func _test_type_chart() -> void:
 
 func _test_damage_formula() -> void:
 	var battle := _battle([_monster(&"flamlet", 5)], _monster(&"sproutle", 5))
-	var ember := MonsterDB.move(&"ember")
+	var ember := GameData.move(&"ember")
 	# floor(floor(4 * 40 * 10 / 11) / 50) + 2 = 4, then x2 (type) x1.5 (STAB) = 12
 	_check(battle.calculate_damage(battle.player, battle.enemy, ember, false, 2.0, 100) == 12, "Gen 3 damage formula with STAB and type bonus")
 	_check(battle.calculate_damage(battle.player, battle.enemy, ember, true, 2.0, 100) == 24, "critical hits double damage")
@@ -64,7 +66,7 @@ func _test_turn_order() -> void:
 	_only_move(battle.enemy.monster, &"growl")
 	var events := battle.take_turn(Battle.fight(_index(battle.player.monster, "TACKLE")))
 	_check(_first_user(events) == "Wild ZAPKIT", "the faster monster moves first")
-	battle.player.monster.replace_move(0, MonsterDB.move(&"quick_hit"))
+	battle.player.monster.replace_move(0, GameData.move(&"quick_hit"))
 	events = battle.take_turn(Battle.fight(0))
 	_check(_first_user(events) == "PEBBLET", "priority moves go first regardless of speed")
 
@@ -78,7 +80,7 @@ func _test_abilities() -> void:
 	# SOAK UP: water moves heal instead of hurting.
 	battle = _battle([_monster(&"flamlet", 5)], _monster(&"aquapup", 5))
 	_only_move(battle.enemy.monster, &"growl")
-	battle.player.monster.replace_move(0, MonsterDB.move(&"water_gun"))
+	battle.player.monster.replace_move(0, GameData.move(&"water_gun"))
 	battle.enemy.monster.hp = 5
 	events = battle.take_turn(Battle.fight(0))
 	_check(battle.enemy.monster.hp > 5 and _has_text(events, "SOAK UP"), "SOAK UP turns water damage into healing")
@@ -146,7 +148,7 @@ func _test_pp_and_struggle() -> void:
 	_only_move(battle.enemy.monster, &"growl")
 	var growl := _index(battle.player.monster, "GROWL")
 	battle.take_turn(Battle.fight(growl))
-	_check(battle.player.monster.pp[growl] == MonsterDB.move(&"growl").max_pp - 1, "using a move spends 1 PP")
+	_check(battle.player.monster.pp[growl] == GameData.move(&"growl").max_pp - 1, "using a move spends 1 PP")
 	for i in battle.player.monster.pp.size():
 		battle.player.monster.pp[i] = 0
 	_check(not battle.player.monster.has_usable_move(), "no PP left is detected")
@@ -164,11 +166,55 @@ func _test_experience() -> void:
 	_check(flamlet.max_hp() - flamlet.hp == missing, "levelling up keeps the damage already taken")
 
 
+func _test_catching() -> void:
+	var battle := _battle([_monster(&"flamlet", 5)], _monster(&"sproutle", 3))
+	_check(battle.catch_shakes(battle.enemy.monster, 255.0) == 4, "a MASTER ORB always catches")
+
+	# Odds rise as HP falls: ~25% at full HP, ~74% at 1 HP for SPROUTLE.
+	var full_rate := _catch_rate(battle, 1.0, battle.enemy.monster.max_hp())
+	var low_rate := _catch_rate(battle, 1.0, 1)
+	_check(full_rate > 0.18 and full_rate < 0.32, "MON ORB at full HP catches about 1 in 4 (got %.2f)" % full_rate)
+	_check(low_rate > 0.65 and low_rate < 0.82, "MON ORB at 1 HP catches about 3 in 4 (got %.2f)" % low_rate)
+	_check(_catch_rate(battle, 1.5, 1) > low_rate, "SUPER ORB beats MON ORB")
+
+	var events := battle.take_turn(Battle.use_item(GameData.item(&"master_orb")))
+	_check(battle.outcome == Battle.Outcome.CAUGHT, "a caught monster ends the battle")
+	_check(_count(events, &"shake") == 3 and _count(events, &"caught") == 1 and _has_text(events, "Gotcha!"), "a catch shakes three times then clicks")
+	_check(not _used_move(events, "Wild SPROUTLE"), "the wild monster doesn't act after being caught")
+
+	var tough := _monster(&"shadeling", 3)
+	tough.species = tough.species.duplicate()
+	tough.species.catch_rate = 3
+	battle = _battle([_monster(&"flamlet", 5)], tough)
+	events = battle.take_turn(Battle.use_item(GameData.item(&"mon_orb")))
+	_check(_count(events, &"break_free") == 1 and battle.outcome == Battle.Outcome.ONGOING, "a failed catch breaks free")
+	_check(_used_move(events, "Wild SHADELING"), "the wild monster acts after breaking free")
+
+
+func _test_items_and_party() -> void:
+	var battle := _battle([_monster(&"flamlet", 5)], _monster(&"sproutle", 3))
+	_only_move(battle.enemy.monster, &"growl")
+	battle.player.monster.hp -= 10
+	var events := battle.take_turn(Battle.use_item(GameData.item(&"potion")))
+	_check(battle.player.monster.hp == battle.player.monster.max_hp(), "POTION heals up to its amount")
+	_check(_has_text(events, "restored by 10 points"), "POTION reports how much it healed")
+
+	var state: Node = load("res://autoload/game_state.gd").new()
+	for i in 6:
+		state.add_monster(_monster(&"sproutle", 2))
+	_check(state.party.size() == 6 and state.storage.is_empty(), "the party holds up to six monsters")
+	_check(not state.add_monster(_monster(&"zapkit", 2)) and state.storage.size() == 1, "a 7th monster goes to the BOX")
+	state.bag.assign({&"potion": 1})
+	_check(state.remove_item(&"potion") and not state.bag.has(&"potion"), "using the last item removes it from the BAG")
+	_check(not state.remove_item(&"potion"), "you can't use an item you don't have")
+	state.free()
+
+
 # --- Helpers -------------------------------------------------------------------
 
 ## A monster with zero IVs so stats are predictable.
 func _monster(id: StringName, level: int) -> Monster:
-	var monster := Monster.create(MonsterDB.species(id), level)
+	var monster := Monster.create(GameData.species(id), level)
 	for stat in Monster.STATS:
 		monster.ivs[stat] = 0
 	monster.hp = monster.max_hp()
@@ -183,7 +229,7 @@ func _battle(party: Array[Monster], wild: Monster) -> Battle:
 
 ## Makes the monster know only `move_id`, so a test controls what the foe does.
 func _only_move(monster: Monster, move_id: StringName) -> void:
-	var move := MonsterDB.move(move_id)
+	var move := GameData.move(move_id)
 	monster.moves = [move]
 	monster.pp = [move.max_pp]
 
@@ -199,11 +245,36 @@ func _names(moves: Array[MoveData]) -> Array[String]:
 	return names
 
 
+## Fraction of 2000 throws that catch, at `hp` HP, with a seeded RNG.
+func _catch_rate(battle: Battle, ball: float, hp: int) -> float:
+	var target := battle.enemy.monster
+	var saved_hp := target.hp
+	target.hp = hp
+	var caught := 0
+	for i in 2000:
+		if battle.catch_shakes(target, ball) == 4:
+			caught += 1
+	target.hp = saved_hp
+	return caught / 2000.0
+
+
+func _count(events: Array[Dictionary], type: StringName) -> int:
+	var total := 0
+	for event in events:
+		if event.type == type:
+			total += 1
+	return total
+
+
 func _has_text(events: Array[Dictionary], fragment: String) -> bool:
 	for event in events:
 		if event.type == &"message" and fragment in event.text:
 			return true
 	return false
+
+
+func _used_move(events: Array[Dictionary], user: String) -> bool:
+	return _has_text(events, user + " used\n")
 
 
 ## Who acted first this turn, from the first "X used ..." message.

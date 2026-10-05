@@ -28,16 +28,18 @@ Mythic-Mons/
 │   ├── battle/                BattleScene (menus + animation), BattlerPanel, StatBar
 │   └── ui/                    Dialogue box (autoload), choice box, map-name banner
 ├── scripts/                   Non-scene code (class_name utilities)
-│   ├── core/                  Grid, PhysicsLayers, Terrain constants
+│   ├── core/                  Grid, PhysicsLayers, Terrain, GameData (id → resource lookups)
 │   ├── monsters/              MonsterSpecies, MoveData, LevelMove, Monster, TypeChart,
-│   │                          MonsterDB, Ability + abilities/ (one script per behavior)
+│   │                          Ability + abilities/ (one script per behavior)
+│   ├── items/                 ItemData (orbs, potions)
 │   ├── battle/                Battle (the rules) and Battler (a monster on the field)
 │   ├── art/pixel_art.gd       Procedural 8-bit art generator
 │   └── audio/                 ChipSynth (SFX), Chiptune (sequencer), Songs (music data)
 ├── data/                      Game data as .tres, file name = id
 │   ├── species/               flamlet, aquapup, sproutle, pebblet, zapkit, shadeling
 │   ├── moves/                 tackle, ember, water_gun, ...
-│   └── abilities/             kindle, soak_up, sunsoak, sturdy_shell, jolt, dread
+│   ├── abilities/             kindle, soak_up, sunsoak, sturdy_shell, jolt, dread
+│   └── items/                 mon_orb, super_orb, master_orb, potion
 ├── assets/
 │   ├── placeholder/           Generated PNGs: tiles, characters, objects, monsters
 │   ├── tilesets/              overworld_tileset.tres (physics + terrain custom data)
@@ -195,7 +197,7 @@ and badges.
 Stats are simplified from Generation 3: five stats (HP, ATTACK, DEFENSE,
 SPECIAL, SPEED, where one SPECIAL serves for both attack and defense as in
 the 8-bit games), IVs 0-15, no EVs, and the "medium fast" n³ EXP curve. Maps
-and code refer to species and moves by id (`MonsterDB.species(&"zapkit")`),
+and code refer to species, moves and items by id (`GameData.species(&"zapkit")`),
 and the id is the file name.
 
 ### Rules vs. presentation
@@ -203,7 +205,8 @@ and the id is the file name.
 `Battle` (scripts/battle/battle.gd) holds every rule and nothing visual. Each
 call (`start()`, `take_turn(action)`, `switch_after_faint(i)`) returns an
 ordered list of events: `message`, `attack`, `hit`, `hp`, `stat`, `faint`,
-`withdraw`, `send_out`, `flee`. `BattleScene` only asks for the player's
+`withdraw`, `send_out`, `flee`, `restore`, `throw`, `shake`, `caught`,
+`break_free`. `BattleScene` only asks for the player's
 action and plays those events back as text, sounds and tweens. This keeps the
 rules fast to unit-test and reusable for trainer battles.
 
@@ -213,6 +216,26 @@ it), crits (1/16, 2×), the Gen 3 damage formula with STAB and an 85-100%
 roll, then ability hooks and stat effects. At the end of the turn,
 end-of-turn abilities run. RUN uses Gen 3 escape odds. A monster out of PP
 uses STRUGGLE.
+
+### Items and catching
+
+Actions are FIGHT, SWITCH, RUN and ITEM. Using an item takes your turn, like
+in Emerald. BattleScene removes it from `GameState.bag` (item id → count),
+and the engine applies it:
+
+- **Orbs** (`ItemData.Kind.BALL`) run the Gen 3 check in
+  `Battle.catch_shakes()`:
+  `rate = (3·maxHP − 2·HP) · catch_rate · ball / (3·maxHP)`.
+  At 255 or more the catch is certain. Otherwise four checks each pass with
+  probability `1048560 / ⁴√(16711680 / rate) / 65536`. The orb wobbles once
+  per passed check, up to three times, and all four passing is a catch. A
+  SPROUTLE (catch rate 190) is about a 25% catch at full HP and 74% at 1 HP.
+- **Healing items** (`Kind.HEAL`) restore HP to the active monster.
+
+On a catch the battle ends with `Outcome.CAUGHT`, and
+`GameState.add_monster()` puts the monster in the party, or in
+`GameState.storage` (the BOX) when the party has six. A caught monster keeps
+its current HP and earns you no EXP, as in Gen 3.
 
 ### Abilities
 
@@ -242,7 +265,7 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
 
 ### Adding a monster or move
 
-1. Add a row to `tools/build_monster_data.gd` and run it, or duplicate a
+1. Add a row to `tools/build_game_data.gd` and run it, or duplicate a
    `.tres` in `data/` and edit it in the inspector.
 2. Give it art: add a seed to `PixelArt.MONSTERS` and rerun the art tool,
    or point `front_texture`/`back_texture` at real sprites.
@@ -276,11 +299,13 @@ A loss heals the party and respawns the player at `GameState.respawn_map`.
 
 - `tests/battle_test.gd` covers the battle rules with no scene: stat and
   damage formulas, type chart, stages, turn order and priority, all six
-  abilities, winning, losing, forced switches, running, PP, STRUGGLE and
-  level-ups (36 checks).
+  abilities, winning, losing, forced switches, running, PP, STRUGGLE,
+  level-ups, catch odds, orbs, POTIONs, and the party/BOX/BAG helpers
+  (51 checks).
 - `tests/smoke_test.gd` plays the real game by injecting input: turning,
   walking, bumping, signs, NPCs, CUT, doors, map edges, ledges, ROCK SMASH,
-  a won battle, a lost battle with whiteout, SURF and FLY (27 checks).
+  a won battle, a catch through the BAG menu, a lost battle with whiteout,
+  SURF and FLY (29 checks).
 
 ```sh
 godot --headless --path . --script res://tests/battle_test.gd

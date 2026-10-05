@@ -105,7 +105,7 @@ func _choose_fly_destination() -> String:
 
 
 func _on_wild_encounter(species_id: StringName) -> void:
-	var species := MonsterDB.species(species_id)
+	var species := GameData.species(species_id)
 	if species == null or not GameState.has_healthy_monster():
 		return
 	player.lock()

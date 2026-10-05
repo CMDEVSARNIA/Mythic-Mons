@@ -12,6 +12,7 @@ independently.
 | Player / NPC sprites | `PixelArt.character_sheet()` → `assets/placeholder/characters/*.png` | A 48 × 64 sheet: 3 columns (stand, step A, step B) × 4 rows (down, up, left, right) |
 | CUT tree, boulder, sign, surf mount | `PixelArt.*()` → `assets/placeholder/objects/` | Same-size PNGs |
 | Monsters | `PixelArt.monster(seed, element, back)` → `assets/placeholder/monsters/<id>.png` and `<id>_back.png` | Front and back sprites, set on the species' `front_texture` / `back_texture` (shown at 2×, so 32 × 32 art fills 64 × 64) |
+| Catching orbs | `PixelArt.orb(top, accent)` → `assets/placeholder/items/<id>.png` | 16 × 16 sprites, set on the item's `icon` |
 | Battle background | `PixelArt.battle_background()` → `assets/placeholder/battle/background.png` | A 240 × 160 image with the platforms in the same spots |
 | Sound effects | `ChipSynth.sfx(id)` at runtime | `assets/audio/sfx/<id>.ogg` / `.wav` (see `assets/audio/README.md`) |
 | Music | `Chiptune.render(Songs.*)` on a worker thread | `assets/audio/music/<id>.ogg`, with Loop enabled on import |

@@ -155,6 +155,23 @@ static func sfx(id: StringName) -> AudioStreamWAV:
 				steps.append(tone(Wave.NOISE, 6000.0, 3000.0, 0.05, 0.3))
 				steps.append(silence(0.05))
 			samples = sequence(steps)
+		&"throw":
+			samples = layer([tone(Wave.NOISE, 2000.0, 9000.0, 0.3, 0.12, 0.25), tone(Wave.PULSE_12, 300.0, 900.0, 0.3, 0.12)])
+		&"ball_shake":
+			samples = sequence([tone(Wave.PULSE_50, 160.0, 120.0, 0.05, 0.3), silence(0.06), tone(Wave.PULSE_50, 140.0, 100.0, 0.05, 0.25)])
+		&"break_free":
+			samples = layer([tone(Wave.NOISE, 3000.0, 12000.0, 0.18, 0.4), tone(Wave.PULSE_25, 400.0, 1200.0, 0.18, 0.25)])
+		&"catch":
+			var jingle: Array[PackedFloat32Array] = [tone(Wave.NOISE, 9000.0, 9000.0, 0.03, 0.4), silence(0.12)]
+			for hz: float in [783.99, 987.77, 1174.66]:
+				jingle.append(tone(Wave.PULSE_25, hz, hz, 0.09, 0.22, 0.18))
+			jingle.append(tone(Wave.PULSE_25, 1567.98, 1567.98, 0.4, 0.22))
+			samples = sequence(jingle)
+		&"heal":
+			var sparkle: Array[PackedFloat32Array] = []
+			for hz: float in [1046.5, 1318.51, 1567.98, 2093.0, 1567.98, 2093.0]:
+				sparkle.append(tone(Wave.PULSE_12, hz, hz, 0.05, 0.18, 0.12))
+			samples = sequence(sparkle)
 		&"encounter":
 			var beeps: Array[PackedFloat32Array] = []
 			for i in 8:
