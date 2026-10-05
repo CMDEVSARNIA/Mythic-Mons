@@ -54,8 +54,9 @@ sheet in an editor like Pixelorama, or change `hframes`/`vframes` on the
 
 ![YOUNGSTER, OFFICER, MYSTIC, FIGHTER and GARDENER facing down, up, left and right](images/townsfolk.png)
 
-Five extra NPCs come from a downloaded 16 × 16 NES-style character sheet,
-kept in `assets/characters/townsfolk/source/`:
+Five extra NPCs come from devurandom's
+[16x16 8-bit RPG character set](https://opengameart.org/content/16x16-8-bit-rpg-character-set)
+(CC0), kept in `assets/characters/townsfolk/source/`:
 
 | NPC | Where |
 |---|---|

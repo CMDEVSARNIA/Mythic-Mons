@@ -1,5 +1,6 @@
 extends SceneTree
-## Converts townsfolk from a downloaded 16x16 character sheet into the game's
+## Converts townsfolk from devurandom's "16x16 8-bit RPG character set" (CC0,
+## opengameart.org/content/16x16-8-bit-rpg-character-set) into the game's
 ## 48x64 walking-sheet layout (see PixelArt.character_sheet) and palette.
 ##
 ##   godot --headless --path . --script res://tools/import_townsfolk.gd
