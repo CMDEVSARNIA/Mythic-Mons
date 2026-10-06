@@ -213,7 +213,7 @@ data/          species/, moves/, abilities/, items/ (.tres files, edit in the in
 assets/        world/ (tiles, signs, battle backdrop + their CC0 source), placeholder/
                (generated PNGs), characters/townsfolk/ (converted pack sprites),
                tilesets/ (the TileSet), ui/, fonts/, audio/
-tools/         Headless generators for the art, TileSet, maps and monster data
+tools/         Headless generators for the art, TileSet, maps and monster data, and export.sh
 tests/         Rule tests (battles, monsters, game state/saves) and a smoke test that plays the game
 docs/          ARCHITECTURE.md, ASSETS.md
 ```
@@ -241,6 +241,30 @@ matching name to replace a generated sound.
 Besides the code-drawn placeholders, the script re-converts the world art
 (`tools/import_world_art.gd`) and the townsfolk (`tools/import_townsfolk.gd`)
 from their CC0 sheets in `assets/`.
+
+## Exporting the game
+
+`export_presets.cfg` has release presets for Windows, Linux, macOS and the
+Web. To build a version you can share:
+
+1. Install the export templates once: in the editor, **Editor > Manage
+   Export Templates > Download and Install**.
+2. **Project > Export**, pick a preset and **Export Project**. Or from a
+   terminal, `tools/export.sh` builds all four (`tools/export.sh Web` just
+   one). Builds go to `build/`, which git ignores.
+
+| Preset | Output | Sharing it |
+|---|---|---|
+| Windows Desktop | `build/windows/MythicMons.exe` (one file) | Send the .exe. It isn't code-signed, so Windows may warn: **More info > Run anyway**. |
+| Linux | `build/linux/MythicMons.x86_64` (one file) | Make it executable (`chmod +x`) and run it. |
+| macOS | `build/macos/MythicMons.zip` | Unsigned, so the first time, right-click the app and choose **Open**. |
+| Web | `build/web/` (`index.html` and its files) | Zip the folder and upload it to itch.io as an HTML game, or put it on any web server. It's the single-threaded build, so it needs no special server headers. Browsers won't run it from a double-clicked file. |
+
+The Windows, Linux and Web presets have been built and run with Godot
+4.7.2's templates; macOS needs a Mac to test. Exports leave out `tests/`,
+`tools/` and the CC0 source sheets. Saves go to Godot's user folder (on
+Windows, `%APPDATA%\Godot\app_userdata\Mythic Mons`; on the Web, the
+browser's storage).
 
 ## Tests
 

@@ -10,6 +10,7 @@ Target engine: **Godot 4.7** (GDScript, GL Compatibility renderer).
 ```
 Mythic-Mons/
 ├── project.godot              Display, input map, autoloads, physics layer names
+├── export_presets.cfg         Release presets: Windows, Linux, macOS, Web (tools/export.sh)
 ├── icon.png                   Generated (a monster at 4x)
 ├── autoload/                  Global singletons (Project Settings > Globals)
 │   ├── events.gd              Events: signal bus (warp_requested, wild_encounter, map_entered)
