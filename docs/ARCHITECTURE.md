@@ -665,8 +665,10 @@ marks the new species as caught in the MONDEX.
   level-ups, catch odds, every special orb's bonus, trainer battles (teams,
   the rival's counter-pick, no running, blocked orbs, sending out the next
   monster, 1.5× EXP and prize money), every status condition and cure, the
-  trainer AI, orbs and POTIONs, and the rival's evolved counter-pick (98
-  checks).
+  trainer AI, orbs and POTIONs, the rival's evolved counter-pick,
+  confusion and flinching, draining, recoil and healing moves, switching
+  before a trainer's next monster, and REVIVE, MAX REVIVE and ETHER on any
+  party member (128 checks).
 - `tests/monster_test.gd` covers the four EXP curves, IV ranges, every
   nature turning up, nature effects on stats, level and stone evolution
   (what's kept and what changes), and that evolutions share their
@@ -675,7 +677,7 @@ marks the new species as caught in the MONDEX.
   release and their limits), BAG limits, money, the
   MONDEX (all 14 species), badges and the field moves they unlock, the card's time format, flags, monster serialization (natures, orbs and statuses included,
   and older saves without them), a full save/load round trip, and corrupt or
-  newer-version saves (55 checks). It uses its own save file.
+  newer-version saves (57 checks). It uses its own save file.
 - `tests/smoke_test.gd` plays the real game by injecting input: typing the
   player's name in the intro, movement, signs, NPCs, CUT, doors, the starter
   gate and PROF. ASTER's starter (declining a nickname),
@@ -698,8 +700,10 @@ marks the new species as caught in the MONDEX.
   leaving every building, then Route 2 (an item ball behind a CUT tree,
   SURF across the river where a SWIMMER swims over, REN's evolved
   counter-pick), Copperdale (a one-time gift, the second GYM, the $2100
-  prize and the SPARK BADGE), and FLY (145 checks).
-  It uses its own save file.
+  prize and the SPARK BADGE), the OPTION screen, the DEBUG menu's HEAL and
+  wild-encounter toggle, a REVIVE and a REPEL from the BAG (and the REPEL
+  wearing off), and FLY (157 checks). It uses its own save and settings
+  files.
 - `tests/npc_test.gd` visits every map and talks to every NPC and sign,
   standing where a player could (a reachable neighboring cell, counting CUT,
   ROCK SMASH and SURF, or across a counter), then examines a bookshelf.

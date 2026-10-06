@@ -302,13 +302,13 @@ browser's storage).
 ## Tests
 
 ```sh
-# Battle rules: formulas, turn order, abilities, catching, special orbs, trainers, status conditions, trainer AI, items, PP, EXP (98 checks)
+# Battle rules: formulas, turn order, abilities, catching, special orbs, trainers, status conditions, confusion, flinching, draining, recoil, healing moves, switching between a trainer's monsters, trainer AI, items, PP, EXP (128 checks)
 godot --headless --path . --script res://tests/battle_test.gd
 # EXP curves, IVs, natures and evolution (20 checks)
 godot --headless --path . --script res://tests/monster_test.gd
-# Party, BOX (withdraw, deposit, release), BAG, money, MONDEX, badges and field moves, play time, flags and save/load round trips (55 checks)
+# Party, BOX (withdraw, deposit, release), BAG, money, MONDEX, badges and field moves, play time, REPEL steps, flags and save/load round trips (57 checks)
 godot --headless --path . --script res://tests/game_state_test.gd
-# Plays the whole game by injecting input: naming, starter, battles, nicknames, trainers, status, evolutions, MONDEX, buildings, shops, the PC, both GYMs and badges, the TRAINER CARD, the NAME RATER, Route 2 and Copperdale (145 checks)
+# Plays the whole game by injecting input: naming, starter, battles, nicknames, trainers, status, evolutions, MONDEX, buildings, shops, the PC, both GYMs and badges, the TRAINER CARD, the NAME RATER, Route 2 and Copperdale, OPTION, DEBUG, REVIVE and REPEL (157 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
 # Talks to every NPC and reads every sign on every map, from where a player can stand (63 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/npc_test.gd
