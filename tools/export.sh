@@ -13,6 +13,10 @@ GODOT="${GODOT:-godot}"
 cd "$(dirname "$0")/.."
 
 [ "$#" -gt 0 ] || set -- "Windows Desktop" Linux macOS Web
+# Keep Godot from importing the builds' own icons as project files, which
+# would then be packed into the next export.
+mkdir -p build
+touch build/.gdignore
 for preset in "$@"; do
 	case "$preset" in
 		"Windows Desktop") out=build/windows/MythicMons.exe ;;
