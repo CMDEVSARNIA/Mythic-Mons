@@ -131,6 +131,7 @@ func _intro() -> void:
 	title_screen.get_node(^"Logo").hide()
 	title_screen.get_node(^"Title").hide()
 	title_screen.show()
+	Audio.play_music(&"title")
 	await _fade_to(0.0)
 	Dialogue.show_picture(GameData.species(&"flamlet").front_texture)
 	await Dialogue.say([
@@ -156,6 +157,7 @@ func _intro() -> void:
 
 ## Shows CONTINUE / NEW GAME. Returns the saved location to resume, or {}.
 func _title_screen() -> Dictionary:
+	Audio.play_music(&"title")
 	title_screen.show()
 	var choice := -1
 	while choice < 0:
