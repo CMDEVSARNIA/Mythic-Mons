@@ -3,7 +3,7 @@ extends Resource
 ## An item that can be carried in the BAG. Saved as .tres files in
 ## res://data/items/, named by id; GameState.bag counts them by that id.
 
-enum Kind { BALL, HEAL, EVOLUTION }
+enum Kind { BALL, HEAL, EVOLUTION, CURE }
 ## Special orbs, after Gen 3's: when the condition holds, `bonus_multiplier`
 ## replaces `catch_multiplier`. LOW_LEVEL (NEST ORB) and TIMER (TIMER ORB)
 ## work out their own multiplier; see Battle.ball_multiplier().
@@ -30,6 +30,15 @@ enum Bonus { NONE, ELEMENT, IN_WATER, LOW_LEVEL, REPEAT, TIMER }
 
 @export_group("Heal")
 @export_range(1, 999) var heal_amount := 20
+
+@export_group("Cure")
+## Status conditions it cures; empty cures them all (FULL HEAL).
+@export var cures: Array[StringName] = []
+
+
+## True if this item (a CURE) would fix `status`.
+func cures_status(status: StringName) -> bool:
+	return kind == Kind.CURE and not status.is_empty() and (cures.is_empty() or status in cures)
 
 
 ## What a MART pays for one.

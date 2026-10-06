@@ -1,41 +1,53 @@
 [gd_resource type="Resource" script_class="MonsterSpecies" format=3]
 
-[ext_resource type="Resource" path="res://data/abilities/dread.tres" id="1_uuymq"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/duskwraith_back.png" id="2_c0t1i"]
-[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_c2uh6"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/duskwraith.png" id="4_3eixt"]
-[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_brjnf"]
-[ext_resource type="Resource" path="res://data/moves/lick.tres" id="6_pm52o"]
-[ext_resource type="Resource" path="res://data/moves/scary_face.tres" id="7_iqrkv"]
-[ext_resource type="Resource" path="res://data/moves/shade_orb.tres" id="8_5p3dn"]
-[ext_resource type="Resource" path="res://data/moves/phantasm.tres" id="9_dnhpv"]
-[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="10_5yahp"]
+[ext_resource type="Resource" path="res://data/abilities/dread.tres" id="1_c2uh6"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/duskwraith_back.png" id="2_3eixt"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_brjnf"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/duskwraith.png" id="4_pm52o"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_iqrkv"]
+[ext_resource type="Resource" path="res://data/moves/lick.tres" id="6_5p3dn"]
+[ext_resource type="Resource" path="res://data/moves/scary_face.tres" id="7_dnhpv"]
+[ext_resource type="Resource" path="res://data/moves/shade_orb.tres" id="8_5yahp"]
+[ext_resource type="Resource" path="res://data/moves/hypnosis.tres" id="9_cbfh5"]
+[ext_resource type="Resource" path="res://data/moves/wisp_fire.tres" id="10_tryqo"]
+[ext_resource type="Resource" path="res://data/moves/phantasm.tres" id="11_vyg5n"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="12_ol26g"]
 
-[sub_resource type="Resource" id="Resource_cbfh5"]
-script = ExtResource("5_brjnf")
-move = ExtResource("6_pm52o")
+[sub_resource type="Resource" id="Resource_j0w7x"]
+script = ExtResource("5_iqrkv")
+move = ExtResource("6_5p3dn")
 
-[sub_resource type="Resource" id="Resource_tryqo"]
-script = ExtResource("5_brjnf")
-move = ExtResource("7_iqrkv")
+[sub_resource type="Resource" id="Resource_046gi"]
+script = ExtResource("5_iqrkv")
+move = ExtResource("7_dnhpv")
 
-[sub_resource type="Resource" id="Resource_vyg5n"]
-script = ExtResource("5_brjnf")
+[sub_resource type="Resource" id="Resource_fiyla"]
+script = ExtResource("5_iqrkv")
 level = 8
-move = ExtResource("8_5p3dn")
+move = ExtResource("8_5yahp")
 
-[sub_resource type="Resource" id="Resource_ol26g"]
-script = ExtResource("5_brjnf")
+[sub_resource type="Resource" id="Resource_20gkh"]
+script = ExtResource("5_iqrkv")
+level = 12
+move = ExtResource("9_cbfh5")
+
+[sub_resource type="Resource" id="Resource_qtgnd"]
+script = ExtResource("5_iqrkv")
+level = 18
+move = ExtResource("10_tryqo")
+
+[sub_resource type="Resource" id="Resource_us6rf"]
+script = ExtResource("5_iqrkv")
 level = 24
-move = ExtResource("9_dnhpv")
+move = ExtResource("11_vyg5n")
 
 [resource]
-script = ExtResource("10_5yahp")
+script = ExtResource("12_ol26g")
 display_name = "DUSKWRAITH"
 element = "ghost"
-ability = ExtResource("1_uuymq")
-front_texture = ExtResource("4_3eixt")
-back_texture = ExtResource("2_c0t1i")
+ability = ExtResource("1_c2uh6")
+front_texture = ExtResource("4_pm52o")
+back_texture = ExtResource("2_3eixt")
 base_hp = 55
 base_attack = 60
 base_defense = 50
@@ -43,7 +55,7 @@ base_special = 125
 base_speed = 105
 growth = 2
 exp_yield = 160
-learnset = Array[ExtResource("5_brjnf")]([SubResource("Resource_cbfh5"), SubResource("Resource_tryqo"), SubResource("Resource_vyg5n"), SubResource("Resource_ol26g")])
+learnset = Array[ExtResource("5_iqrkv")]([SubResource("Resource_j0w7x"), SubResource("Resource_046gi"), SubResource("Resource_fiyla"), SubResource("Resource_20gkh"), SubResource("Resource_qtgnd"), SubResource("Resource_us6rf")])
 dex_number = 12
 category = "SHADE"
 height = 1.5

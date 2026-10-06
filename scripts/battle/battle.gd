@@ -21,10 +21,18 @@ extends RefCounted
 ##   throw_blocked {item}         a trainer knocks the ball away
 ##   shake     {}                 the ball wobbles (0-3 times)
 ##   caught    {} / break_free {}
+##   status    {side, status}     a status condition was inflicted ("" = cured)
+##   afflicted {side, status}     a status shows its effect (asleep, hurt by poison...)
 ##
 ## Damage is the Generation 3 formula (STAB 1.5x, type matchups, 1/16 crits
 ## worth 2x, a random 85-100% roll), simplified to the five stats of Monster.
 ## Catching uses the Generation 3 formula too (see catch_shakes()).
+##
+## Status conditions follow Gen 3: poison and burn cost 1/8 of max HP each
+## turn (and a burn halves physical damage), paralysis quarters SPEED and
+## stops 1 turn in 4, sleep lasts 2-5 turns, and a frozen monster thaws 1
+## turn in 5 or when hit by fire. Fainting clears them; otherwise they last
+## after the battle.
 ##
 ## Trainer battles (against_trainer()) follow Gen 3 as well: the trainer sends
 ## out its team one by one, you can't run, thrown balls are knocked away,
@@ -38,6 +46,24 @@ const ENEMY := &"enemy"
 const CRIT_CHANCE := 1.0 / 16.0
 const STRUGGLE_PATH := "res://data/moves/struggle.tres"
 const STAT_NAMES := {&"attack": "ATTACK", &"defense": "DEFENSE", &"special": "SPECIAL", &"speed": "SPEED"}
+## "%s" is the monster's battle name.
+const INFLICTED_TEXT := {
+	&"poison": "%s was\npoisoned!",
+	&"burn": "%s was\nburned!",
+	&"paralysis": "%s is\nparalyzed! It may be\nunable to move!",
+	&"sleep": "%s\nfell asleep!",
+	&"freeze": "%s was\nfrozen solid!",
+}
+const ALREADY_TEXT := {&"poison": "poisoned", &"burn": "burned", &"paralysis": "paralyzed", &"sleep": "asleep", &"freeze": "frozen"}
+const CURED_TEXT := {
+	&"poison": "%s was cured\nof poisoning.",
+	&"burn": "%s's burn\nwas healed.",
+	&"paralysis": "%s was cured\nof paralysis.",
+	&"sleep": "%s woke up.",
+	&"freeze": "%s was\ndefrosted.",
+}
+## Elements that can't get a status: fire monsters can't be burned.
+const STATUS_IMMUNITIES := {&"burn": [&"fire"], &"freeze": [&"ice"], &"poison": [&"poison", &"steel"]}
 ## What the game says after the ball breaks open, by how many times it shook.
 const BREAK_FREE_TEXT: Array[String] = [
 	"Oh, no! The MONSTER\nbroke free!",
@@ -196,6 +222,11 @@ func can_switch_to(party_index: int) -> bool:
 func catch_shakes(target: Monster, ball_multiplier: float) -> int:
 	var max_hp := target.max_hp()
 	var rate := (3 * max_hp - 2 * target.hp) * target.species.catch_rate * ball_multiplier / (3.0 * max_hp)
+	# A sleeping or frozen monster is twice as easy to catch; any other status, 1.5x.
+	if target.status in [&"sleep", &"freeze"]:
+		rate *= 2.0
+	elif not target.status.is_empty():
+		rate *= 1.5
 	if rate >= 255.0:
 		return 4
 	var shake_odds := floori(1048560.0 / sqrt(sqrt(16711680.0 / maxf(rate, 1.0))))
@@ -266,6 +297,8 @@ func calculate_damage(user: Battler, target: Battler, move: MoveData, crit: bool
 		modifier *= 1.5
 	if user.ability:
 		modifier *= user.ability.damage_multiplier(self, user, target, move)
+	if physical and user.monster.status == &"burn":
+		modifier *= 0.5
 	return maxi(1, floori(base * modifier))
 
 
@@ -292,6 +325,38 @@ func heal(battler: Battler, amount: int) -> int:
 	if monster.hp != before:
 		_push(&"hp", {"side": battler.side, "hp": monster.hp})
 	return monster.hp - before
+
+
+## Gives `battler` a status condition and reports it. Fails (quietly unless
+## `announce_fail`) if it already has one, is immune, or has fainted.
+func inflict(battler: Battler, status: StringName, announce_fail := false) -> bool:
+	var monster := battler.monster
+	if battler.is_fainted():
+		return false
+	if not monster.status.is_empty():
+		if announce_fail:
+			message("%s is\nalready %s!" % [battler.name, ALREADY_TEXT[monster.status]] if monster.status == status else "But it failed!")
+		return false
+	if StringName(battler.element) in STATUS_IMMUNITIES.get(status, []):
+		if announce_fail:
+			message("It doesn't affect\n%s..." % battler.name)
+		return false
+	monster.status = status
+	if status == &"sleep":
+		monster.sleep_turns = rng.randi_range(2, 5)
+	_push(&"status", {"side": battler.side, "status": status})
+	message(INFLICTED_TEXT[status] % battler.name)
+	return true
+
+
+## Clears `battler`'s status condition, saying so.
+func cure(battler: Battler) -> void:
+	var was := battler.monster.status
+	if was.is_empty():
+		return
+	battler.monster.cure()
+	_push(&"status", {"side": battler.side, "status": &""})
+	message(CURED_TEXT[was] % battler.name)
 
 
 ## Changes a stat stage and reports it. Returns false if it was already at the limit.
@@ -321,6 +386,8 @@ func change_stat(battler: Battler, stat: StringName, stages: int) -> bool:
 func _use_move(user: Battler, target: Battler, move: MoveData) -> void:
 	if outcome != Outcome.ONGOING or user.is_fainted():
 		return
+	if not _can_act(user):
+		return
 	_spend_pp(user, move)
 	message("%s used\n%s!" % [user.name, move.display_name])
 	var targets_self := not move.is_damaging() and move.stat_target == MoveData.Target.SELF
@@ -329,7 +396,10 @@ func _use_move(user: Battler, target: Battler, move: MoveData) -> void:
 		return
 	if not move.is_damaging():
 		_push(&"attack", {"side": user.side, "move": move})
-		_apply_stat_effect(user, target, move)
+		if not move.status_effect.is_empty():
+			inflict(target, move.status_effect, true)
+		if not move.stat_changes.is_empty():
+			_apply_stat_effect(user, target, move)
 		return
 
 	var effectiveness := TypeChart.multiplier(move.element, target.element)
@@ -358,6 +428,10 @@ func _use_move(user: Battler, target: Battler, move: MoveData) -> void:
 		return
 	if damage > 0 and target.ability:
 		target.ability.on_hit(self, target, user, move, damage)
+	if damage > 0 and move.element == "fire" and target.monster.status == &"freeze":
+		cure(target) # Fire melts the ice.
+	if not move.status_effect.is_empty() and rng.randi_range(1, 100) <= move.status_chance:
+		inflict(target, move.status_effect)
 	if not move.stat_changes.is_empty() and rng.randi_range(1, 100) <= move.effect_chance:
 		_apply_stat_effect(user, target, move)
 
@@ -371,6 +445,12 @@ func _use_item(item: ItemData) -> void:
 			_push(&"restore", {"side": player.side})
 			var healed := heal(player, item.heal_amount)
 			message("%s's HP was\nrestored by %d point%s." % [player.name, healed, "" if healed == 1 else "s"])
+		ItemData.Kind.CURE:
+			if item.cures_status(player.monster.status):
+				_push(&"restore", {"side": player.side})
+				cure(player)
+			else:
+				message("It had no effect.")
 
 
 func _throw_ball(ball: ItemData) -> void:
@@ -404,6 +484,7 @@ func _apply_stat_effect(user: Battler, target: Battler, move: MoveData) -> void:
 func _check_faint(battler: Battler) -> bool:
 	if not battler.is_fainted():
 		return false
+	battler.monster.cure()
 	_push(&"faint", {"side": battler.side})
 	message("%s fainted!" % battler.name, true)
 	if battler == enemy:
@@ -420,6 +501,47 @@ func _end_of_turn() -> void:
 			continue
 		battler.ability.on_turn_end(self, battler)
 		_check_faint(battler)
+	for battler in _by_speed():
+		var status := battler.monster.status
+		if outcome != Outcome.ONGOING or battler.is_fainted() or not status in [&"poison", &"burn"]:
+			continue
+		var monster := battler.monster
+		_push(&"afflicted", {"side": battler.side, "status": status})
+		monster.hp = maxi(monster.hp - maxi(1, floori(monster.max_hp() / 8.0)), 0)
+		_push(&"hp", {"side": battler.side, "hp": monster.hp})
+		message(("%s is hurt\nby poison!" if status == &"poison" else "%s is hurt\nby its burn!") % battler.name)
+		_check_faint(battler)
+
+
+## Sleep, freeze and paralysis can stop a monster from moving. Returns
+## false (after saying why) if `battler` loses its turn.
+func _can_act(battler: Battler) -> bool:
+	var monster := battler.monster
+	match monster.status:
+		&"sleep":
+			monster.sleep_turns -= 1
+			if monster.sleep_turns > 0:
+				_push(&"afflicted", {"side": battler.side, "status": &"sleep"})
+				message("%s is\nfast asleep." % battler.name)
+				return false
+			monster.cure()
+			_push(&"status", {"side": battler.side, "status": &""})
+			message("%s woke up!" % battler.name)
+		&"freeze":
+			if rng.randf() < 0.2:
+				monster.cure()
+				_push(&"status", {"side": battler.side, "status": &""})
+				message("%s thawed out!" % battler.name)
+			else:
+				_push(&"afflicted", {"side": battler.side, "status": &"freeze"})
+				message("%s is\nfrozen solid!" % battler.name)
+				return false
+		&"paralysis":
+			if rng.randf() < 0.25:
+				_push(&"afflicted", {"side": battler.side, "status": &"paralysis"})
+				message("%s is paralyzed!\nIt can't move!" % battler.name)
+				return false
+	return true
 
 
 func _switch_player(party_index: int, forced: bool) -> void:
@@ -448,15 +570,49 @@ func _player_move(index: int) -> MoveData:
 	return moves[index] if index >= 0 and index < moves.size() else _struggle()
 
 
-## Wild monsters pick a random move that still has PP.
+## Wild monsters pick a random move that still has PP. Trainers think a
+## little: they skip moves that would do nothing and usually pick the
+## strongest (see move_score()).
 func _enemy_move() -> MoveData:
-	var usable: Array[int] = []
+	var usable: Array[MoveData] = []
 	for i in enemy.monster.moves.size():
 		if enemy.monster.pp[i] > 0:
-			usable.append(i)
+			usable.append(enemy.monster.moves[i])
 	if usable.is_empty():
 		return _struggle()
-	return enemy.monster.moves[usable[rng.randi_range(0, usable.size() - 1)]]
+	if not is_trainer_battle():
+		return usable[rng.randi_range(0, usable.size() - 1)]
+	var useful: Array[MoveData] = []
+	var best: MoveData
+	for move in usable:
+		var score := move_score(enemy, player, move)
+		if score > 0.0:
+			useful.append(move)
+			if best == null or score > move_score(enemy, player, best):
+				best = move
+	if useful.is_empty():
+		return usable[rng.randi_range(0, usable.size() - 1)]
+	return best if rng.randf() < 0.75 else useful[rng.randi_range(0, useful.size() - 1)]
+
+
+## How good `move` looks for `user` against `target`: damage moves score
+## power x effectiveness x STAB x accuracy; status and stat moves score a flat
+## amount, or 0 when they'd fail (the foe already has a status, the stat is
+## maxed out).
+func move_score(user: Battler, target: Battler, move: MoveData) -> float:
+	if move.is_damaging():
+		var stab := 1.5 if move.element == user.element else 1.0
+		return move.power * TypeChart.multiplier(move.element, target.element) * stab * move.accuracy / 100.0
+	if not move.status_effect.is_empty():
+		var blocked: bool = not target.monster.status.is_empty() or StringName(target.element) in STATUS_IMMUNITIES.get(move.status_effect, [])
+		return 0.0 if blocked else 45.0
+	for stat: StringName in move.stat_changes:
+		var who := user if move.stat_target == MoveData.Target.SELF else target
+		var stage: int = who.stages[stat]
+		var change: int = move.stat_changes[stat]
+		if (change > 0 and stage < Battler.MAX_STAGE) or (change < 0 and stage > Battler.MIN_STAGE):
+			return 20.0
+	return 0.0
 
 
 func _struggle() -> MoveData:

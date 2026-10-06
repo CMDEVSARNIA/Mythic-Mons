@@ -64,8 +64,8 @@ func _refresh() -> void:
 	_art.texture = species.front_texture
 	var orb := GameData.item(monster.orb)
 	_orb.texture = orb.icon if orb else null
-	_header.text = "%s\nLv%d  %s\nHP %d/%d\n%s nature" % [monster.get_display_name(), monster.level,
-		species.element.to_upper(), monster.hp, monster.max_hp(), monster.nature]
+	_header.text = "%s\nLv%d  %s\nHP %d/%d  %s\n%s nature" % [monster.get_display_name(), monster.level,
+		species.element.to_upper(), monster.hp, monster.max_hp(), monster.status_tag(), monster.nature]
 	var next := "MAX" if monster.level >= Monster.MAX_LEVEL else str(monster.exp_to_next_level())
 	var ability := species.ability
 	_info.text = "EXP %d\nNEXT LV %s EXP\nABILITY: %s\n%s" % [monster.experience, next,

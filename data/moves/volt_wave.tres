@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/move_data.gd" id="1_1q63d"]
+
+[resource]
+script = ExtResource("1_1q63d")
+display_name = "VOLT WAVE"
+element = "electric"
+category = 2
+power = 0
+max_pp = 20
+status_effect = &"paralysis"
+description = "A weak jolt that paralyzes."
+animation = &"volt_wave"

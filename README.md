@@ -49,8 +49,8 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   seaside house, the **MONSTER CENTER** (red roof), where the nurse heals
   your team for free, and the **TIDEWATER MART** (blue roof). Like a
   department store, it has two counters: talk to a clerk across one to BUY
-  or SELL. The lower clerk sells MON, SUPER and HYPER ORBs and potions ($200
-  to $1200). The upper one sells the specialty orbs ($1000) and evolution
+  or SELL. The lower clerk sells MON, SUPER and HYPER ORBs, potions and
+  status cures ($100 to $1200). The upper one sells the specialty orbs ($1000) and evolution
   stones ($2100). Buy 10 MON ORBs at once and you get a GALA ORB free. You
   start with $3000, and the MART buys items back for half.
 - **FLY** from the start menu (Enter) to any town you've visited.
@@ -59,6 +59,27 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
 - **Wild battles** in tall grass, Emerald style: FIGHT / BAG / MON / RUN,
   type matchups, critical hits, stat changes, PP, EXP and level-ups that teach
   new moves. Losing sends you home with your party healed.
+- **Status conditions**, as in Gen 3:
+
+  | Condition | Effect |
+  |---|---|
+  | POISON | Costs 1/8 of max HP each turn, and 1 HP every 4 steps on the map (it wears off at 1 HP) |
+  | BURN | Costs 1/8 of max HP each turn and halves physical damage; fire types are immune |
+  | PARALYSIS | Quarters SPEED; 1 turn in 4 the monster can't move |
+  | SLEEP | Can't move for 2–5 turns |
+  | FREEZE | Can't move until it thaws (1 turn in 5) or is hit by fire |
+
+  New moves inflict them: POISON DUST, SLEEP DUST, VOLT WAVE, HYPNOSIS and
+  WISP FIRE. EMBER and HEAT WAVE may also burn, and SPARK, THUNDER and LICK
+  may paralyze. Statuses last after battle and show in the HP box, party
+  list and summary (PSN, BRN, PAR, SLP, FRZ). Cure them with an ANTIDOTE,
+  BURN HEAL, PARA HEAL, AWAKENING or FULL HEAL, in battle or from the BAG,
+  or at MOM's and the MONSTER CENTER. Fainting clears them. A sleeping or
+  frozen monster is twice as easy to catch, and any other status makes it
+  1.5× easier.
+- **Smarter trainers.** Trainers skip moves that would do nothing (a status
+  move on a monster that already has one) and usually pick their hardest
+  hitting option. Wild monsters still choose at random.
 - **Battle animations.** Your trainer throws your lead monster's orb, which
   pops open in a flash, and the monster grows out of the light. Every move
   has its own animation: flames, water jets, bubbles, whirling leaves,
@@ -182,13 +203,13 @@ from their CC0 sheets in `assets/`.
 ## Tests
 
 ```sh
-# Battle rules: formulas, turn order, abilities, catching, special orbs, trainers, items, PP, EXP (75 checks)
+# Battle rules: formulas, turn order, abilities, catching, special orbs, trainers, status conditions, trainer AI, items, PP, EXP (97 checks)
 godot --headless --path . --script res://tests/battle_test.gd
 # EXP curves, IVs, natures and evolution (20 checks)
 godot --headless --path . --script res://tests/monster_test.gd
-# Party, BOX, BAG, money, MONDEX, flags and save/load round trips (36 checks)
+# Party, BOX, BAG, money, MONDEX, flags and save/load round trips (37 checks)
 godot --headless --path . --script res://tests/game_state_test.gd
-# Plays the whole game by injecting input: starter, battles, trainers, evolutions, MONDEX, buildings, shops (96 checks)
+# Plays the whole game by injecting input: starter, battles, trainers, status, evolutions, MONDEX, buildings, shops (99 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
 # Talks to every NPC and reads every sign on every map, from where a player can stand (32 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/npc_test.gd

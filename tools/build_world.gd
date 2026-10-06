@@ -371,7 +371,8 @@ const MAPS := [
 			# Two counters, like a department store: everyday goods, and
 			# specialty orbs plus evolution stones.
 			[Vector2i(1, 2), "clerk", 0, [], {"scene": "clerk", "start_facing": 3,
-				"stock": ["mon_orb", "super_orb", "hyper_orb", "potion", "big_potion"]}],
+				"stock": ["mon_orb", "super_orb", "hyper_orb", "potion", "big_potion",
+					"antidote", "para_heal", "awakening", "burn_heal", "full_heal"]}],
 			[Vector2i(1, 1), "clerk", 0, [], {"scene": "clerk", "start_facing": 3,
 				"stock": ["net_orb", "dive_orb", "nest_orb", "repeat_orb", "timer_orb", "bolt_stone", "dusk_stone"]}],
 			[Vector2i(8, 4), "hiker", 1, ["I always stock up on\nPOTIONs before a long\ntrip.", "The upper counter sells\nspecial ORBs. A DIVE ORB\nis great at sea!", "Buy 10 MON ORBs at once\nand they throw in a\nGALA ORB for free!"]],

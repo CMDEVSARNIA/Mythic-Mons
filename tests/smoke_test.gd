@@ -204,13 +204,14 @@ func _run() -> void:
 	_check(not _player.is_locked(), "control returns after whiting out")
 
 	lead.hp = 3
+	lead.status = &"burn"
 	var mom: Node2D = _main.current_map.entities.get_node(^"NPC_Mom1")
 	mom.wander_radius = 0
 	mom.place_at(Vector2i(6, 3), Vector2i.DOWN)
 	await _place(Vector2i(6, 4), Vector2i.UP)
 	await _tap(&"confirm")
 	await _close_dialogue()
-	_check(lead.hp == lead.max_hp(), "MOM heals your MONSTERS")
+	_check(lead.hp == lead.max_hp() and lead.status.is_empty(), "MOM heals your MONSTERS, burns and all")
 
 	# --- Trainers --------------------------------------------------------------
 	# A borrowed champion, so the fights are quick and nothing evolves mid-test.
@@ -276,6 +277,33 @@ func _run() -> void:
 	_game_state.party.assign(team)
 	_main.change_map(MAPS + "house_emberfall.tscn", &"entrance")
 	await _wait(1.0)
+
+	# --- Status conditions outside battle ------------------------------------------
+	var sick: Resource = _game_state.party[0]
+	sick.status = &"poison"
+	sick.hp = 10
+	for i in 4:
+		_player.step_finished.emit(_player.get_cell())
+	await _wait(0.3)
+	_check(sick.hp == 9 and sick.status == &"poison", "poison costs 1 HP every 4 steps on the map")
+	sick.hp = 2
+	for i in 4:
+		_player.step_finished.emit(_player.get_cell())
+	await _wait(0.5)
+	_check(sick.hp == 1 and sick.status.is_empty() and _dialogue.is_open, "...and fades at 1 HP instead of fainting")
+	await _close_dialogue()
+	sick.status = &"poison"
+	_game_state.bag.assign({&"antidote": 1})
+	await _tap(&"menu")
+	await _tap(&"move_down")
+	await _tap(&"move_down") # BAG
+	await _tap(&"confirm")
+	await _tap(&"confirm") # ANTIDOTE
+	await _tap(&"confirm") # On the first party member.
+	await _close_dialogue()
+	_check(sick.status.is_empty() and not _game_state.bag.has(&"antidote"), "an ANTIDOTE from the BAG cures poison")
+	await _tap(&"cancel")
+	sick.heal_full()
 
 	# --- Start menu: party, summary, BAG, save -------------------------------
 	var party_menu: Control = _main.party_menu

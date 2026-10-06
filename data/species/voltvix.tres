@@ -1,54 +1,60 @@
 [gd_resource type="Resource" script_class="MonsterSpecies" format=3]
 
-[ext_resource type="Resource" path="res://data/abilities/jolt.tres" id="1_rmoxq"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/voltvix_back.png" id="2_64kfo"]
-[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_iqsfv"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/voltvix.png" id="4_g6o68"]
-[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_mj75i"]
-[ext_resource type="Resource" path="res://data/moves/quick_hit.tres" id="6_jwjma"]
-[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_42ru4"]
-[ext_resource type="Resource" path="res://data/moves/spark.tres" id="8_yo67j"]
-[ext_resource type="Resource" path="res://data/moves/volt_dash.tres" id="9_lw5a2"]
-[ext_resource type="Resource" path="res://data/moves/thunder.tres" id="10_shuta"]
-[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="11_io41o"]
-
-[sub_resource type="Resource" id="Resource_ckyjn"]
-script = ExtResource("5_mj75i")
-move = ExtResource("6_jwjma")
-
-[sub_resource type="Resource" id="Resource_ekvbv"]
-script = ExtResource("5_mj75i")
-move = ExtResource("7_42ru4")
+[ext_resource type="Resource" path="res://data/abilities/jolt.tres" id="1_64kfo"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/voltvix_back.png" id="2_iqsfv"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_g6o68"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/voltvix.png" id="4_mj75i"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_jwjma"]
+[ext_resource type="Resource" path="res://data/moves/quick_hit.tres" id="6_42ru4"]
+[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_yo67j"]
+[ext_resource type="Resource" path="res://data/moves/spark.tres" id="8_lw5a2"]
+[ext_resource type="Resource" path="res://data/moves/volt_wave.tres" id="9_shuta"]
+[ext_resource type="Resource" path="res://data/moves/volt_dash.tres" id="10_io41o"]
+[ext_resource type="Resource" path="res://data/moves/thunder.tres" id="11_ckyjn"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="12_ekvbv"]
 
 [sub_resource type="Resource" id="Resource_wkptt"]
-script = ExtResource("5_mj75i")
-level = 6
-move = ExtResource("8_yo67j")
+script = ExtResource("5_jwjma")
+move = ExtResource("6_42ru4")
 
 [sub_resource type="Resource" id="Resource_w82k7"]
-script = ExtResource("5_mj75i")
-level = 14
-move = ExtResource("9_lw5a2")
+script = ExtResource("5_jwjma")
+move = ExtResource("7_yo67j")
 
 [sub_resource type="Resource" id="Resource_gtjqe"]
-script = ExtResource("5_mj75i")
+script = ExtResource("5_jwjma")
+level = 6
+move = ExtResource("8_lw5a2")
+
+[sub_resource type="Resource" id="Resource_027la"]
+script = ExtResource("5_jwjma")
+level = 10
+move = ExtResource("9_shuta")
+
+[sub_resource type="Resource" id="Resource_6w8ck"]
+script = ExtResource("5_jwjma")
+level = 14
+move = ExtResource("10_io41o")
+
+[sub_resource type="Resource" id="Resource_h7h7a"]
+script = ExtResource("5_jwjma")
 level = 26
-move = ExtResource("10_shuta")
+move = ExtResource("11_ckyjn")
 
 [resource]
-script = ExtResource("11_io41o")
+script = ExtResource("12_ekvbv")
 display_name = "VOLTVIX"
 element = "electric"
-ability = ExtResource("1_rmoxq")
-front_texture = ExtResource("4_g6o68")
-back_texture = ExtResource("2_64kfo")
+ability = ExtResource("1_64kfo")
+front_texture = ExtResource("4_mj75i")
+back_texture = ExtResource("2_iqsfv")
 base_hp = 60
 base_attack = 85
 base_defense = 55
 base_special = 85
 base_speed = 115
 exp_yield = 160
-learnset = Array[ExtResource("5_mj75i")]([SubResource("Resource_ckyjn"), SubResource("Resource_ekvbv"), SubResource("Resource_wkptt"), SubResource("Resource_w82k7"), SubResource("Resource_gtjqe")])
+learnset = Array[ExtResource("5_jwjma")]([SubResource("Resource_wkptt"), SubResource("Resource_w82k7"), SubResource("Resource_gtjqe"), SubResource("Resource_027la"), SubResource("Resource_6w8ck"), SubResource("Resource_h7h7a")])
 dex_number = 10
 category = "STORM FOX"
 height = 0.9

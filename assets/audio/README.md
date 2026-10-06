@@ -10,6 +10,6 @@ Drop a file named after the id here and it is used instead (`.ogg`, `.wav` or
 | Folder   | Ids in use |
 |----------|------------|
 | `music/` | `town`, `route` (maps choose one with `WorldMap.music`), `battle`, `trainer_battle`, `spotted` (a trainer walking up to you), `victory` |
-| `sfx/`   | `bump`, `select`, `menu`, `door`, `jump`, `cut`, `smash`, `surf`, `fly`, `encounter`, `hit`, `hit_super`, `hit_weak`, `faint`, `stat_up`, `stat_down`, `flee`, `level_up`, `throw`, `ball_shake`, `break_free`, `catch`, `heal`, `purchase`, `evolve`, `exclaim`, `orb_open`, `orb_bounce`, `recall`, and the move sounds `swish`, `slash`, `burn`, `splash`, `bubble`, `leaf`, `zap`, `thunder`, `rock`, `ghost`, `growl`, `glint` |
+| `sfx/`   | `bump`, `select`, `menu`, `door`, `jump`, `cut`, `smash`, `surf`, `fly`, `encounter`, `hit`, `hit_super`, `hit_weak`, `faint`, `stat_up`, `stat_down`, `flee`, `level_up`, `throw`, `ball_shake`, `break_free`, `catch`, `heal`, `purchase`, `evolve`, `exclaim`, `poison`, `sleep`, `orb_open`, `orb_bounce`, `recall`, and the move sounds `swish`, `slash`, `burn`, `splash`, `bubble`, `leaf`, `zap`, `thunder`, `rock`, `ghost`, `growl`, `glint` |
 
 For music, enable **Loop** in the Import dock after adding the file.

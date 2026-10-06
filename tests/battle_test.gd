@@ -20,6 +20,8 @@ func _initialize() -> void:
 	_test_catching()
 	_test_special_orbs()
 	_test_trainer_battles()
+	_test_status_conditions()
+	_test_trainer_ai()
 	_test_items()
 	print("\nBATTLE TEST %s (%d failed)" % ["PASSED" if _failures == 0 else "FAILED", _failures])
 	quit(1 if _failures > 0 else 0)
@@ -254,6 +256,132 @@ func _test_trainer_battles() -> void:
 	battle.take_turn(Battle.fight(0))
 	_check(battle.outcome == Battle.Outcome.WON, "beating the last one wins")
 	_check(battle.prize_money() == 16 * 5, "prize money is payout x the last monster's level")
+
+
+func _test_status_conditions() -> void:
+	var hero := _monster(&"sproutle", 20)
+	_only_move(hero, &"poison_dust")
+	var foe := _monster(&"pebblet", 20)
+	_only_move(foe, &"harden")
+	var battle := _battle([hero], foe)
+	var events: Array[Dictionary] = []
+	for i in 10: # POISON DUST is 75% accurate.
+		events = battle.take_turn(Battle.fight(0))
+		if foe.status == &"poison":
+			break
+	_check(foe.status == &"poison" and _count(events, &"status") == 1 and _has_text(events, "poisoned!"), "POISON DUST poisons the foe")
+	var hurt := maxi(1, floori(foe.max_hp() / 8.0))
+	_check(_has_text(events, "hurt\nby poison"), "poison hurts at the end of the turn")
+	var before := foe.hp
+	events = battle.take_turn(Battle.fight(0))
+	_check(foe.hp == before - hurt, "poison costs 1/8 of max HP each turn")
+	var already := _has_text(events, "already poisoned")
+	while not already and battle.outcome == Battle.Outcome.ONGOING:
+		already = _has_text(battle.take_turn(Battle.fight(0)), "already poisoned")
+	_check(already and foe.status == &"poison", "a monster can't be poisoned twice")
+
+	var flamlet := _monster(&"flamlet", 20)
+	var wisp := _battle([_monster(&"shadeling", 20)], flamlet)
+	_check(not wisp.inflict(wisp.enemy, &"burn") and flamlet.status.is_empty(), "fire monsters can't be burned")
+
+	var attacker := Battler.new(_monster(&"flamlet", 20), Battle.PLAYER)
+	var target := Battler.new(_monster(&"sproutle", 20), Battle.ENEMY)
+	var scratch := GameData.move(&"scratch")
+	var normal := battle.calculate_damage(attacker, target, scratch, false, 1.0, 100)
+	attacker.monster.status = &"burn"
+	_check(battle.calculate_damage(attacker, target, scratch, false, 1.0, 100) == floori(normal / 2.0) or battle.calculate_damage(attacker, target, scratch, false, 1.0, 100) <= ceili(normal / 2.0), "a burn halves physical damage")
+	var ember := GameData.move(&"ember")
+	attacker.monster.status = &""
+	var special := battle.calculate_damage(attacker, target, ember, false, 1.0, 100)
+	attacker.monster.status = &"burn"
+	_check(battle.calculate_damage(attacker, target, ember, false, 1.0, 100) == special, "...but not special damage")
+
+	var runner := Battler.new(_monster(&"zapkit", 30), Battle.PLAYER)
+	var fast := runner.stat(&"speed")
+	runner.monster.status = &"paralysis"
+	_check(runner.stat(&"speed") == floori(fast / 4.0), "paralysis quarters SPEED")
+	var stuck := 0
+	for i in 400:
+		if not battle._can_act(runner):
+			stuck += 1
+	_check(stuck > 70 and stuck < 130, "paralysis stops about 1 turn in 4 (%d of 400)" % stuck)
+
+	var sleeper := _monster(&"aquapup", 20)
+	_only_move(sleeper, &"tackle")
+	var dozer := _monster(&"pebblet", 20)
+	_only_move(dozer, &"harden")
+	battle = _battle([sleeper], dozer)
+	battle.inflict(battle.player, &"sleep")
+	_check(sleeper.status == &"sleep" and sleeper.sleep_turns >= 2 and sleeper.sleep_turns <= 5, "sleep lasts 2 to 5 turns")
+	events = battle.take_turn(Battle.fight(0))
+	_check(_has_text(events, "fast asleep") and not _used_move(events, "AQUAPUP"), "a sleeping monster can't move")
+	var woke := false
+	for i in 5:
+		events = battle.take_turn(Battle.fight(0))
+		if _has_text(events, "woke up!"):
+			woke = _used_move(events, "AQUAPUP") and sleeper.status.is_empty()
+			break
+	_check(woke, "...then wakes up and acts that turn")
+
+	var ice := _monster(&"sproutle", 20)
+	ice.status = &"freeze"
+	var torch := _monster(&"flamlet", 20)
+	_only_move(torch, &"ember")
+	battle = _battle([torch], ice)
+	_only_move(ice, &"harden")
+	events = battle.take_turn(Battle.fight(0))
+	_check(ice.status.is_empty() or ice.is_fainted(), "fire thaws a frozen monster")
+
+	var poisoned := _monster(&"sproutle", 5)
+	poisoned.status = &"poison"
+	battle = _battle([_monster(&"flamlet", 50)], poisoned)
+	poisoned.hp = 1
+	battle.take_turn(Battle.fight(0))
+	_check(poisoned.is_fainted() and poisoned.status.is_empty(), "fainting clears a status")
+
+	var patient := _monster(&"flamlet", 10)
+	patient.status = &"burn"
+	_only_move(patient, &"growl")
+	battle = _battle([patient], _monster(&"pebblet", 5))
+	_only_move(battle.enemy.monster, &"harden")
+	events = battle.take_turn(Battle.use_item(GameData.item(&"antidote")))
+	_check(patient.status == &"burn" and _has_text(events, "no effect"), "an ANTIDOTE doesn't heal a burn")
+	events = battle.take_turn(Battle.use_item(GameData.item(&"full_heal")))
+	_check(patient.status.is_empty() and _has_text(events, "burn\nwas healed"), "a FULL HEAL cures anything")
+	_check(GameData.item(&"awakening").cures_status(&"sleep") and not GameData.item(&"awakening").cures_status(&"poison"), "each cure knows what it cures")
+
+	battle = _battle([_monster(&"flamlet", 5)], _monster(&"sproutle", 3))
+	var awake_rate := _catch_rate(battle, 1.0, 1)
+	battle.enemy.monster.status = &"sleep"
+	_check(_catch_rate(battle, 1.0, 1) > awake_rate, "sleeping monsters are easier to catch")
+
+	var carried := _monster(&"sproutle", 10)
+	carried.status = &"paralysis"
+	carried.heal_full()
+	_check(carried.status.is_empty(), "healing (MOM, the MONSTER CENTER) clears a status")
+
+
+func _test_trainer_ai() -> void:
+	var lass: TrainerData = load("res://data/trainers/lass_mia.tres")
+	var hero := _monster(&"aquapup", 10)
+	hero.status = &"poison"
+	var foe := _monster(&"sproutle", 10)
+	foe.moves.assign([GameData.move(&"poison_dust"), GameData.move(&"tackle")])
+	foe.pp = [35, 35]
+	var team: Array[Monster] = [foe]
+	var battle := Battle.against_trainer([hero], lass, team)
+	_check(battle.move_score(battle.enemy, battle.player, GameData.move(&"poison_dust")) == 0.0, "trainer AI sees a status move would fail")
+	var picks := {}
+	for i in 30:
+		picks[battle._enemy_move().display_name] = true
+	_check(picks.keys() == ["TACKLE"], "...and never wastes a turn on it")
+	foe.moves.assign([GameData.move(&"tackle"), GameData.move(&"vine_whip")])
+	hero.status = &""
+	var vine := 0
+	for i in 200:
+		if battle._enemy_move().display_name == "VINE WHIP":
+			vine += 1
+	_check(vine > 140, "trainer AI favors super effective moves (%d of 200)" % vine)
 
 
 func _test_items() -> void:

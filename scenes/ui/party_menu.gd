@@ -128,11 +128,14 @@ func _refresh() -> void:
 	for i in party.size():
 		var label: Label = _rows.get_child(i).get_child(0)
 		var marker := "▶" if i == _index else ("*" if i == _moving else " ")
-		label.text = "%s %-9s Lv%d" % [marker, party[i].get_display_name(), party[i].level]
+		var tag := party[i].status_tag() # A status shows instead of the level, as in Emerald.
+		label.text = "%s %-9s %s" % [marker, party[i].get_display_name(), tag if not tag.is_empty() else "Lv%d" % party[i].level]
 	if party.is_empty():
 		return
 	var monster := party[_index]
 	_art.texture = monster.species.front_texture
 	var status := "FAINTED" if monster.is_fainted() else monster.species.element.to_upper()
+	if not monster.status_tag().is_empty():
+		status += " " + monster.status_tag()
 	_details.text = "%d/%d\n%s" % [monster.hp, monster.max_hp(), status]
 	_hint.text = "Move to where?" if _moving >= 0 else _hint_text

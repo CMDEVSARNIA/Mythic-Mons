@@ -23,6 +23,12 @@ enum Target { FOE, SELF }
 ## Chance (percent) that the stat effect happens. Status moves use 100.
 @export_range(0, 100) var effect_chance := 100
 
+@export_group("Status Effect")
+## A status condition (one of Monster.STATUSES) the move inflicts on the foe:
+## always for a STATUS move that hits, otherwise with status_chance.
+@export var status_effect: StringName
+@export_range(0, 100) var status_chance := 100
+
 @export_multiline var description := ""
 ## Which MoveAnimator recipe plays when the move is used (see
 ## MoveAnimator.RECIPES). Leave empty to pick one from the element and

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/awakening.png" id="1_eme8c"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="2_3hwor"]
+
+[resource]
+script = ExtResource("2_3hwor")
+display_name = "AWAKENING"
+description = "Wakes up a sleeping
+MONSTER."
+kind = 3
+icon = ExtResource("1_eme8c")
+price = 250
+cures = Array[StringName]([&"sleep"])

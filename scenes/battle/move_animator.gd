@@ -12,7 +12,11 @@ extends Node2D
 
 const EFFECT_DIR := "res://assets/placeholder/effects/"
 const EFFECTS: Array[StringName] = [&"flame", &"drop", &"bubble", &"leaf", &"rock", &"spark",
-	&"shadow", &"glint", &"arrow_up", &"arrow_down", &"impact", &"slash"]
+	&"shadow", &"glint", &"arrow_up", &"arrow_down", &"impact", &"slash", &"sleep_z"]
+## Tints that recolor effect sprites for status moves and conditions.
+const POISON_TINT := Color(1.1, 0.55, 1.3)
+const WISP_TINT := Color(0.5, 1.2, 1.6)
+const DUST_TINT := Color(1.4, 1.3, 0.8)
 const SIZE := 2.0
 const CLEAR := Color(0, 0, 0, 0)
 
@@ -26,6 +30,8 @@ const RECIPES := {
 	&"rock_throw": &"_rock_throw", &"rock_slide": &"_rock_slide", &"spark": &"_spark",
 	&"thunder": &"_thunder", &"shade_orb": &"_shade_orb", &"phantasm": &"_phantasm",
 	&"growl": &"_growl", &"leer": &"_leer", &"scary_face": &"_scary_face", &"harden": &"_harden",
+	&"poison_dust": &"_poison_dust", &"sleep_dust": &"_sleep_dust", &"volt_wave": &"_volt_wave",
+	&"hypnosis": &"_hypnosis", &"wisp_fire": &"_wisp_fire",
 }
 ## Recipes for moves without their own, by element.
 const PHYSICAL_FALLBACK := {&"fire": &"flame_dash", &"water": &"water_gun", &"grass": &"vine_whip",
@@ -34,9 +40,10 @@ const SPECIAL_FALLBACK := {&"fire": &"ember", &"water": &"water_gun", &"grass": 
 	&"rock": &"rock_throw", &"electric": &"spark", &"ghost": &"shade_orb"}
 
 
-## A sound-wave arc for GROWL.
+## A sound-wave arc for GROWL (white) and HYPNOSIS (pink).
 class SoundArc extends Node2D:
 	var facing := 0.0
+	var color := PixelArt.WHITE
 	var radius := 4.0:
 		set(value):
 			radius = value
@@ -44,7 +51,7 @@ class SoundArc extends Node2D:
 
 	func _draw() -> void:
 		draw_arc(Vector2.ZERO, radius, facing - 0.9, facing + 0.9, 10, PixelArt.INK, 4.0)
-		draw_arc(Vector2.ZERO, radius, facing - 0.9, facing + 0.9, 10, PixelArt.WHITE, 2.0)
+		draw_arc(Vector2.ZERO, radius, facing - 0.9, facing + 0.9, 10, color, 2.0)
 
 
 ## Tints the battle backdrop behind the monsters (HEAT WAVE, PHANTASM...).
@@ -119,6 +126,39 @@ func stat_arrows(sprite: Sprite2D, rise: bool) -> void:
 		tween.parallel().tween_property(arrow, "position:y", arrow.position.y + step, 0.45)
 		tween.tween_property(arrow, "modulate:a", 0.0, 0.1)
 		tween.tween_callback(arrow.queue_free)
+
+
+## A status condition shows on `sprite`: purple bubbles for poison, flames
+## for a burn, sparks for paralysis, Zs for sleep, frost for freeze.
+func status_effect(sprite: Sprite2D, status: StringName) -> void:
+	var at := sprite.position
+	match status:
+		&"poison":
+			for i in 4:
+				var bubble := _spawn(&"bubble", at + Vector2(-15.0 + 10.0 * i, 10.0), 1.0 + 0.5 * (i % 2))
+				bubble.modulate = POISON_TINT
+				_fly(bubble, bubble.position + Vector2(0.0, -30.0), 0.5)
+				await _wait(0.08)
+			await _tint_sprite(sprite, Color(1.3, 0.7, 1.4))
+		&"burn":
+			for i in 3:
+				_pop(&"flame", at + Vector2(-14.0 + 14.0 * i, 6.0 - 6.0 * (i % 2)), 0.35, 1.0, 2.0)
+				await _wait(0.08)
+			await _tint_sprite(sprite, Color(1.5, 0.8, 0.6))
+		&"paralysis":
+			for i in 3:
+				_pop(&"spark", at + Vector2(-16.0 + 16.0 * i, -10.0 + 10.0 * (i % 2)), 0.2, 1.0, 2.0)
+			await _shake(sprite, 2.0, 6, 0.03)
+			await _wait(0.1)
+		&"sleep":
+			for i in 3:
+				var z := _spawn(&"sleep_z", at + Vector2(10.0, -14.0), 1.0 + 0.5 * i)
+				_fly(z, z.position + Vector2(18.0 + 6.0 * i, -22.0), 0.6, 4.0)
+				await _wait(0.2)
+			await _wait(0.3)
+		&"freeze":
+			_burst(&"glint", at, 6, 20.0, 0.4, 1.5)
+			await _tint_sprite(sprite, Color(0.7, 1.2, 1.6))
 
 
 ## Green sparkles rising around a monster being healed.
@@ -419,6 +459,64 @@ func _harden() -> void:
 	await _wait(0.1)
 
 
+# --- Status moves --------------------------------------------------------------
+
+func _poison_dust() -> void:
+	Audio.play_sfx(&"swish")
+	await _dust(POISON_TINT)
+
+
+func _sleep_dust() -> void:
+	Audio.play_sfx(&"swish")
+	await _dust(DUST_TINT)
+
+
+func _volt_wave() -> void:
+	Audio.play_sfx(&"zap")
+	var dir := (_target.position - _user.position).normalized()
+	for i in 3:
+		var arc := SoundArc.new()
+		arc.facing = dir.angle()
+		arc.color = PixelArt.SAND
+		arc.position = _user.position + dir * 14.0
+		add_child(arc)
+		var tween := create_tween().set_parallel()
+		tween.tween_property(arc, "position", _target.position, 0.35)
+		tween.tween_property(arc, "radius", 12.0, 0.35)
+		tween.chain().tween_callback(arc.queue_free)
+		await _wait(0.1)
+	await _wait(0.25)
+	await _burst(&"spark", _target.position, 4, 16.0, 0.25, 1.5).finished
+
+
+func _hypnosis() -> void:
+	Audio.play_sfx(&"glint")
+	var dir := (_target.position - _user.position).normalized()
+	for i in 4:
+		var arc := SoundArc.new()
+		arc.facing = dir.angle()
+		arc.color = PixelArt.PINK
+		arc.position = _user.position + dir * 14.0
+		add_child(arc)
+		var tween := create_tween().set_parallel()
+		tween.tween_property(arc, "position", _target.position, 0.6)
+		tween.tween_property(arc, "radius", 18.0, 0.6)
+		tween.tween_property(arc, "modulate:a", 0.0, 0.6).set_ease(Tween.EASE_IN)
+		tween.chain().tween_callback(arc.queue_free)
+		await _wait(0.15)
+	await _wait(0.5)
+
+
+func _wisp_fire() -> void:
+	Audio.play_sfx(&"ghost")
+	for i in 3:
+		var wisp := _spawn(&"flame", _user.position + Vector2(0.0, -10.0 + 10.0 * i), 1.5)
+		wisp.modulate = WISP_TINT
+		_fly(wisp, _target.position + Vector2(-8.0 + 8.0 * i, -4.0), 0.6, 16.0 if i % 2 == 0 else -16.0)
+		await _wait(0.12)
+	await _wait(0.55)
+
+
 # --- Building blocks -----------------------------------------------------------
 
 func _spawn(effect: StringName, at: Vector2, size := SIZE) -> Sprite2D:
@@ -562,6 +660,31 @@ func _shake(sprite: Sprite2D, amount := 3.0, times := 4, step := 0.04) -> void:
 	for i in times:
 		tween.tween_property(sprite, "position:x", home_x + (amount if i % 2 == 0 else -amount), step)
 	tween.tween_property(sprite, "position:x", home_x, step)
+	await tween.finished
+
+
+## Tinted specks drift from the user over the target (POISON DUST, SLEEP DUST).
+func _dust(tint: Color) -> void:
+	for i in 8:
+		var speck := _spawn(&"glint", _user.position, 1.0)
+		speck.modulate = tint
+		var aim := _target.position + Vector2(-16.0 + 4.0 * i, -14.0 + 4.0 * (i % 3))
+		_fly(speck, aim, 0.6, 12.0 if i % 2 == 0 else -6.0, TAU)
+		await _wait(0.05)
+	await _wait(0.45)
+	for i in 5:
+		var fall := _spawn(&"glint", _target.position + Vector2(-16.0 + 8.0 * i, -20.0), 1.0)
+		fall.modulate = tint
+		_fly(fall, fall.position + Vector2(0.0, 24.0), 0.4)
+	await _wait(0.4)
+
+
+## Washes `sprite` in `color` twice, then back to normal.
+func _tint_sprite(sprite: Sprite2D, color: Color) -> void:
+	var tween := create_tween()
+	for i in 2:
+		tween.tween_property(sprite, "modulate", color, 0.12)
+		tween.tween_property(sprite, "modulate", Color.WHITE, 0.12)
 	await tween.finished
 
 

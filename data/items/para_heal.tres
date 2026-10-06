@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/para_heal.png" id="1_ignrg"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="2_fk05g"]
+
+[resource]
+script = ExtResource("2_fk05g")
+display_name = "PARA HEAL"
+description = "Cures a paralyzed
+MONSTER."
+kind = 3
+icon = ExtResource("1_ignrg")
+price = 200
+cures = Array[StringName]([&"paralysis"])

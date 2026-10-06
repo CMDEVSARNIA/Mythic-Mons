@@ -13,6 +13,11 @@ const MAX_LEVEL := 100
 const MAX_MOVES := 4
 const MAX_IV := 31
 const STATS: Array[StringName] = [&"hp", &"attack", &"defense", &"special", &"speed"]
+## Gen 3's major status conditions; a monster has at most one. They last
+## outside battle too, until cured or healed.
+const STATUSES: Array[StringName] = [&"poison", &"burn", &"paralysis", &"sleep", &"freeze"]
+## How menus and HP boxes show them.
+const STATUS_TAGS := {&"poison": "PSN", &"burn": "BRN", &"paralysis": "PAR", &"sleep": "SLP", &"freeze": "FRZ"}
 ## Nature -> [stat raised 10%, stat lowered 10%]; the same stat twice means
 ## neutral. Like Generation 3's 25, over our four non-HP stats.
 const NATURES := {
@@ -39,6 +44,10 @@ const NATURES := {
 ## Id of the orb it was caught in (starters come in a MON ORB). It's sent
 ## out of this orb, and the summary shows it.
 @export var orb: StringName = &"mon_orb"
+## One of STATUSES, or empty when healthy.
+@export var status: StringName = &""
+## Turns left asleep (Gen 3: 2-5, counted down each time it tries to move).
+@export var sleep_turns := 0
 @export var moves: Array[MoveData] = []
 ## Remaining PP, one entry per move.
 @export var pp: PackedInt32Array = []
@@ -100,8 +109,19 @@ func is_fainted() -> bool:
 
 func heal_full() -> void:
 	hp = max_hp()
+	cure()
 	for i in moves.size():
 		pp[i] = moves[i].max_pp
+
+
+func cure() -> void:
+	status = &""
+	sleep_turns = 0
+
+
+## "PSN", "SLP"... or "" when healthy.
+func status_tag() -> String:
+	return STATUS_TAGS.get(status, "")
 
 
 func has_usable_move() -> bool:
@@ -167,6 +187,8 @@ func to_dict() -> Dictionary:
 		"ivs": ivs,
 		"nature": String(nature),
 		"orb": String(orb),
+		"status": String(status),
+		"sleep_turns": sleep_turns,
 		"moves": move_ids,
 		"pp": Array(pp),
 	}
@@ -199,6 +221,10 @@ static func from_dict(data: Dictionary) -> Monster:
 		if move and monster.learn(move):
 			monster.pp[-1] = clampi(int(saved_pp[i]) if i < saved_pp.size() else move.max_pp, 0, move.max_pp)
 	monster.hp = clampi(int(data.get("hp", monster.max_hp())), 0, monster.max_hp())
+	var saved_status := StringName(str(data.get("status", "")))
+	if saved_status in STATUSES and monster.hp > 0:
+		monster.status = saved_status
+		monster.sleep_turns = clampi(int(data.get("sleep_turns", 0)), 0, 5) if saved_status == &"sleep" else 0
 	return monster
 
 

@@ -7,7 +7,7 @@ extends RefCounted
 ## drawn at 1x: the "!" over a trainer who spots you, and the orbs that count
 ## each side's team at the start of a trainer battle.
 
-const OUTLINED: Array[StringName] = [&"flame", &"drop", &"leaf", &"rock", &"spark", &"shadow", &"arrow_up", &"arrow_down", &"impact"]
+const OUTLINED: Array[StringName] = [&"sleep_z", &"flame", &"drop", &"leaf", &"rock", &"spark", &"shadow", &"arrow_up", &"arrow_down", &"impact"]
 
 const EFFECTS := {
 	&"flame": [
@@ -158,6 +158,15 @@ const EFFECTS := {
 		"................",
 		"................",
 		"................",
+	],
+	&"sleep_z": [
+		".......",
+		".WWWWW.",
+		"....W..",
+		"...W...",
+		"..W....",
+		".WWWWW.",
+		".......",
 	],
 	&"exclaim": [
 		"................",

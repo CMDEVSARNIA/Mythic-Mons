@@ -221,10 +221,10 @@ and badges.
 |---|---|
 | `MonsterSpecies` (`data/species/*.tres`) | Name, element, ability, front/back sprites, 5 base stats, catch rate, EXP yield, EXP curve (`growth`), learnset (`LevelMove` entries), `evolutions`, MONDEX number and entry |
 | `Evolution` (inside a species) | What it evolves `into`, and how: `LEVEL` (at `level` or above) or `ITEM` (an evolution stone's id) |
-| `MoveData` (`data/moves/*.tres`) | Name, element, PHYSICAL/SPECIAL/STATUS, power, accuracy, PP, priority, optional stat changes, the `animation` recipe |
-| `ItemData` (`data/items/*.tres`) | Name, kind (BALL/HEAL/EVOLUTION), price, description, a 16 × 16 `icon`; orbs add a catch multiplier, a special-orb `bonus`, and an `open_icon` |
+| `MoveData` (`data/moves/*.tres`) | Name, element, PHYSICAL/SPECIAL/STATUS, power, accuracy, PP, priority, optional stat changes, an optional `status_effect` (with `status_chance` for damaging moves), the `animation` recipe |
+| `ItemData` (`data/items/*.tres`) | Name, kind (BALL/HEAL/EVOLUTION/CURE), price, description, a 16 × 16 `icon`; orbs add a catch multiplier, a special-orb `bonus`, and an `open_icon`; cures list the statuses they fix (`cures`, empty = all) |
 | `Ability` subclasses (`data/abilities/*.tres`) | A configured behavior, e.g. `ElementBoostAbility` with element = fire is KINDLE |
-| `Monster` (runtime, a Resource so it can be saved) | Species, level, EXP, current HP, IVs, nature, the orb it was caught in, moves and remaining PP |
+| `Monster` (runtime, a Resource so it can be saved) | Species, level, EXP, current HP, IVs, nature, the orb it was caught in, its status condition (and sleep turns left), moves and remaining PP |
 
 Stats follow Generation 3 with two simplifications: five stats (HP, ATTACK,
 DEFENSE, SPECIAL, SPEED, where one SPECIAL serves for both attack and defense
@@ -321,6 +321,40 @@ to the orb's id, and `GameState.add_monster()` puts the monster in the
 party, or in
 `GameState.storage` (the BOX) when the party has six. A caught monster keeps
 its current HP and earns you no EXP, as in Gen 3.
+
+### Status conditions
+
+`Monster.status` is one of `Monster.STATUSES` (poison, burn, paralysis,
+sleep, freeze) or empty. It's saved with the monster and lasts outside
+battle until cured. `heal_full()` (MOM, the MONSTER CENTER) and fainting
+clear it. In `Battle`:
+
+- `inflict(battler, status)` checks that the monster has no status yet and
+  isn't immune (`STATUS_IMMUNITIES`: fire can't burn). It then sets the
+  status (sleep rolls 2–5 turns) and emits a `status` event. A STATUS move with a
+  `status_effect` always tries when it hits. A damaging move tries with
+  `status_chance`.
+- `_can_act()` runs before each move: sleep counts down, freeze thaws 1 in 5
+  (fire hits thaw it too), paralysis stops 1 turn in 4. A lost turn emits an
+  `afflicted` event and uses no PP.
+- At the end of each turn, poison and burn cost 1/8 of max HP. A burn
+  halves physical damage in `calculate_damage()`, and paralysis quarters
+  SPEED in `Battler.stat()`. `catch_shakes()` adds Gen 3's status bonus (2×
+  for sleep or freeze, 1.5× for the rest).
+- `ItemData.Kind.CURE` items call `cure()` in battle. Main uses them from the
+  BAG too.
+
+BattleScene shows a `status` event as the tag in the HP box
+(`BattlerPanel.show_status()`). It plays `MoveAnimator.status_effect()`
+(bubbles, flames, sparks, Zs, frost) for both `status` and `afflicted`. On
+the map, Main counts the player's steps: every 4, poisoned party members
+lose 1 HP, and the poison fades at 1 HP.
+
+Trainer AI: `Battle._enemy_move()` stays random for wild monsters. For
+trainers it scores each move with `move_score()`: power × effectiveness ×
+STAB × accuracy for attacks, a flat score for status and stat moves, and 0
+when a move would fail. It then takes the best 75% of the time and a random
+useful move otherwise.
 
 ### Trainers
 
@@ -507,19 +541,21 @@ marks the new species as caught in the MONDEX.
   abilities, winning, losing, forced switches, running, PP, STRUGGLE,
   level-ups, catch odds, every special orb's bonus, trainer battles (teams,
   the rival's counter-pick, no running, blocked orbs, sending out the next
-  monster, 1.5× EXP and prize money), orbs and POTIONs (75 checks).
+  monster, 1.5× EXP and prize money), every status condition and cure, the
+  trainer AI, orbs and POTIONs (97 checks).
 - `tests/monster_test.gd` covers the four EXP curves, IV ranges, every
   nature turning up, nature effects on stats, level and stone evolution
   (what's kept and what changes), and that evolutions share their
   pre-evolution's curve (20 checks).
 - `tests/game_state_test.gd` covers the party, BOX, BAG limits, money, the
-  MONDEX, flags, monster serialization (natures and orbs included, and older
-  saves without them), a full save/load round trip, and corrupt or
-  newer-version saves (36 checks). It uses its own save file.
+  MONDEX, flags, monster serialization (natures, orbs and statuses included,
+  and older saves without them), a full save/load round trip, and corrupt or
+  newer-version saves (37 checks). It uses its own save file.
 - `tests/smoke_test.gd` plays the real game by injecting input: movement,
   signs, NPCs, CUT, doors, the starter gate and PROF. ASTER's starter,
   ledges, ROCK SMASH, a won battle whose level-up evolution is stopped with
-  B, a catch (which remembers its orb), a whiteout, MOM's healing, three
+  B, a catch (which remembers its orb), a whiteout, MOM's healing (statuses
+  too), poison on the map, an ANTIDOTE from the BAG, three
   trainers (spotted and walked up to, talked to from behind with RUN
   refused, and the rival's counter-pick), prize money and a beaten trainer
   who just chats, the
@@ -529,7 +565,7 @@ marks the new species as caught in the MONDEX.
   ORBs (and the free GALA ORB), selling, a DIVE ORB from the specialty
   counter, a BOLT STONE from the BAG (on the wrong monster, then on ZAPKIT),
   healing at the MONSTER CENTER, entering and leaving every building, and
-  FLY (96 checks).
+  FLY (99 checks).
   It uses its own save file.
 - `tests/npc_test.gd` visits every map and talks to every NPC and sign,
   standing where a player could (a reachable neighboring cell, counting CUT,

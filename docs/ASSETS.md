@@ -153,7 +153,8 @@ only, a mirrored copy of the front makes a passable back sprite.
 ![The ten orbs and their catch bonuses](images/orbs.png)
 
 Item icons are 16 × 16 ASCII grids in `scripts/art/item_designs.gd`, colored
-by `PixelArt.ITEMS`: ten orbs, two potions and two evolution stones. They
+by `PixelArt.ITEMS`: ten orbs, two potions, five status cures (recolors of
+the potion bottle) and two evolution stones. They
 show in the BAG and MART, and orbs are thrown in battle. Every orb keeps one
 silhouette (13 pixels across, with the band on row 8). That way
 `PixelArt.orb_open()` can lift any orb's lid for its "open" frame, and they
@@ -162,7 +163,8 @@ half, add its colors to `PixelArt.ITEMS`, add a row to `ITEMS` in
 `tools/build_game_data.gd`, and rebuild.
 
 Battle effects (flame, drop, bubble, leaf, rock, spark, shadow, glint, stat
-arrows, impact and claw marks) are in `scripts/art/effect_designs.gd`.
+arrows, impact, claw marks and the sleep Z; status effects reuse them with a
+tint) are in `scripts/art/effect_designs.gd`.
 `MoveAnimator` loads them by name from `assets/placeholder/effects/`, so a
 pack's sprite with the same name replaces one. Vines and lightning are drawn
 as lines at runtime.

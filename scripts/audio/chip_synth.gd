@@ -178,6 +178,14 @@ static func sfx(id: StringName) -> AudioStreamWAV:
 				fanfare.append(tone(Wave.PULSE_25, hz, hz, 0.09, 0.22, 0.18))
 			fanfare.append(tone(Wave.PULSE_25, 1318.51, 1318.51, 0.5, 0.22))
 			samples = sequence(fanfare)
+		&"poison":
+			var drips: Array[PackedFloat32Array] = []
+			for hz: float in [520.0, 440.0, 370.0]:
+				drips.append(tone(Wave.PULSE_25, hz, hz * 0.7, 0.06, 0.22))
+				drips.append(silence(0.03))
+			samples = sequence(drips)
+		&"sleep":
+			samples = sequence([tone(Wave.TRIANGLE, 660.0, 440.0, 0.25, 0.35, 0.2), tone(Wave.TRIANGLE, 520.0, 330.0, 0.3, 0.3)])
 		&"exclaim":
 			samples = sequence([tone(Wave.PULSE_25, 1318.5, 1318.5, 0.05, 0.25, 0.2), tone(Wave.PULSE_25, 1975.5, 1975.5, 0.12, 0.25)])
 		&"orb_open":

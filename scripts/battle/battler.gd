@@ -42,9 +42,12 @@ func is_fainted() -> bool:
 	return monster.is_fainted()
 
 
-## The stat including its current stage.
+## The stat including its current stage. Paralysis quarters SPEED (Gen 3).
 func stat(stat_name: StringName) -> int:
-	return stat_at_stage(stat_name, stages.get(stat_name, 0))
+	var value := stat_at_stage(stat_name, stages.get(stat_name, 0))
+	if stat_name == &"speed" and monster.status == &"paralysis":
+		value = maxi(1, floori(value / 4.0))
+	return value
 
 
 func stat_at_stage(stat_name: StringName, stage: int) -> int:

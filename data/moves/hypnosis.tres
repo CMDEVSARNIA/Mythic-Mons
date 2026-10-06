@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/move_data.gd" id="1_hqc03"]
+
+[resource]
+script = ExtResource("1_hqc03")
+display_name = "HYPNOSIS"
+category = 2
+power = 0
+accuracy = 60
+max_pp = 20
+status_effect = &"sleep"
+description = "A hypnotic gaze that causes sleep."
+animation = &"hypnosis"

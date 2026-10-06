@@ -5,6 +5,11 @@ extends PanelContainer
 
 @export var show_details := false
 
+const STATUS_COLORS := {
+	&"poison": PixelArt.MAUVE, &"burn": PixelArt.RED, &"paralysis": PixelArt.ORANGE,
+	&"sleep": PixelArt.SLATE, &"freeze": PixelArt.SKY,
+}
+
 var _monster: Monster
 ## The HP currently drawn; tweened so the bar and numbers count down together.
 var _shown_hp := 0.0:
@@ -14,6 +19,7 @@ var _shown_hp := 0.0:
 
 @onready var _name: Label = $Rows/Header/Name
 @onready var _level: Label = $Rows/Header/Level
+@onready var _status: Label = $Rows/Header/Status
 @onready var _hp_bar: StatBar = $Rows/HpRow/HpBar
 @onready var _hp_text: Label = $Rows/HpText
 @onready var _exp_bar: StatBar = $Rows/ExpBar
@@ -31,6 +37,13 @@ func show_monster(monster: Monster) -> void:
 	_level.text = "Lv%d" % monster.level
 	_shown_hp = monster.hp
 	_exp_bar.ratio = monster.exp_progress()
+	show_status(monster.status)
+
+
+## Updates just the status tag (PSN, SLP...), leaving the HP bar alone.
+func show_status(status: StringName) -> void:
+	_status.text = Monster.STATUS_TAGS.get(status, "")
+	_status.add_theme_color_override(&"font_color", STATUS_COLORS.get(status, PixelArt.INK))
 
 
 func animate_hp(target_hp: int) -> void:

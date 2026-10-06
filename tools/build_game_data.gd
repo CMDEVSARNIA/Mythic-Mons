@@ -34,23 +34,29 @@ const MOVES := {
 	"leer": ["LEER", "normal", STATUS, 0, 100, 30, 0, {&"defense": -1}, FOE, 100, "Lowers the foe's DEFENSE."],
 	"harden": ["HARDEN", "normal", STATUS, 0, 100, 30, 0, {&"defense": 1}, SELF, 100, "Raises the user's DEFENSE."],
 	"scary_face": ["SCARY FACE", "normal", STATUS, 0, 90, 10, 0, {&"speed": -2}, FOE, 100, "Sharply lowers the foe's SPEED."],
-	"ember": ["EMBER", "fire", SPECIAL, 40, 100, 25, 0, {}, FOE, 0, "A small burst of flame."],
-	"flame_dash": ["FLAME DASH", "fire", PHYSICAL, 60, 95, 20, 0, {}, FOE, 0, "A charge wreathed in fire."],
+	"ember": ["EMBER", "fire", SPECIAL, 40, 100, 25, 0, {}, FOE, 0, "Small flames that may burn.", ["burn", 10]],
+	"flame_dash": ["FLAME DASH", "fire", PHYSICAL, 60, 95, 20, 0, {}, FOE, 0, "A fiery charge that may burn.", ["burn", 10]],
 	"water_gun": ["WATER GUN", "water", SPECIAL, 40, 100, 25, 0, {}, FOE, 0, "Squirts water at the foe."],
 	"bubblebeam": ["BUBBLEBEAM", "water", SPECIAL, 65, 100, 20, 0, {&"speed": -1}, FOE, 10, "May lower the foe's SPEED."],
 	"vine_whip": ["VINE WHIP", "grass", PHYSICAL, 45, 100, 25, 0, {}, FOE, 0, "Strikes with slender vines."],
 	"razor_leaf": ["RAZOR LEAF", "grass", SPECIAL, 55, 95, 25, 0, {}, FOE, 0, "Launches sharp-edged leaves."],
 	"rock_throw": ["ROCK THROW", "rock", PHYSICAL, 50, 90, 15, 0, {}, FOE, 0, "Hurls a small rock."],
-	"spark": ["SPARK", "electric", SPECIAL, 40, 100, 30, 0, {}, FOE, 0, "A jolt of electricity."],
-	"volt_dash": ["VOLT DASH", "electric", PHYSICAL, 65, 95, 15, 0, {}, FOE, 0, "A crackling tackle."],
-	"lick": ["LICK", "ghost", PHYSICAL, 30, 100, 30, 0, {}, FOE, 0, "An eerie, chilling lick."],
+	"spark": ["SPARK", "electric", SPECIAL, 40, 100, 30, 0, {}, FOE, 0, "A jolt that may paralyze.", ["paralysis", 30]],
+	"volt_dash": ["VOLT DASH", "electric", PHYSICAL, 65, 95, 15, 0, {}, FOE, 0, "A crackling tackle; may paralyze.", ["paralysis", 10]],
+	"lick": ["LICK", "ghost", PHYSICAL, 30, 100, 30, 0, {}, FOE, 0, "An eerie lick that may paralyze.", ["paralysis", 30]],
 	"shade_orb": ["SHADE ORB", "ghost", SPECIAL, 60, 100, 15, 0, {&"special": -1}, FOE, 20, "May lower the foe's SPECIAL."],
-	"heat_wave": ["HEAT WAVE", "fire", SPECIAL, 90, 90, 10, 0, {}, FOE, 0, "A scorching blast of hot air."],
+	"heat_wave": ["HEAT WAVE", "fire", SPECIAL, 90, 90, 10, 0, {}, FOE, 0, "Scorching air that may burn.", ["burn", 10]],
 	"aqua_blast": ["AQUA BLAST", "water", SPECIAL, 90, 90, 10, 0, {}, FOE, 0, "A crashing jet of seawater."],
 	"leaf_storm": ["LEAF STORM", "grass", SPECIAL, 90, 90, 10, 0, {}, FOE, 0, "A whirlwind of razor leaves."],
 	"rock_slide": ["ROCK SLIDE", "rock", PHYSICAL, 75, 90, 10, 0, {}, FOE, 0, "Buries the foe under boulders."],
-	"thunder": ["THUNDER", "electric", SPECIAL, 110, 70, 10, 0, {}, FOE, 0, "A huge but wild lightning bolt."],
+	"thunder": ["THUNDER", "electric", SPECIAL, 110, 70, 10, 0, {}, FOE, 0, "A huge, wild bolt; may paralyze.", ["paralysis", 30]],
 	"phantasm": ["PHANTASM", "ghost", SPECIAL, 85, 100, 10, 0, {&"attack": -1}, FOE, 20, "May lower the foe's ATTACK."],
+	# Status moves: the last entry is [status condition, chance].
+	"poison_dust": ["POISON DUST", "grass", STATUS, 0, 75, 35, 0, {}, FOE, 0, "Scatters a toxic dust that poisons.", ["poison", 100]],
+	"sleep_dust": ["SLEEP DUST", "grass", STATUS, 0, 75, 15, 0, {}, FOE, 0, "Scatters a dust that causes sleep.", ["sleep", 100]],
+	"volt_wave": ["VOLT WAVE", "electric", STATUS, 0, 100, 20, 0, {}, FOE, 0, "A weak jolt that paralyzes.", ["paralysis", 100]],
+	"hypnosis": ["HYPNOSIS", "normal", STATUS, 0, 60, 20, 0, {}, FOE, 0, "A hypnotic gaze that causes sleep.", ["sleep", 100]],
+	"wisp_fire": ["WISP FIRE", "fire", STATUS, 0, 75, 15, 0, {}, FOE, 0, "Ghostly flames that burn.", ["burn", 100]],
 	"struggle": ["STRUGGLE", "normal", PHYSICAL, 50, 100, 1, 0, {}, FOE, 0, "Used only when no move has PP left."],
 }
 
@@ -80,10 +86,10 @@ const SPECIES := {
 		[[1, "tackle"], [1, "growl"], [7, "water_gun"], [13, "harden"], [19, "bubblebeam"], [28, "aqua_blast"]],
 		"Rides the waves along the coast, its fin crest cutting the spray."],
 	"sproutle": ["SPROUTLE", "grass", "sunsoak", [45, 49, 49, 65, 45], 190, 50,
-		[[1, "tackle"], [3, "growl"], [7, "vine_whip"], [15, "razor_leaf"]],
+		[[1, "tackle"], [3, "growl"], [7, "vine_whip"], [10, "poison_dust"], [15, "razor_leaf"], [20, "sleep_dust"]],
 		"Naps in sunny patches of tall grass, soaking up light through its leaves."],
 	"grovetle": ["GROVETLE", "grass", "sunsoak", [62, 64, 72, 82, 55], 45, 141,
-		[[1, "tackle"], [3, "growl"], [7, "vine_whip"], [15, "razor_leaf"], [30, "leaf_storm"]],
+		[[1, "tackle"], [3, "growl"], [7, "vine_whip"], [10, "poison_dust"], [15, "razor_leaf"], [20, "sleep_dust"], [30, "leaf_storm"]],
 		"A small tree takes root on its back. Birds nest in its branches."],
 	"pebblet": ["PEBBLET", "rock", "sturdy_shell", [40, 80, 100, 30, 20], 190, 60,
 		[[1, "tackle"], [1, "harden"], [8, "rock_throw"], [16, "scary_face"]],
@@ -92,16 +98,16 @@ const SPECIES := {
 		[[1, "tackle"], [1, "harden"], [8, "rock_throw"], [16, "scary_face"], [24, "rock_slide"]],
 		"Crystals grow from its shoulders. It can sleep standing up for years."],
 	"zapkit": ["ZAPKIT", "electric", "jolt", [35, 55, 30, 50, 90], 190, 56,
-		[[1, "quick_hit"], [1, "growl"], [6, "spark"], [14, "volt_dash"]],
+		[[1, "quick_hit"], [1, "growl"], [6, "spark"], [10, "volt_wave"], [14, "volt_dash"]],
 		"Its ears crackle with static. Touching them makes your hair stand up."],
 	"voltvix": ["VOLTVIX", "electric", "jolt", [60, 85, 55, 85, 115], 45, 160,
-		[[1, "quick_hit"], [1, "growl"], [6, "spark"], [14, "volt_dash"], [26, "thunder"]],
+		[[1, "quick_hit"], [1, "growl"], [6, "spark"], [10, "volt_wave"], [14, "volt_dash"], [26, "thunder"]],
 		"Its mane crackles with lightning. It can outrun a thunderclap."],
 	"shadeling": ["SHADELING", "ghost", "dread", [30, 35, 30, 100, 80], 120, 62,
-		[[1, "lick"], [1, "scary_face"], [8, "shade_orb"]],
+		[[1, "lick"], [1, "scary_face"], [8, "shade_orb"], [12, "hypnosis"], [18, "wisp_fire"]],
 		"Lurks in the shadows of old houses and giggles at night."],
 	"duskwraith": ["DUSKWRAITH", "ghost", "dread", [55, 60, 50, 125, 105], 45, 160,
-		[[1, "lick"], [1, "scary_face"], [8, "shade_orb"], [24, "phantasm"]],
+		[[1, "lick"], [1, "scary_face"], [8, "shade_orb"], [12, "hypnosis"], [18, "wisp_fire"], [24, "phantasm"]],
 		"Drifts through town at dusk, grinning at anyone still outside."],
 }
 
@@ -120,6 +126,7 @@ const EVOLUTIONS := {
 const BALL := ItemData.Kind.BALL
 const HEAL := ItemData.Kind.HEAL
 const EVOLUTION := ItemData.Kind.EVOLUTION
+const CURE := ItemData.Kind.CURE
 
 ## id: [name, kind, catch multiplier or heal amount, price (0 = not sold),
 ##      description, optional extra properties]
@@ -144,6 +151,11 @@ const ITEMS := {
 	"gala_orb": ["GALA ORB", BALL, 1.0, 200, "A rare orb made to\ncelebrate a MART\nopening."],
 	"potion": ["POTION", HEAL, 20, 300, "Restores 20 HP to\none MONSTER."],
 	"big_potion": ["BIG POTION", HEAL, 50, 700, "Restores 50 HP to\none MONSTER."],
+	"antidote": ["ANTIDOTE", CURE, 0, 100, "Cures a poisoned\nMONSTER.", {"cures": [&"poison"]}],
+	"burn_heal": ["BURN HEAL", CURE, 0, 250, "Heals a MONSTER's\nburn.", {"cures": [&"burn"]}],
+	"para_heal": ["PARA HEAL", CURE, 0, 200, "Cures a paralyzed\nMONSTER.", {"cures": [&"paralysis"]}],
+	"awakening": ["AWAKENING", CURE, 0, 250, "Wakes up a sleeping\nMONSTER.", {"cures": [&"sleep"]}],
+	"full_heal": ["FULL HEAL", CURE, 0, 600, "Cures any status\ncondition.", {"cures": []}],
 	"bolt_stone": ["BOLT STONE", EVOLUTION, 0, 2100, "Makes certain MONSTERS\nevolve. It crackles\nwith static."],
 	"dusk_stone": ["DUSK STONE", EVOLUTION, 0, 2100, "Makes certain MONSTERS\nevolve. It's cold to\nthe touch."],
 }
@@ -213,6 +225,9 @@ func _build_move(id: String, row: Array) -> MoveData:
 	move.stat_target = row[8]
 	move.effect_chance = row[9] if not changes.is_empty() else 100
 	move.description = row[10]
+	if row.size() > 11:
+		move.status_effect = StringName(row[11][0])
+		move.status_chance = row[11][1]
 	move.animation = StringName(id) # MoveAnimator has a recipe for every built-in move.
 	return move
 
@@ -308,6 +323,8 @@ func _build_item(id: String, row: Array) -> ItemData:
 	for property: String in extras:
 		if property == "bonus_elements":
 			item.bonus_elements.assign(extras[property])
+		elif property == "cures":
+			item.cures.assign(extras[property])
 		else:
 			item.set(property, extras[property])
 	return item

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/move_data.gd" id="1_kdo2r"]
+
+[resource]
+script = ExtResource("1_kdo2r")
+display_name = "SLEEP DUST"
+element = "grass"
+category = 2
+power = 0
+accuracy = 75
+max_pp = 15
+status_effect = &"sleep"
+description = "Scatters a dust that causes sleep."
+animation = &"sleep_dust"

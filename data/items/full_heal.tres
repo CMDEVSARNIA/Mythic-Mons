@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/full_heal.png" id="1_q3i6e"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="2_sb4ff"]
+
+[resource]
+script = ExtResource("2_sb4ff")
+display_name = "FULL HEAL"
+description = "Cures any status
+condition."
+kind = 3
+icon = ExtResource("1_q3i6e")
+price = 600

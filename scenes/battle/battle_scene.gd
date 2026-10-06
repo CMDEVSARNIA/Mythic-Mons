@@ -32,6 +32,7 @@ const RED_LIGHT := Color(3, 1.3, 1.3)
 ## On-screen height of a monster: 32x32 sprites are doubled, 64x64 sprites
 ## (the size most monster packs use) are drawn as they are.
 const SPRITE_HEIGHT := 64.0
+const STATUS_SOUNDS := {&"poison": &"poison", &"burn": &"burn", &"paralysis": &"zap", &"sleep": &"sleep", &"freeze": &"glint"}
 ## _choose_move() result when the player backs out of the move list.
 const CANCELLED := -2
 
@@ -203,7 +204,9 @@ func _choose_item() -> StringName:
 		if index < 0 or index >= ids.size():
 			break
 		var monster := battle.player.monster
-		if items[index].kind == ItemData.Kind.HEAL and monster.hp >= monster.max_hp():
+		var useless := (items[index].kind == ItemData.Kind.HEAL and monster.hp >= monster.max_hp()) \
+			or (items[index].kind == ItemData.Kind.CURE and not items[index].cures_status(monster.status))
+		if useless:
 			await _say(["It won't have any effect."])
 			continue
 		picked = ids[index]
@@ -218,7 +221,8 @@ func _choose_item() -> StringName:
 func _choose_party_member(forced: bool) -> int:
 	var options := PackedStringArray()
 	for monster in battle.party:
-		options.append("%-9s Lv%-3d%3d/%3d" % [monster.get_display_name(), monster.level, monster.hp, monster.max_hp()])
+		var tag := monster.status_tag()
+		options.append("%-9s %-5s%3d/%3d" % [monster.get_display_name(), tag if not tag.is_empty() else "Lv%d" % monster.level, monster.hp, monster.max_hp()])
 	if not forced:
 		options.append("CANCEL")
 	while true:
@@ -268,6 +272,10 @@ func _play(events: Array[Dictionary]) -> void:
 				Audio.play_sfx(&"flee")
 			&"restore":
 				await _restore(side)
+			&"status":
+				await _status(side, event.status)
+			&"afflicted":
+				await _afflicted(side, event.status)
 			&"throw":
 				await _throw(event.item)
 			&"throw_blocked":
@@ -476,6 +484,19 @@ func _faint(side: StringName) -> void:
 	sprite.region_enabled = false
 	sprite.position = PLAYER_HOME if side == Battle.PLAYER else ENEMY_HOME
 	_panel(side).hide()
+
+
+## A status condition was inflicted (or cured, when `status` is empty).
+func _status(side: StringName, status: StringName) -> void:
+	_panel(side).show_status(status)
+	if not status.is_empty():
+		await _afflicted(side, status)
+
+
+## A status shows its effect: bubbles for poison, Zs for sleep...
+func _afflicted(side: StringName, status: StringName) -> void:
+	Audio.play_sfx(STATUS_SOUNDS.get(status, &"select"))
+	await _effects.status_effect(_sprite(side), status)
 
 
 func _restore(side: StringName) -> void:

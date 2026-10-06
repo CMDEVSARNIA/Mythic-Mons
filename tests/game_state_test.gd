@@ -62,6 +62,8 @@ func _test_monster_round_trip() -> void:
 	original.nickname = "BLAZE"
 	original.nature = &"ADAMANT"
 	original.orb = &"dive_orb"
+	original.status = &"sleep"
+	original.sleep_turns = 3
 	original.hp = 7
 	original.pp[0] = 3
 	var copy := Monster.from_dict(JSON.parse_string(JSON.stringify(original.to_dict())))
@@ -70,6 +72,7 @@ func _test_monster_round_trip() -> void:
 	_check(copy.moves == original.moves and copy.pp == original.pp and copy.ivs == original.ivs, "moves, PP and IVs are kept")
 	_check(copy.nature == &"ADAMANT", "the nature is kept")
 	_check(copy.orb == &"dive_orb", "the orb it was caught in is kept")
+	_check(copy.status == &"sleep" and copy.sleep_turns == 3, "a status condition is kept")
 	var old_save := original.to_dict()
 	old_save.erase("nature")
 	old_save.erase("orb")

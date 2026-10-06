@@ -10,11 +10,14 @@ extends Node
 const FADE_SECONDS := 0.25
 const BATTLE_SCENE := preload("res://scenes/battle/battle_scene.tscn")
 const EVOLUTION_SCENE := preload("res://scenes/battle/evolution_scene.tscn")
+## Overworld poison hurts every this many steps.
+const POISON_STEPS := 4
 
 @export_file("*.tscn") var start_map := "res://scenes/maps/town_emberfall.tscn"
 @export var start_spawn: StringName = &"default"
 
 var current_map: WorldMap
+var _steps := 0
 
 @onready var world: Node2D = $World
 @onready var player: Player = $Player
@@ -36,6 +39,7 @@ func _ready() -> void:
 	Events.wild_encounter.connect(_on_wild_encounter)
 	Events.trainer_spotted.connect(_on_trainer_spotted)
 	Events.trainer_battle.connect(_on_trainer_battle)
+	player.step_finished.connect(_on_player_step)
 	player.lock()
 	var location := {}
 	if GameState.has_save():
@@ -195,7 +199,7 @@ func _use_item(id: StringName, item: ItemData) -> void:
 	if item.kind == ItemData.Kind.EVOLUTION:
 		await _use_evolution_item(id)
 		return
-	if item.kind != ItemData.Kind.HEAL:
+	if item.kind != ItemData.Kind.HEAL and item.kind != ItemData.Kind.CURE:
 		await Dialogue.say(["There's a time and place\nfor that... This isn't it."])
 		return
 	if GameState.party.is_empty():
@@ -205,6 +209,16 @@ func _use_item(id: StringName, item: ItemData) -> void:
 	if target < 0:
 		return
 	var monster := GameState.party[target]
+	if item.kind == ItemData.Kind.CURE:
+		if not item.cures_status(monster.status):
+			await Dialogue.say(["It won't have any effect."])
+			return
+		var was: StringName = monster.status
+		monster.cure()
+		GameState.remove_item(id)
+		Audio.play_sfx(&"heal")
+		await Dialogue.say([Battle.CURED_TEXT[was] % monster.get_display_name()])
+		return
 	if monster.is_fainted() or monster.hp >= monster.max_hp():
 		await Dialogue.say(["It won't have any effect."])
 		return
@@ -316,6 +330,38 @@ func _on_trainer_battle(trainer: TrainerData) -> void:
 		GameState.set_flag(trainer.defeat_flag())
 	elif outcome == Battle.Outcome.LOST:
 		await _white_out()
+	player.unlock()
+
+
+## Every 4 steps, poisoned party members lose 1 HP, as in Gen 3, but the
+## poison wears off at 1 HP instead of fainting them (as in later games).
+func _on_player_step(_cell: Vector2i) -> void:
+	if player.is_locked():
+		return # A warp, encounter or trainer is taking over.
+	_steps += 1
+	if _steps % POISON_STEPS != 0:
+		return
+	var recovered: Array[String] = []
+	var hurt := false
+	for monster in GameState.party:
+		if monster.status != &"poison" or monster.is_fainted():
+			continue
+		monster.hp = maxi(monster.hp - 1, 1)
+		hurt = true
+		if monster.hp == 1:
+			monster.cure()
+			recovered.append(monster.get_display_name())
+	if not hurt:
+		return
+	Audio.play_sfx(&"poison")
+	fade.color = Color(PixelArt.PLUM, 0.35) # A purple flash, as in Emerald.
+	await get_tree().create_timer(0.1).timeout
+	fade.color = Color(0.0, 0.0, 0.0, 0.0)
+	if recovered.is_empty():
+		return
+	player.lock()
+	for monster_name in recovered:
+		await Dialogue.say(["%s survived the\npoisoning! The poison\nfaded away!" % monster_name])
 	player.unlock()
 
 
