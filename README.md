@@ -7,9 +7,9 @@ built with **Godot 4.7** and GDScript.
 
 So far: tile-locked movement, a multi-town world, dialogue, field moves,
 a starter from the local professor, animated turn-based battles against
-wild monsters and trainers (including your rival), unique abilities, EXP and
-level-ups, evolution, catching with ten kinds of orb, a MONDEX, a MART, a
-party screen, and saving.
+wild monsters and trainers (including your rival), the first GYM and its
+badge, unique abilities, EXP and level-ups, evolution, catching with ten
+kinds of orb, a MONDEX, a MART, a party screen, a TRAINER CARD, and saving.
 The world (towns, routes, interiors, signs and the battle backdrop) is built
 from ArMM1998's CC0 overworld tileset, with matching pieces drawn for this
 project in its colors. The characters, monsters, items, battle effects,
@@ -46,7 +46,7 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   hiker trapped behind a **ROCK SMASH** boulder, and three trainers: LASS
   MIA, YOUNGSTER TIM, and your rival REN guarding the way north.
 - **Tidewater City.** A beach and an island you reach with **SURF**, a
-  seaside house, the **MONSTER CENTER** (red roof), where the nurse heals
+  seaside house, the **TIDEWATER GYM** (teal roof), the **MONSTER CENTER** (red roof), where the nurse heals
   your team for free and the PC in the corner manages the BOX, and the
   **TIDEWATER MART** (blue roof). Like a
   department store, it has two counters: talk to a clerk across one to BUY
@@ -54,7 +54,19 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   status cures ($100 to $1200). The upper one sells the specialty orbs ($1000) and evolution
   stones ($2100). Buy 10 MON ORBs at once and you get a GALA ORB free. You
   start with $3000, and the MART buys items back for half.
+- **The TIDEWATER GYM.** A pool crossed by one walkway, where SWIMMERs
+  LUCA and NIA each watch a crossing, and LEADER MARINA waits at the far end
+  with AQUAPUP, PEBBLET and TIDEHOUND (levels 11 to 14) and her own battle
+  music. A guide by the door has a type tip. Beat her for the **TIDE BADGE**
+  and $1400.
+- **Badges unlock field moves**, as in Emerald. CUT and ROCK SMASH work from
+  the start; SURF and FLY need the TIDE BADGE. Until then, the water is just
+  "dyed a deep blue...".
 - **FLY** from the start menu (Enter) to any town you've visited.
+- **TRAINER CARD** (CARD in the start menu): your name, money, MONDEX count,
+  play time and badge case.
+
+  ![The TIDEWATER GYM, LEADER MARINA's battle, the TIDE BADGE and the TRAINER CARD](docs/images/gym.png)
 - Emerald-style feel: tap to turn in place, hold to walk, bump into walls,
   run at double speed, location banner on entering a map, typewriter text box.
 - **Wild battles** in tall grass, Emerald style: FIGHT / BAG / MON / RUN,
@@ -210,11 +222,11 @@ from their CC0 sheets in `assets/`.
 godot --headless --path . --script res://tests/battle_test.gd
 # EXP curves, IVs, natures and evolution (20 checks)
 godot --headless --path . --script res://tests/monster_test.gd
-# Party, BOX (withdraw, deposit, release), BAG, money, MONDEX, flags and save/load round trips (44 checks)
+# Party, BOX (withdraw, deposit, release), BAG, money, MONDEX, badges and field moves, play time, flags and save/load round trips (53 checks)
 godot --headless --path . --script res://tests/game_state_test.gd
-# Plays the whole game by injecting input: starter, battles, trainers, status, evolutions, MONDEX, buildings, shops, the PC (103 checks)
+# Plays the whole game by injecting input: starter, battles, trainers, status, evolutions, MONDEX, buildings, shops, the PC, the GYM and badge, the TRAINER CARD (117 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
-# Talks to every NPC and reads every sign on every map, from where a player can stand (32 checks)
+# Talks to every NPC and reads every sign on every map, from where a player can stand (37 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/npc_test.gd
 ```
 
@@ -232,13 +244,13 @@ your real save.
    shake animation, and caught monsters joining the party or BOX.
 4. ~~**Party & starter.**~~ Done: PROF. ASTER's starter, party screen and
    summary, BAG outside battle, MOM healing, save/load with a title screen.
-5. **Field-move gating.** Unlock CUT/SURF/FLY through party moves and badges
-   instead of the prototype's all-unlocked default.
-6. **Content.** Nicknames, a GYM and badges, more routes, towns and
+5. ~~**Field-move gating.**~~ Done: SURF and FLY need the TIDE BADGE.
+   Later badges can unlock more (add them to `GameState.BADGES`).
+6. **Content.** Nicknames, more GYMs and badges, more routes, towns and
    trainers, and more real art from the sources in ASSETS.md. ~~A mart~~,
    ~~a Monster Center~~, ~~enterable buildings~~, ~~trainers with
-   line-of-sight battles~~, ~~status conditions~~ and ~~a PC for the BOX~~
-   are done.
+   line-of-sight battles~~, ~~status conditions~~, ~~a PC for the BOX~~,
+   ~~the first GYM~~ and ~~a TRAINER CARD~~ are done.
 7. **Stat depth.** Split SPECIAL into SP. ATK and SP. DEF, and add EVs
    (effort points from each defeated monster), as in Gen 3.
 

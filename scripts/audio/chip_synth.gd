@@ -186,6 +186,12 @@ static func sfx(id: StringName) -> AudioStreamWAV:
 			samples = sequence(drips)
 		&"sleep":
 			samples = sequence([tone(Wave.TRIANGLE, 660.0, 440.0, 0.25, 0.35, 0.2), tone(Wave.TRIANGLE, 520.0, 330.0, 0.3, 0.3)])
+		&"badge":
+			var fanfare: Array[PackedFloat32Array] = []
+			for hz: float in [587.33, 739.99, 880.0, 1174.66, 880.0, 1174.66, 1479.98]:
+				fanfare.append(tone(Wave.PULSE_25, hz, hz, 0.1, 0.22, 0.18))
+			fanfare.append(tone(Wave.PULSE_25, 1760.0, 1760.0, 0.6, 0.22))
+			samples = sequence(fanfare)
 		&"pc_on":
 			samples = sequence([tone(Wave.PULSE_25, 523.25, 523.25, 0.05, 0.2, 0.15), tone(Wave.PULSE_25, 783.99, 783.99, 0.05, 0.2, 0.15), tone(Wave.PULSE_25, 1046.5, 1046.5, 0.1, 0.2)])
 		&"pc_off":

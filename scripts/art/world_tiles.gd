@@ -5,7 +5,7 @@ extends RefCounted
 ## sheet, plus interior tiles drawn in that sheet's colors.
 
 const ATLAS := "res://assets/world/world_tiles.png"
-const ATLAS_SIZE := Vector2i(20, 7)
+const ATLAS_SIZE := Vector2i(25, 7)
 
 ## Single tiles: outdoors on the top row, indoors on the bottom row.
 const TILES := {
@@ -47,6 +47,7 @@ const HOUSES := {
 	&"red": Vector2i(5, 1),
 	&"blue": Vector2i(10, 1),
 	&"slate": Vector2i(15, 1),
+	&"teal": Vector2i(20, 1), # Tidewater's GYM
 }
 
 

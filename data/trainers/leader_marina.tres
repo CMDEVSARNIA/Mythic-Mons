@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="TrainerData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/trainers/leader.png" id="1_qymh5"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_monster.gd" id="2_3v0nr"]
+[ext_resource type="Resource" path="res://data/species/aquapup.tres" id="3_6qrba"]
+[ext_resource type="Resource" path="res://data/species/pebblet.tres" id="4_gi4f8"]
+[ext_resource type="Resource" path="res://data/species/tidehound.tres" id="5_8xkoj"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_data.gd" id="6_sdulm"]
+
+[sub_resource type="Resource" id="Resource_fpbr0"]
+script = ExtResource("2_3v0nr")
+species = ExtResource("3_6qrba")
+level = 11
+
+[sub_resource type="Resource" id="Resource_1wpwb"]
+script = ExtResource("2_3v0nr")
+species = ExtResource("4_gi4f8")
+level = 12
+
+[sub_resource type="Resource" id="Resource_stdw6"]
+script = ExtResource("2_3v0nr")
+species = ExtResource("5_8xkoj")
+level = 14
+
+[resource]
+script = ExtResource("6_sdulm")
+trainer_class = "LEADER"
+trainer_name = "MARINA"
+battle_sprite = ExtResource("1_qymh5")
+party = Array[ExtResource("2_3v0nr")]([SubResource("Resource_fpbr0"), SubResource("Resource_1wpwb"), SubResource("Resource_stdw6")])
+payout = 100
+music = &"gym_battle"
+badge = &"tide_badge"
+intro = PackedStringArray("MARINA: Welcome to the\nTIDEWATER GYM!", "The sea is calm one\nmoment and wild the\nnext. So am I.", "Show me your strength!")
+defeat = PackedStringArray("The tide has turned...\nYou win!")
+after = PackedStringArray("MARINA: Use SURF to\nexplore the sea, and\nFLY to travel fast.", "The next GYM? Keep an\neye on the horizon!")
+badge_lines = PackedStringArray("MARINA: You\'ve earned\nthe TIDE BADGE!", "With it, your MONSTERS\ncan SURF across water\nand FLY between towns.")

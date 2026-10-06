@@ -58,6 +58,7 @@ const CHARACTERS := {
 	&"swimmer": [&"swimcap", &"swim", {"H": SKY, "h": BLUE, "G": INK, "L": WHITE, "B": ORANGE, "b": RED}],
 	&"rival": [&"spiky", &"jacket", {"H": WOOD, "h": WOOD_DARK, "B": PLUM, "b": NAVY, "C": WHITE, "P": NIGHT, "F": SLATE}],
 	&"nurse": [&"nurse", &"apron", {"H": PINK, "h": PINK_DARK, "A": RED, "B": PINK, "b": PINK_DARK, "C": WHITE, "c": FOG, "P": PINK, "F": WHITE}],
+	&"leader": [&"long", &"jacket", {"H": TEAL, "h": NAVY, "B": SKY, "b": BLUE, "C": WHITE, "c": FOG, "P": NAVY, "F": NIGHT}],
 	&"clerk": [&"cap", &"apron", {"H": GREEN, "h": DEEP, "A": WHITE, "R": HAIR, "r": INK, "B": GREEN, "b": DEEP, "C": WHITE, "c": FOG, "P": NIGHT, "F": INK}],
 }
 
@@ -82,6 +83,7 @@ const ITEMS := {
 	&"para_heal": {"A": SAND, "a": ORANGE, "H": WHITE, "X": NAVY},
 	&"awakening": {"A": BLUE, "a": NAVY, "H": SKY, "X": SAND},
 	&"full_heal": {"A": WHITE, "a": FOG, "H": WHITE, "X": RED},
+	&"tide_badge": {"C": CYAN, "S": SKY, "B": BLUE},
 	&"bolt_stone": {"A": GREEN, "a": DEEP, "H": LIME, "X": SAND},
 	&"dusk_stone": {"A": NIGHT, "a": NAVY, "H": SLATE, "X": PLUM, "Y": CYAN},
 }
@@ -115,6 +117,8 @@ const TRAINERS := {
 	&"youngster": {"H": ORANGE, "h": RED, "B": RED, "b": PLUM, "C": WHITE, "Y": SAND, "P": NIGHT, "F": WOOD_DARK},
 	&"lass": {"H": SAND, "h": ORANGE, "A": RED, "B": PINK, "b": PINK_DARK, "C": WHITE, "F": RED},
 	&"rival": {"H": WOOD, "h": WOOD_DARK, "B": PLUM, "b": NAVY, "C": WHITE, "P": NAVY, "F": SLATE},
+	&"swimmer": {"H": SKY, "h": BLUE, "G": INK, "L": WHITE, "B": ORANGE, "b": RED},
+	&"leader": {"H": TEAL, "h": NAVY, "B": SKY, "b": BLUE, "C": WHITE, "Y": SAND, "P": NAVY, "F": NIGHT},
 }
 
 ## Colors for the letters in TrainerDesigns.PLAYER_BACK: the player's cap,

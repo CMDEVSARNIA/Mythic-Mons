@@ -13,7 +13,8 @@ Mythic-Mons/
 ├── icon.png                   Generated (a monster at 4x)
 ├── autoload/                  Global singletons (Project Settings > Globals)
 │   ├── events.gd              Events: signal bus (warp_requested, wild_encounter, map_entered)
-│   ├── game_state.gd          GameState: party, BOX, BAG, flags, Fly towns, respawn, save/load
+│   ├── game_state.gd          GameState: party, BOX, BAG, flags, badges, play time, Fly towns,
+│   │                          respawn, save/load
 │   └── audio.gd               Audio: music + SFX, real files first, chiptune fallback
 ├── scenes/
 │   ├── main/                  Main scene: current map, player, title, start menu, battles, fades
@@ -25,14 +26,14 @@ Mythic-Mons/
 │   ├── maps/
 │   │   ├── world_map.gd       Root script of every map (terrain lookups, spawns, encounters)
 │   │   └── *.tscn             Emberfall (home, lab, REN's house), Route 1, Tidewater
-│   │                          (MART, MONSTER CENTER, seaside house)
+│   │                          (MART, MONSTER CENTER, GYM, seaside house)
 │   ├── objects/               Warp, SpawnPoint, Signpost, CUT tree, ROCK SMASH boulder,
 │   │                          StoragePC (the MONSTER CENTER's PC)
 │   ├── battle/                BattleScene (menus + animation), MoveAnimator (move and
 │   │                          orb effects), BattlerPanel, StatBar, EvolutionScene
 │   └── ui/                    Dialogue box (autoload), choice box, map banner, party menu,
 │                              monster summary, shop menu, quantity box, MONDEX,
-│                              StorageMenu (the PC's BOX screens),
+│                              StorageMenu (the PC's BOX screens), TrainerCard,
 │                              MoveTutor (learning a move, forgetting one if needed)
 ├── scripts/                   Non-scene code (class_name utilities)
 │   ├── core/                  Grid, PhysicsLayers, Terrain, GameData (id → resource lookups)
@@ -45,7 +46,7 @@ Mythic-Mons/
 │   │                          effects), hand-drawn designs: character_designs.gd,
 │   │                          monster_designs.gd, item_designs.gd (icons and orbs),
 │   │                          effect_designs.gd (battle effects), trainer_designs.gd
-│   │                          (the player's battle back sprite), and
+│   │                          (trainer battle sprites and the player's back sprite), and
 │   │                          world_tiles.gd (WorldTiles: the map atlas layout)
 │   └── audio/                 ChipSynth (SFX), Chiptune (sequencer), Songs (music data)
 ├── data/                      Game data as .tres, file name = id
@@ -53,7 +54,8 @@ Mythic-Mons/
 │   ├── moves/                 tackle, ember, water_gun, ...
 │   ├── abilities/             kindle, soak_up, sunsoak, sturdy_shell, jolt, dread
 │   ├── items/                 ten orbs (mon_orb ... gala_orb), potion, big_potion, stones
-│   └── trainers/              lass_mia, youngster_tim, rival_ren
+│   └── trainers/              lass_mia, youngster_tim, rival_ren, swimmer_luca,
+│                              swimmer_nia, leader_marina
 ├── assets/
 │   ├── placeholder/           Generated PNGs: characters, objects, monsters, items,
 │   │                          effects, trainers (battle sprites)
@@ -97,9 +99,11 @@ Main (Node)                              main.gd
 ├── UI (CanvasLayer, layer 5)
 │   ├── MapBanner (PanelContainer)       location name that slides in
 │   ├── StartMenuArea (MarginContainer)
-│   │   └── StartMenu (choice_box.tscn)  MONDEX / MONSTERS / BAG / FLY / SAVE / EXIT
+│   │   └── StartMenu (choice_box.tscn)  MONDEX / MONSTERS / BAG / CARD / FLY / SAVE / EXIT
 │   ├── HintBox (PanelContainer)         item descriptions while browsing the BAG
 │   ├── PartyMenu (party_menu.tscn)      party list + MonsterSummary
+│   ├── DexMenu (dex_menu.tscn)          the MONDEX
+│   ├── TrainerCard (trainer_card.tscn)  name, money, MONDEX, play time, badges
 │   └── TitleScreen (Control)            CONTINUE / NEW GAME when a save exists
 ├── BattleLayer (CanvasLayer, layer 8)   a BattleScene (or EvolutionScene) is added here
 └── Transition (CanvasLayer, layer 20)
@@ -211,9 +215,12 @@ next to them, so they don't walk off just as you press A.
 | SURF | Press A facing water. The player gets the surf mount, loses the `water` collision bit and hops in. Moving onto land hops back out. |
 | FLY | Start menu (Enter) → FLY lists `GameState.visited_towns`. A map with `is_town = true` registers itself when entered. A map with `allow_fly = false` (interiors) refuses. Lands on the target town's `fly` spawn. |
 
-`GameState.can_use_field_move()` decides availability. For now everything is
-unlocked so the prototype is testable. Later, make it check the party's moves
-and badges.
+`GameState.can_use_field_move()` decides availability through badges, as in
+Emerald: `GameState.BADGES` maps each badge id to its name and the field moves
+it unlocks, and a badge is owned when its flag is set. CUT and ROCK SMASH are
+in no badge's list, so they work from the start; SURF and FLY need the TIDE
+BADGE. Without it, SURF only shows "The water is dyed a deep blue..." and FLY
+names the missing badge (`badge_for()`).
 
 ## Monsters & battles
 
@@ -380,6 +387,14 @@ unbeaten trainer emits the same signal. Main then plays `trainer_battle`,
 runs `BattleScene.run_trainer()`, and on a win sets `data.defeat_flag()`
 (`beat_<id>`), after which the trainer only says its `after` lines.
 
+A trainer's `music` picks the battle theme (`trainer_battle` by default,
+`gym_battle` for a GYM LEADER). A trainer with a `badge` hands it over after
+the first win: Main sets the badge's flag, plays the `badge` fanfare, says
+"KAI received the TIDE BADGE from MARINA!" and then the trainer's
+`badge_lines`. The TIDEWATER GYM (`gym_tidewater.tscn`) is a pool crossed by
+one walkway; each SWIMMER watches a crossing with `sight` 5, so the player
+can't sneak past, and LEADER MARINA has `sight` 1 at the far end.
+
 In battle, `Battle.against_trainer()` adds the rules: the enemy is "Foe X";
 `foe_must_switch()` / `send_next_foe()` bring out the next monster (award EXP
 first); RUN is refused without costing the turn; orbs raise `throw_blocked`;
@@ -502,9 +517,14 @@ marks the new species as caught in the MONDEX.
   once you have a starter) lists `GameData.all_species()` by
   `MonsterSpecies.dex_number`. A caught species' page shows its `category`,
   `element`, `height`, `weight` and `dex_entry`.
+- **TRAINER CARD.** CARD in the start menu opens `TrainerCard`: the
+  player's name, money, MONDEX (caught) count, play time as H:MM, and the
+  badge case, with badges not yet won shown dark. `GameState.play_seconds`
+  counts up in `Main._process()` once a game is running (not on the title
+  screen) and is saved.
 - **Saving.** SAVE writes `user://save.json`: the player's map, cell,
-  facing and surf state, plus the party, BOX, BAG, money, MONDEX, flags,
-  Fly towns and respawn. Saves from before the MONDEX count everything you
+  facing and surf state, plus the party, BOX, BAG, money, MONDEX, flags
+  (badges included), play time, Fly towns and respawn. Saves from before the MONDEX count everything you
   own as caught, monsters without a nature get HARDY (neutral) and a MON
   ORB, and EXP is clamped to each species' curve. Monsters store species,
   move and orb *ids*, not resource paths. A
@@ -558,9 +578,9 @@ marks the new species as caught in the MONDEX.
   pre-evolution's curve (20 checks).
 - `tests/game_state_test.gd` covers the party, BOX (withdraw, deposit,
   release and their limits), BAG limits, money, the
-  MONDEX, flags, monster serialization (natures, orbs and statuses included,
+  MONDEX, badges and the field moves they unlock, the card's time format, flags, monster serialization (natures, orbs and statuses included,
   and older saves without them), a full save/load round trip, and corrupt or
-  newer-version saves (44 checks). It uses its own save file.
+  newer-version saves (53 checks). It uses its own save file.
 - `tests/smoke_test.gd` plays the real game by injecting input: movement,
   signs, NPCs, CUT, doors, the starter gate and PROF. ASTER's starter,
   ledges, ROCK SMASH, a won battle whose level-up evolution is stopped with
@@ -570,18 +590,21 @@ marks the new species as caught in the MONDEX.
   refused, and the rival's counter-pick), prize money and a beaten trainer
   who just chats, the
   MONDEX list and page, party screen, summary and SWITCH, a scrolling BAG
-  and POTIONs from it, SAVE, CONTINUE from the title screen, SURF and a
+  and POTIONs from it, SAVE, CONTINUE from the title screen,
+  SURF and FLY refused without the TIDE BADGE, the TRAINER CARD, the GYM
+  (both SWIMMERs, then MARINA with her own music, the $1400 prize, the badge
+  and the card showing it), SURF and a
   battle at sea (SPROUTLE evolves into GROVETLE afterwards), buying 10 MON
   ORBs (and the free GALA ORB), selling, a DIVE ORB from the specialty
   counter, a BOLT STONE from the BAG (on the wrong monster, then on ZAPKIT),
   healing at the MONSTER CENTER, depositing a monster at the PC and
   withdrawing it again, entering and leaving every building, and FLY
-  (103 checks).
+  (117 checks).
   It uses its own save file.
 - `tests/npc_test.gd` visits every map and talks to every NPC and sign,
   standing where a player could (a reachable neighboring cell, counting CUT,
   ROCK SMASH and SURF, or across a counter), then examines a bookshelf.
-  Trainers count as beaten, so they chat (32 checks).
+  Trainers count as beaten, so they chat (37 checks).
 
 ```sh
 godot --headless --path . --script res://tests/battle_test.gd

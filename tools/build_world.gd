@@ -320,6 +320,7 @@ const MAPS := [
 			[Vector2i(2, 7), &"blue"],
 			[Vector2i(17, 7), &"red"],
 			[Vector2i(16, 15), &"wood"],
+			[Vector2i(3, 15), &"teal"],
 		],
 		"spawns": {
 			"default": [Vector2i(11, 15), DOWN],
@@ -328,6 +329,7 @@ const MAPS := [
 			"from_mart": [Vector2i(4, 12), DOWN],
 			"from_center": [Vector2i(19, 12), DOWN],
 			"from_house": [Vector2i(18, 20), DOWN],
+			"from_gym": [Vector2i(5, 20), DOWN],
 		},
 		"warps": [
 			[Vector2i(11, 21), "route_01.tscn", "north", &""],
@@ -335,15 +337,17 @@ const MAPS := [
 			[Vector2i(4, 11), "mart_tidewater.tscn", "entrance", &"door"],
 			[Vector2i(19, 11), "center_tidewater.tscn", "entrance", &"door"],
 			[Vector2i(18, 19), "house_tidewater.tscn", "entrance", &"door"],
+			[Vector2i(5, 19), "gym_tidewater.tscn", "entrance", &"door"],
 		],
 		"signs": [
 			[Vector2i(9, 14), ["TIDEWATER CITY\nWhere the sea meets\nthe sky."]],
 			[Vector2i(4, 2), ["TREASURE ISLE", "...There's nothing here\nyet. Maybe in a future\nupdate!"]],
 			[Vector2i(6, 12), ["TIDEWATER MART\nOrbs and medicine for\nevery trainer!"]],
 			[Vector2i(17, 12), ["MONSTER CENTER\nWe heal your MONSTERS\nfor free!"]],
+			[Vector2i(7, 20), ["TIDEWATER CITY\nMONSTER GYM\nLEADER: MARINA", "The tide-turning\nWATER-type trainer!"]],
 		],
 		"npcs": [
-			[Vector2i(15, 5), "swimmer", 2, ["See that island? Face the\nwater and press Z to SURF!", "Wild AQUAPUP swim out\nthere. Bring MON ORBs!"]],
+			[Vector2i(15, 5), "swimmer", 2, ["See that island? You can\nSURF there once you have\nthe TIDE BADGE.", "Beat MARINA at the GYM,\nthen face the water and\npress Z!", "Wild AQUAPUP swim out\nthere. Bring MON ORBs!"]],
 			[Vector2i(10, 19), "officer", 0, ["Welcome to TIDEWATER\nCITY! I keep the\npeace around here.", "Off on a trip? Open\nthe menu and SAVE\nbefore you go!"]],
 			[Vector2i(21, 13), "mystic", 1, ["I see... FIRE burns\nGRASS, GRASS drinks\nWATER...", "...and WATER douses\nFIRE. The spirits\nnever lie."]],
 		],
@@ -422,6 +426,39 @@ const MAPS := [
 		],
 		"npcs": [
 			[Vector2i(6, 2), "elder", 1, ["I've fished these waters\nfor fifty years.", "Someday I'll SURF out\nto that island myself!"]],
+		],
+	},
+	{
+		"file": "gym_tidewater.tscn",
+		"node": "GymTidewater",
+		"props": {"display_name": "TIDEWATER GYM", "allow_fly": false, "music": &"town"},
+		# A pool crossed by one walkway; both SWIMMERs watch a crossing.
+		"layout": [
+			"wwwwwwwwwwww",
+			"pbbbbbbbbbbp",
+			"~~~~bbbb~~~~",
+			"~~~~bbbb~~~~",
+			"~~bbbbbbbb~~",
+			"~~~~bbbb~~~~",
+			"~~~~bbbb~~~~",
+			"~~bbbbbbbb~~",
+			"~~~~bbbb~~~~",
+			"pbbbbbbbbbbp",
+			"bbbbbmbbbbbb",
+		],
+		"spawns": {
+			"default": [Vector2i(5, 9), UP],
+			"entrance": [Vector2i(5, 9), UP],
+		},
+		"warps": [
+			[Vector2i(5, 10), "town_tidewater.tscn", "from_gym", &"door"],
+		],
+		"npcs": [
+			[Vector2i(5, 1), "leader", 0, [], {"scene": "trainer", "data": "leader_marina", "sight": 1}],
+			[Vector2i(2, 4), "swimmer", 0, [], {"scene": "trainer", "data": "swimmer_luca", "sight": 5, "start_facing": 3}],
+			[Vector2i(9, 7), "swimmer", 0, [], {"scene": "trainer", "data": "swimmer_nia", "sight": 5, "start_facing": 2}],
+			[Vector2i(8, 9), "fighter", 0, ["Yo, challenger! MARINA\nuses WATER-type\nMONSTERS.", "GRASS and ELECTRIC moves\nwash right over WATER.\nGood luck!"],
+				{"start_facing": 2}],
 		],
 	},
 ]

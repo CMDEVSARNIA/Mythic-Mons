@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="TrainerData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/trainers/swimmer.png" id="1_jax1k"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_monster.gd" id="2_4wu1r"]
+[ext_resource type="Resource" path="res://data/species/shadeling.tres" id="3_fyt0s"]
+[ext_resource type="Resource" path="res://data/species/aquapup.tres" id="4_gennd"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_data.gd" id="5_bgoyv"]
+
+[sub_resource type="Resource" id="Resource_sxthv"]
+script = ExtResource("2_4wu1r")
+species = ExtResource("3_fyt0s")
+level = 10
+
+[sub_resource type="Resource" id="Resource_ifsy1"]
+script = ExtResource("2_4wu1r")
+species = ExtResource("4_gennd")
+level = 11
+
+[resource]
+script = ExtResource("5_bgoyv")
+trainer_class = "SWIMMER"
+trainer_name = "NIA"
+battle_sprite = ExtResource("1_jax1k")
+party = Array[ExtResource("2_4wu1r")]([SubResource("Resource_sxthv"), SubResource("Resource_ifsy1")])
+intro = PackedStringArray("The pool\'s deeper than\nit looks. So am I!")
+defeat = PackedStringArray("Glub... I sank.")
+after = PackedStringArray("GRASS and ELECTRIC moves\ncut right through WATER\nMONSTERS.")
+badge_lines = PackedStringArray()

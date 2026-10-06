@@ -3,9 +3,9 @@ extends Node
 ##
 ## Owns the active map (instanced under World), the persistent Player (moved
 ## into each map's Entities node), battles, the title screen, the start menu
-## (MONDEX, party, BAG, Fly, save) and the screen fade. Maps never load each other:
+## (MONDEX, party, BAG, TRAINER CARD, Fly, save) and the screen fade. Maps never load each other:
 ## anything that wants a map change emits Events.warp_requested and this
-## script does the rest.
+## script does the rest. It also keeps the play-time clock running.
 
 const FADE_SECONDS := 0.25
 const BATTLE_SCENE := preload("res://scenes/battle/battle_scene.tscn")
@@ -18,6 +18,7 @@ const POISON_STEPS := 4
 
 var current_map: WorldMap
 var _steps := 0
+var _playing := false # Play time counts from the moment the map shows.
 
 @onready var world: Node2D = $World
 @onready var player: Player = $Player
@@ -26,6 +27,7 @@ var _steps := 0
 @onready var map_banner: MapBanner = $UI/MapBanner
 @onready var party_menu: PartyMenu = $UI/PartyMenu
 @onready var dex_menu: DexMenu = $UI/DexMenu
+@onready var trainer_card: TrainerCard = $UI/TrainerCard
 @onready var hint_box: Control = $UI/HintBox
 @onready var hint_label: Label = $UI/HintBox/Label
 @onready var hint_icon: TextureRect = $UI/HintBox/Icon
@@ -48,8 +50,14 @@ func _ready() -> void:
 	fade.color = Color(0.0, 0.0, 0.0, 1.0)
 	if location.is_empty() or not _load_map_at(location):
 		_load_map(start_map, start_spawn)
+	_playing = true
 	await _fade_to(0.0)
 	player.unlock()
+
+
+func _process(delta: float) -> void:
+	if _playing:
+		GameState.play_seconds += delta
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -139,7 +147,7 @@ func _open_start_menu() -> void:
 			actions.append(&"MONDEX")
 		if not GameState.party.is_empty():
 			actions.append(&"MONSTERS")
-		actions.append_array([&"BAG", &"FLY", &"SAVE", &"EXIT"])
+		actions.append_array([&"BAG", &"CARD", &"FLY", &"SAVE", &"EXIT"])
 		var choice: int = await start_menu.choose(PackedStringArray(actions), mini(last, actions.size() - 1))
 		if choice < 0 or actions[choice] == &"EXIT":
 			break
@@ -151,6 +159,8 @@ func _open_start_menu() -> void:
 				await party_menu.browse()
 			&"BAG":
 				await _open_bag()
+			&"CARD":
+				await trainer_card.show_card()
 			&"SAVE":
 				await _save()
 			&"FLY":
@@ -280,7 +290,8 @@ func _save() -> void:
 ## used here or the player backs out.
 func _choose_fly_destination() -> String:
 	if not GameState.can_use_field_move(&"fly"):
-		await Dialogue.say(["No MONSTER in your party\nknows FLY."])
+		var badge: String = GameState.BADGES[GameState.badge_for(&"fly")][0]
+		await Dialogue.say(["You need the %s\nto FLY outside of\nbattle." % badge])
 		return ""
 	if not current_map.allow_fly:
 		await Dialogue.say(["You can't FLY from here!"])
@@ -323,14 +334,25 @@ func _on_trainer_battle(trainer: TrainerData) -> void:
 	if not GameState.has_healthy_monster():
 		return
 	player.lock()
-	Audio.play_music(&"trainer_battle")
+	Audio.play_music(trainer.music)
 	await _encounter_flash()
 	var outcome: Battle.Outcome = await _run_battle(null, false, trainer)
 	if outcome == Battle.Outcome.WON:
 		GameState.set_flag(trainer.defeat_flag())
+		if not trainer.badge.is_empty() and not GameState.has_flag(trainer.badge):
+			await _award_badge(trainer)
 	elif outcome == Battle.Outcome.LOST:
 		await _white_out()
 	player.unlock()
+
+
+## A GYM LEADER hands over their badge, with a fanfare, and says what it does.
+func _award_badge(trainer: TrainerData) -> void:
+	GameState.set_flag(trainer.badge)
+	Audio.play_sfx(&"badge")
+	await Dialogue.say(["%s received the\n%s from %s!" % [
+		GameState.player_name, GameState.BADGES[trainer.badge][0], trainer.trainer_name]])
+	await Dialogue.say(trainer.badge_lines)
 
 
 ## Every 4 steps, poisoned party members lose 1 HP, as in Gen 3, but the

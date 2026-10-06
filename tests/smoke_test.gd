@@ -1,8 +1,8 @@
 extends SceneTree
 ## Automated walkthrough of the prototype. It plays the real game by injecting
 ## input events and checks the results, from the first steps through getting
-## a starter, battling, catching, evolving, the start menu, saving and
-## continuing.
+## a starter, battling, catching, evolving, trainers, the start menu, saving,
+## continuing and the first GYM.
 ##
 ## Logic only (fast, no window):
 ##   godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
@@ -363,7 +363,7 @@ func _run() -> void:
 	await _tap(&"cancel") # then the start menu.
 
 	await _tap(&"menu")
-	for i in 4: # MONDEX, MONSTERS, BAG, FLY, SAVE
+	for i in 5: # MONDEX, MONSTERS, BAG, CARD, FLY, SAVE
 		await _tap(&"move_down")
 	await _tap(&"confirm")
 	for i in 6: # Finish the question, then YES.
@@ -386,12 +386,86 @@ func _run() -> void:
 	_check(_game_state.party.size() == 2 and _game_state.party[0].species.display_name == "SPROUTLE", "...with your party as you left it")
 	_check(_game_state.caught.has(&"sproutle") and _game_state.seen.has(&"zapkit"), "...and your MONDEX")
 
-	# --- SURF ----------------------------------------------------------------
+	# --- GYM: SURF and FLY need the TIDE BADGE --------------------------------
 	_main.change_map(MAPS + "town_tidewater.tscn", &"from_route")
 	await _wait(1.0)
 	_check(_map_name() == "TIDEWATER CITY", "Route 1 connects to Tidewater")
 	var town: Node2D = _main.current_map
 	town.water_encounter_rate = 0.0
+	await _place(Vector2i(6, 5), Vector2i.UP)
+	await _tap(&"confirm")
+	await _close_dialogue()
+	_check(not _player.is_surfing and _player.get_cell() == Vector2i(6, 5), "without the TIDE BADGE you can't SURF")
+	await _tap(&"menu")
+	for i in 4: # MONDEX, MONSTERS, BAG, CARD, FLY
+		await _tap(&"move_down")
+	await _tap(&"confirm")
+	await _wait(0.3)
+	_check(_dialogue.is_open and "TIDE BADGE" in _dialogue.get_node(^"Box/Text").text, "...or FLY")
+	await _close_dialogue()
+	await _tap(&"move_up")
+	await _tap(&"confirm") # CARD
+	var card: Control = _main.trainer_card
+	var card_text: String = card.get_node(^"Card/Layout/Top/Info").text
+	_check(card.visible and "BADGES  0" in card_text and "$%d" % _game_state.money in card_text, "the TRAINER CARD shows your money and badges")
+	_check(_game_state.play_seconds > 10.0 and "TIME    0:0" in card_text, "...and the play time, which keeps counting")
+	await _tap(&"cancel")
+	await _tap(&"cancel")
+	_check(not card.visible and not _player.is_locked(), "B closes the card and the menu")
+
+	team = _game_state.party.duplicate()
+	_game_state.party.assign([load("res://scripts/monsters/monster.gd").create(load("res://data/species/blazard.tres"), 30)])
+	await _place(Vector2i(5, 20), Vector2i.UP)
+	await _tap(&"move_up")
+	await _wait(1.0)
+	_check(_map_name() == "TIDEWATER GYM" and _player.get_cell() == Vector2i(5, 9), "the GYM door leads inside")
+	_shot("30_gym")
+	await _tap(&"move_up")
+	await _tap(&"move_up") # SWIMMER NIA watches this crossing...
+	await _until_dialogue()
+	await _close_dialogue()
+	await _wait(2.0)
+	_check(_battle_scene() != null, "...and battles you on the walkway")
+	await _press_through_battle()
+	for i in 4: # Turn back up (you faced NIA), then on to SWIMMER LUCA's crossing.
+		await _tap(&"move_up")
+	await _until_dialogue()
+	await _close_dialogue()
+	await _wait(2.0)
+	await _press_through_battle()
+	_check(_game_state.has_flag(&"beat_swimmer_nia") and _game_state.has_flag(&"beat_swimmer_luca"), "both GYM SWIMMERs are beaten")
+	var money_before_leader: int = _game_state.money
+	for i in 3: # Turn up (you faced LUCA), then up to LEADER MARINA.
+		await _tap(&"move_up")
+	await _until_dialogue()
+	await _close_dialogue()
+	await _wait(2.0)
+	_check(root.get_node(^"Audio").get(&"_wanted_track") == &"gym_battle", "the GYM LEADER has her own battle music")
+	await _until_action_menu()
+	_shot("31_gym_battle")
+	await _press_through_battle()
+	_check(_game_state.has_flag(&"beat_leader_marina") and _game_state.money == money_before_leader + 1400, "beating MARINA pays $1400 (payout 100 x level 14)")
+	_check(_dialogue.is_open and "TIDE BADGE" in _dialogue.get_node(^"Box/Text").text, "...and she hands over the TIDE BADGE")
+	_shot("32_badge")
+	await _close_dialogue()
+	_check(_game_state.has_flag(&"tide_badge") and not _player.is_locked(), "the badge is yours, and control returns")
+	await _tap(&"menu")
+	for i in 3: # MONDEX, MONSTERS, BAG, CARD
+		await _tap(&"move_down")
+	await _tap(&"confirm")
+	_check("BADGES  1" in card.get_node(^"Card/Layout/Top/Info").text, "the TRAINER CARD shows the new badge")
+	_shot("33_trainer_card")
+	await _tap(&"cancel")
+	await _tap(&"cancel")
+	_game_state.party.assign(team)
+	await _place(Vector2i(5, 9), Vector2i.DOWN)
+	await _tap(&"move_down")
+	await _wait(1.0)
+	_check(_map_name() == "TIDEWATER CITY" and _player.get_cell() == Vector2i(5, 20), "the GYM mat leads back outside")
+	town = _main.current_map
+	town.water_encounter_rate = 0.0
+
+	# --- SURF ----------------------------------------------------------------
 	await _place(Vector2i(6, 5), Vector2i.UP)
 	await _tap(&"confirm")
 	await _wait(1.6)
@@ -559,7 +633,7 @@ func _run() -> void:
 	await _place(Vector2i(11, 15), Vector2i.DOWN)
 	await _tap(&"menu")
 	_check(_main.start_menu.visible, "ENTER opens the start menu")
-	for i in 3: # MONDEX, MONSTERS, BAG, FLY
+	for i in 4: # MONDEX, MONSTERS, BAG, CARD, FLY
 		await _tap(&"move_down")
 	await _tap(&"confirm") # FLY
 	await _wait(0.2)
@@ -699,6 +773,14 @@ func _until_choices(choices: Control) -> void:
 		if choices.visible:
 			return
 		await _tap(&"confirm")
+
+
+## Waits for a text box, e.g. a trainer who spotted you walking over.
+func _until_dialogue() -> void:
+	for i in 40:
+		if _dialogue.is_open:
+			return
+		await _wait(0.1)
 
 
 func _close_dialogue() -> void:

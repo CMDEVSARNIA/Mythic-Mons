@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/party_menu.tscn" id="5_party"]
 [ext_resource type="Texture2D" path="res://icon.png" id="6_icon"]
 [ext_resource type="PackedScene" path="res://scenes/ui/dex_menu.tscn" id="7_dex"]
+[ext_resource type="PackedScene" path="res://scenes/ui/trainer_card.tscn" id="8_card"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_main")
@@ -74,6 +75,8 @@ stretch_mode = 5
 [node name="PartyMenu" parent="UI" instance=ExtResource("5_party")]
 
 [node name="DexMenu" parent="UI" instance=ExtResource("7_dex")]
+
+[node name="TrainerCard" parent="UI" instance=ExtResource("8_card")]
 
 [node name="TitleScreen" type="Control" parent="UI"]
 visible = false

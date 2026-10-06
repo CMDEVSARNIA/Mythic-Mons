@@ -14,11 +14,16 @@ const START_MONEY := 3000
 const MAX_MONEY := 999999
 const SAVE_VERSION := 1
 const STARTER_FLAG := &"got_starter"
+## Gym badges, in the order they're won: id -> [name, field moves it lets
+## monsters use outside battle]. A badge is kept as a flag with its id.
+## Field moves no badge lists (CUT, ROCK SMASH) work from the start.
+const BADGES := {
+	&"tide_badge": ["TIDE BADGE", [&"surf", &"fly"]],
+}
 
 var player_name := "KAI"
-## Until the badge system exists every field move is unlocked so each
-## traversal mechanic can be tested. Later: derive this from the party's moves.
-var unlocked_field_moves: Array[StringName] = FIELD_MOVES.duplicate()
+## Seconds played, for the trainer card.
+var play_seconds := 0.0
 ## Fly destinations: town map scene path -> display name, in visit order.
 var visited_towns: Dictionary[String, String] = {}
 var current_map_path := ""
@@ -26,7 +31,8 @@ var current_map_path := ""
 var flags: Dictionary[StringName, bool] = {}
 ## Up to six monsters; the first healthy one leads in battle.
 var party: Array[Monster] = []
-## Caught monsters that didn't fit in the party (a PC box comes later).
+## The BOX: caught monsters that didn't fit in the party. The PC in a
+## MONSTER CENTER moves them in and out (withdraw(), deposit(), release()).
 var storage: Array[Monster] = []
 ## MONDEX: species ids met in battle, and species ids ever owned.
 var seen: Dictionary[StringName, bool] = {}
@@ -41,8 +47,22 @@ var respawn_spawn: StringName = &"entrance"
 var save_path := "user://save.json"
 
 
+## True if the player has the badge that `move` needs (or it needs none).
 func can_use_field_move(move: StringName) -> bool:
-	return move in unlocked_field_moves
+	var badge := badge_for(move)
+	return badge.is_empty() or has_flag(badge)
+
+
+## The badge `move` needs outside battle, or &"" if none.
+func badge_for(move: StringName) -> StringName:
+	for badge: StringName in BADGES:
+		if move in BADGES[badge][1]:
+			return badge
+	return &""
+
+
+func badge_count() -> int:
+	return BADGES.keys().filter(func(badge: StringName) -> bool: return has_flag(badge)).size()
 
 
 func has_flag(flag: StringName) -> bool:
@@ -180,6 +200,7 @@ func save_game(location: Dictionary) -> Error:
 		"storage": storage.map(func(monster: Monster) -> Dictionary: return monster.to_dict()),
 		"bag": bag,
 		"money": money,
+		"play_seconds": play_seconds,
 		"flags": flags,
 		"visited_towns": visited_towns,
 		"seen": seen.keys(),
@@ -210,6 +231,7 @@ func load_game() -> Dictionary:
 	for id: String in data.get("bag", {}):
 		bag[StringName(id)] = int(data.bag[id])
 	money = clampi(int(data.get("money", START_MONEY)), 0, MAX_MONEY)
+	play_seconds = maxf(float(data.get("play_seconds", 0.0)), 0.0)
 	flags.clear()
 	for flag: String in data.get("flags", {}):
 		flags[StringName(flag)] = bool(data.flags[flag])

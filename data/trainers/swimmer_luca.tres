@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="TrainerData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/trainers/swimmer.png" id="1_ussfl"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_monster.gd" id="2_u8scn"]
+[ext_resource type="Resource" path="res://data/species/aquapup.tres" id="3_bv2f1"]
+[ext_resource type="Resource" path="res://data/species/zapkit.tres" id="4_sos8r"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_data.gd" id="5_veiau"]
+
+[sub_resource type="Resource" id="Resource_q53xb"]
+script = ExtResource("2_u8scn")
+species = ExtResource("3_bv2f1")
+level = 9
+
+[sub_resource type="Resource" id="Resource_bc5sj"]
+script = ExtResource("2_u8scn")
+species = ExtResource("4_sos8r")
+level = 9
+
+[resource]
+script = ExtResource("5_veiau")
+trainer_class = "SWIMMER"
+trainer_name = "LUCA"
+battle_sprite = ExtResource("1_ussfl")
+party = Array[ExtResource("2_u8scn")]([SubResource("Resource_q53xb"), SubResource("Resource_bc5sj")])
+intro = PackedStringArray("Splash! You want to\nsee our LEADER? Get\npast me first!")
+defeat = PackedStringArray("I got swept away...")
+after = PackedStringArray("MARINA can read the\ntides like a book.")
+badge_lines = PackedStringArray()

@@ -1,6 +1,7 @@
 class_name ItemDesigns
 extends RefCounted
-## Hand-drawn 16x16 item icons for the BAG and MART. The orbs are also what's
+## Hand-drawn 16x16 item icons for the BAG and MART, plus gym badges for the
+## trainer card. The orbs are also what's
 ## thrown in battle; PixelArt.orb_open() lifts their lid for the "open" frame.
 ##
 ## Letters are colors from the item's entry in PixelArt.ITEMS; "." is
@@ -348,6 +349,24 @@ const ITEMS := {
 		"...KAAAAAaaaK...",
 		"....KKaaaaKK....",
 		"......KKKK......",
+		"................",
+		"................",
+	],
+	&"tide_badge": [
+		"................",
+		".......KK.......",
+		"......KCCK......",
+		".....KCCCCK.....",
+		"....KCWCCCCK....",
+		"...KCWCCCCCSK...",
+		"...KCCCCCCCSK...",
+		"..KCCCCCCCCSSK..",
+		"..KCCCCCCCSSSK..",
+		"..KSCCCCCSSSBK..",
+		"...KSSSSSSSBK...",
+		"....KBBBBBBK....",
+		".....KKKKKK.....",
+		"................",
 		"................",
 		"................",
 	],

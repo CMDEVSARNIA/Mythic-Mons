@@ -20,6 +20,10 @@ const STARTER_COUNTERS := {&"flamlet": &"aquapup", &"aquapup": &"sproutle", &"sp
 @export var counters_starter := false
 ## Prize money is payout times the level of the last monster, as in Gen 3.
 @export_range(0, 255) var payout := 16
+## Battle music (a Songs id or a file in assets/audio/music/).
+@export var music: StringName = &"trainer_battle"
+## Gym leaders: the badge (a GameState.BADGES id) they hand over when beaten.
+@export var badge: StringName
 
 @export_group("Lines")
 ## Said on the map before the battle. "{PLAYER}" becomes the player's name.
@@ -28,6 +32,8 @@ const STARTER_COUNTERS := {&"flamlet": &"aquapup", &"aquapup": &"sproutle", &"sp
 @export var defeat: PackedStringArray = []
 ## Said on the map once beaten.
 @export var after: PackedStringArray = []
+## Said on the map right after handing over the badge.
+@export var badge_lines: PackedStringArray = []
 
 
 ## "LASS MIA", or just the class for a trainer without a name.

@@ -12,8 +12,8 @@ extends SceneTree
 ##
 ## Tiles with see-through parts are laid over grass (or floor indoors). The
 ## sheet has no tall grass, ledges, interiors or cracked boulders, so those are
-## drawn here in its colors, and the house gets red, blue and slate roofs for
-## the MONSTER CENTER, MART and lab.
+## drawn here in its colors, and the house gets red, blue, slate and teal roofs for
+## the MONSTER CENTER, MART, lab and GYM.
 
 const SOURCE := "res://assets/world/source/zelda_like_overworld.png"
 const OUT_DIR := "res://assets/world/"
@@ -285,6 +285,7 @@ const ROOFS := {
 	&"red": [Color("d95763"), Color("b13e53"), Color("6e2a45")],
 	&"blue": [Color("4f8ad8"), Color("3b5dc9"), Color("29366f")],
 	&"slate": [Color("94b0c2"), Color("566c86"), Color("333c57")],
+	&"teal": [Color("73eff7"), Color("38a7b0"), Color("257179")],
 }
 
 const SKY_TOP := Color("c8ecf8")

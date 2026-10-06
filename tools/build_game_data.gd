@@ -179,6 +179,22 @@ const TRAINERS := {
 		["Whoa... You're really\ngood!"],
 		["REN: I'm off to\nTIDEWATER to catch more\nMONSTERS.", "Next time, I'll win!"],
 		{"counters_starter": true}],
+	"swimmer_luca": ["SWIMMER", "LUCA", "swimmer", 16, [["aquapup", 9], ["zapkit", 9]],
+		["Splash! You want to\nsee our LEADER? Get\npast me first!"],
+		["I got swept away..."],
+		["MARINA can read the\ntides like a book."]],
+	"swimmer_nia": ["SWIMMER", "NIA", "swimmer", 16, [["shadeling", 10], ["aquapup", 11]],
+		["The pool's deeper than\nit looks. So am I!"],
+		["Glub... I sank."],
+		["GRASS and ELECTRIC moves\ncut right through WATER\nMONSTERS."]],
+	"leader_marina": ["LEADER", "MARINA", "leader", 100, [["aquapup", 11], ["pebblet", 12], ["tidehound", 14]],
+		["MARINA: Welcome to the\nTIDEWATER GYM!", "The sea is calm one\nmoment and wild the\nnext. So am I.", "Show me your strength!"],
+		["The tide has turned...\nYou win!"],
+		["MARINA: Use SURF to\nexplore the sea, and\nFLY to travel fast.", "The next GYM? Keep an\neye on the horizon!"],
+		{"music": &"gym_battle", "badge": &"tide_badge", "badge_lines": [
+			"MARINA: You've earned\nthe TIDE BADGE!",
+			"With it, your MONSTERS\ncan SURF across water\nand FLY between towns.",
+		]}],
 }
 
 var _force := false
@@ -346,7 +362,8 @@ func _build_trainer(row: Array, species: Dictionary) -> TrainerData:
 	trainer.after = PackedStringArray(row[7])
 	var extras: Dictionary = row[8] if row.size() > 8 else {}
 	for property: String in extras:
-		trainer.set(property, extras[property])
+		var value: Variant = extras[property]
+		trainer.set(property, PackedStringArray(value) if value is Array else value)
 	return trainer
 
 

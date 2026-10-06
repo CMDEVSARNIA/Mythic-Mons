@@ -1,0 +1,76 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_eobca"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_6m5j6"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/trainer.tscn" id="3_jtsx6"]
+[ext_resource type="Resource" path="res://data/trainers/leader_marina.tres" id="4_hxq5s"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_leader.png" id="5_dbtyo"]
+[ext_resource type="Resource" path="res://data/trainers/swimmer_luca.tres" id="6_2ptoh"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_swimmer.png" id="7_jq8k5"]
+[ext_resource type="Resource" path="res://data/trainers/swimmer_nia.tres" id="8_kjx2l"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="9_rikta"]
+[ext_resource type="Texture2D" path="res://assets/characters/townsfolk/fighter.png" id="10_3qqlr"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="11_8vqyq"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="12_dshcx"]
+
+[node name="GymTidewater" type="Node2D" unique_id=1783723255]
+script = ExtResource("1_eobca")
+display_name = "TIDEWATER GYM"
+allow_fly = false
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=388090203]
+tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAABAAYAAAADAAAAAAABAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAKAAAAAAABAAYAAAALAAAAAAABAAYAAAAAAAEAAAAIAAYAAAABAAEAAAAAAAYAAAACAAEAAAAAAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAAAAYAAAAJAAEAAAAAAAYAAAAKAAEAAAAAAAYAAAALAAEAAAAIAAYAAAAAAAIAAAAJAAAAAAABAAIAAAAJAAAAAAACAAIAAAAJAAAAAAADAAIAAAAJAAAAAAAEAAIAAAAAAAYAAAAFAAIAAAAAAAYAAAAGAAIAAAAAAAYAAAAHAAIAAAAAAAYAAAAIAAIAAAAJAAAAAAAJAAIAAAAJAAAAAAAKAAIAAAAJAAAAAAALAAIAAAAJAAAAAAAAAAMAAAANAAAAAAABAAMAAAAOAAAAAAACAAMAAAAKAAAAAAADAAMAAAAKAAAAAAAEAAMAAAAAAAYAAAAFAAMAAAAAAAYAAAAGAAMAAAAAAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAKAAAAAAAJAAMAAAAKAAAAAAAKAAMAAAANAAAAAAALAAMAAAAOAAAAAAAAAAQAAAALAAAAAAABAAQAAAAMAAAAAAACAAQAAAAAAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAAAAYAAAAKAAQAAAALAAAAAAALAAQAAAAMAAAAAAAAAAUAAAANAAAAAAABAAUAAAAOAAAAAAACAAUAAAAJAAAAAAADAAUAAAAJAAAAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAJAAAAAAAJAAUAAAAJAAAAAAAKAAUAAAANAAAAAAALAAUAAAAOAAAAAAAAAAYAAAALAAAAAAABAAYAAAAMAAAAAAACAAYAAAAKAAAAAAADAAYAAAAKAAAAAAAEAAYAAAAAAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAKAAAAAAAJAAYAAAAKAAAAAAAKAAYAAAALAAAAAAALAAYAAAAMAAAAAAAAAAcAAAANAAAAAAABAAcAAAAOAAAAAAACAAcAAAAAAAYAAAADAAcAAAAAAAYAAAAEAAcAAAAAAAYAAAAFAAcAAAAAAAYAAAAGAAcAAAAAAAYAAAAHAAcAAAAAAAYAAAAIAAcAAAAAAAYAAAAJAAcAAAAAAAYAAAAKAAcAAAANAAAAAAALAAcAAAAOAAAAAAAAAAgAAAAKAAAAAAABAAgAAAAKAAAAAAACAAgAAAAKAAAAAAADAAgAAAAKAAAAAAAEAAgAAAAAAAYAAAAFAAgAAAAAAAYAAAAGAAgAAAAAAAYAAAAHAAgAAAAAAAYAAAAIAAgAAAAKAAAAAAAJAAgAAAAKAAAAAAAKAAgAAAAKAAAAAAALAAgAAAAKAAAAAAAAAAkAAAAIAAYAAAABAAkAAAAAAAYAAAACAAkAAAAAAAYAAAADAAkAAAAAAAYAAAAEAAkAAAAAAAYAAAAFAAkAAAAAAAYAAAAGAAkAAAAAAAYAAAAHAAkAAAAAAAYAAAAIAAkAAAAAAAYAAAAJAAkAAAAAAAYAAAAKAAkAAAAAAAYAAAALAAkAAAAIAAYAAAAAAAoAAAAAAAYAAAABAAoAAAAAAAYAAAACAAoAAAAAAAYAAAADAAoAAAAAAAYAAAAEAAoAAAAAAAYAAAAFAAoAAAAFAAYAAAAGAAoAAAAAAAYAAAAHAAoAAAAAAAYAAAAIAAoAAAAAAAYAAAAJAAoAAAAAAAYAAAAKAAoAAAAAAAYAAAALAAoAAAAAAAYAAAA=")
+tile_set = ExtResource("2_6m5j6")
+
+[node name="Entities" type="Node2D" parent="." unique_id=1733723270]
+y_sort_enabled = true
+
+[node name="NPC_Leader1" parent="Entities" unique_id=979026161 instance=ExtResource("3_jtsx6")]
+position = Vector2(88, 24)
+data = ExtResource("4_hxq5s")
+sight = 1
+sprite_sheet = ExtResource("5_dbtyo")
+lines = PackedStringArray("Hello there!")
+
+[node name="NPC_Swimmer2" parent="Entities" unique_id=920058105 instance=ExtResource("3_jtsx6")]
+position = Vector2(40, 72)
+data = ExtResource("6_2ptoh")
+sight = 5
+sprite_sheet = ExtResource("7_jq8k5")
+lines = PackedStringArray("Hello there!")
+start_facing = 3
+
+[node name="NPC_Swimmer3" parent="Entities" unique_id=857462997 instance=ExtResource("3_jtsx6")]
+position = Vector2(152, 120)
+data = ExtResource("8_kjx2l")
+sight = 5
+sprite_sheet = ExtResource("7_jq8k5")
+lines = PackedStringArray("Hello there!")
+start_facing = 2
+
+[node name="NPC_Fighter4" parent="Entities" unique_id=924838909 instance=ExtResource("9_rikta")]
+position = Vector2(136, 152)
+sprite_sheet = ExtResource("10_3qqlr")
+lines = PackedStringArray("Yo, challenger! MARINA\nuses WATER-type\nMONSTERS.", "GRASS and ELECTRIC moves\nwash right over WATER.\nGood luck!")
+wander_radius = 0
+start_facing = 2
+
+[node name="Warps" type="Node2D" parent="." unique_id=1525569877]
+
+[node name="Warp1" parent="Warps" unique_id=587843422 instance=ExtResource("11_8vqyq")]
+position = Vector2(88, 168)
+target_map = "res://scenes/maps/town_tidewater.tscn"
+target_spawn = &"from_gym"
+blocked_lines = PackedStringArray()
+
+[node name="Spawns" type="Node2D" parent="." unique_id=1467383898]
+
+[node name="default" type="Marker2D" parent="Spawns" unique_id=155342465]
+position = Vector2(88, 152)
+script = ExtResource("12_dshcx")
+facing = 1
+
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=1816467995]
+position = Vector2(88, 152)
+script = ExtResource("12_dshcx")
+facing = 1

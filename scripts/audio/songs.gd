@@ -190,6 +190,43 @@ const TRAINER_BATTLE := {
 	],
 }
 
+## Gym leader battle: urgent D minor, | Dm | Bb | C | A | Dm | Bb | Gm | A |
+const GYM_BATTLE := {
+	"bpm": 168,
+	"steps_per_beat": 2,
+	"channels": [
+		{ # Lead
+			"wave": ChipSynth.Wave.PULSE_25,
+			"volume": 0.1,
+			"notes": """
+				D5 F5 A5 D6 C6 A5 F5 A5 | A#5 - D6 - F6 - D6 A#5 | C6 - E6 G6 E6 C6 G5 C6 | C#6 - E6 - A6 - E6 C#6
+				D6 A5 D6 F6 E6 D6 C6 A5 | A#5 - D6 F6 A#6 - F6 D6 | G5 A#5 D6 G6 F6 D6 A#5 G5 | A5 - C#6 - E6 - A6 -
+			""",
+		},
+		{ # Off-beat harmony
+			"wave": ChipSynth.Wave.PULSE_12,
+			"volume": 0.06,
+			"notes": """
+				. A4 . D5 . A4 . D5 | . A#4 . D5 . A#4 . D5 | . C5 . E5 . C5 . E5 | . C#5 . E5 . C#5 . E5
+				. A4 . D5 . A4 . D5 | . A#4 . D5 . A#4 . D5 | . G4 . A#4 . G4 . A#4 | . C#5 . E5 . C#5 . E5
+			""",
+		},
+		{ # Bass
+			"wave": ChipSynth.Wave.TRIANGLE,
+			"volume": 0.3,
+			"notes": """
+				D3 D4 D3 D4 D3 D4 D3 D4 | A#2 A#3 A#2 A#3 A#2 A#3 A#2 A#3 | C3 C4 C3 C4 C3 C4 C3 C4 | A2 A3 A2 A3 A2 A3 A2 A3
+				D3 D4 D3 D4 D3 D4 D3 D4 | A#2 A#3 A#2 A#3 A#2 A#3 A#2 A#3 | G2 G3 G2 G3 G2 G3 G2 G3 | A2 A3 A2 A3 C#3 C#4 E3 E4
+			""",
+		},
+		{ # Drums
+			"wave": ChipSynth.Wave.NOISE,
+			"volume": 0.13,
+			"notes": "k h s h k s s h",
+		},
+	],
+}
+
 ## "Eyes meet": the short loop while a trainer who spotted you walks over.
 const SPOTTED := {
 	"bpm": 140,
@@ -218,7 +255,7 @@ const SPOTTED := {
 }
 
 const ALL := {&"town": TOWN, &"route": ROUTE, &"battle": BATTLE, &"trainer_battle": TRAINER_BATTLE,
-	&"spotted": SPOTTED, &"victory": VICTORY}
+	&"gym_battle": GYM_BATTLE, &"spotted": SPOTTED, &"victory": VICTORY}
 
 
 static func get_song(id: StringName) -> Dictionary:

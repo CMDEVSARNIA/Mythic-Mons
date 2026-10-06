@@ -14,6 +14,7 @@ func _initialize() -> void:
 	_test_party_and_bag()
 	_test_box()
 	_test_mondex()
+	_test_badges()
 	_test_monster_round_trip()
 	_test_save_and_load()
 	_test_bad_saves()
@@ -79,6 +80,20 @@ func _test_mondex() -> void:
 	state.free()
 
 
+func _test_badges() -> void:
+	var state := _new_state()
+	_check(state.badge_count() == 0, "a new game starts without badges")
+	_check(state.can_use_field_move(&"cut") and state.can_use_field_move(&"rock_smash"), "CUT and ROCK SMASH need no badge")
+	_check(not state.can_use_field_move(&"surf") and not state.can_use_field_move(&"fly"), "SURF and FLY are locked at first")
+	_check(state.badge_for(&"surf") == &"tide_badge" and state.badge_for(&"cut") == &"", "...until the TIDE BADGE")
+	state.set_flag(&"tide_badge")
+	_check(state.can_use_field_move(&"surf") and state.can_use_field_move(&"fly"), "the TIDE BADGE unlocks SURF and FLY")
+	_check(state.badge_count() == 1, "badges are counted for the TRAINER CARD")
+	var card: GDScript = load("res://scenes/ui/trainer_card.gd")
+	_check(card.format_time(0.0) == "0:00" and card.format_time(3725.0) == "1:02", "play time reads H:MM")
+	state.free()
+
+
 func _test_monster_round_trip() -> void:
 	var original := _monster(&"flamlet", 12)
 	original.nickname = "BLAZE"
@@ -114,6 +129,8 @@ func _test_save_and_load() -> void:
 	state.mark_seen(&"shadeling")
 	state.set_flag(state.STARTER_FLAG)
 	state.mark_town_visited("res://scenes/maps/town_emberfall.tscn", "EMBERFALL TOWN")
+	state.set_flag(&"tide_badge")
+	state.play_seconds = 4321.5
 	var location := {"map": "res://scenes/maps/route_01.tscn", "cell": Vector2i(9, 12), "facing": Vector2i.LEFT, "surfing": true}
 	_check(state.save_game(location) == OK and state.has_save(), "saving writes the save file")
 	state.free()
@@ -128,6 +145,8 @@ func _test_save_and_load() -> void:
 	_check(loaded.seen.has(&"shadeling") and loaded.caught.has(&"aquapup") and not loaded.caught.has(&"shadeling"), "the MONDEX is restored")
 	_check(loaded.caught.has(&"pebblet"), "monsters owned before the MONDEX existed count as caught")
 	_check(loaded.has_flag(loaded.STARTER_FLAG) and loaded.visited_towns.has("res://scenes/maps/town_emberfall.tscn"), "flags and Fly destinations are restored")
+	_check(loaded.has_flag(&"tide_badge") and loaded.can_use_field_move(&"surf"), "badges are restored")
+	_check(is_equal_approx(loaded.play_seconds, 4321.5), "play time is restored")
 	loaded.free()
 
 
