@@ -63,6 +63,8 @@ const CHARACTERS := {
 	&"rater": [&"elder", &"jacket", {"H": FOG, "h": SLATE, "B": ORANGE, "b": RED, "C": SAND, "c": WOOD, "P": NIGHT, "F": WOOD_DARK}],
 	&"engineer": [&"cap", &"apron", {"H": SAND, "h": ORANGE, "A": ORANGE, "R": HAIR, "r": INK, "B": ORANGE, "b": RED, "C": BLUE, "c": NAVY, "P": BLUE, "F": WOOD_DARK}],
 	&"cora": [&"spiky", &"jacket", {"H": SAND, "h": ORANGE, "B": NIGHT, "b": INK, "C": SAND, "c": ORANGE, "P": NAVY, "F": INK}],
+	&"medium": [&"long", &"robe", {"H": PLUM, "h": NAVY, "B": MAUVE, "b": PLUM, "F": INK}],
+	&"vesper": [&"long", &"robe", {"H": MAUVE, "h": PLUM, "B": NIGHT, "b": INK, "F": INK}],
 }
 
 ## Item icons: id -> colors for the letters in ItemDesigns.
@@ -92,6 +94,7 @@ const ITEMS := {
 	&"repel": {"A": MAUVE, "a": PLUM, "H": PINK, "X": FOG, "x": SLATE, "C": LIME},
 	&"tide_badge": {"C": CYAN, "S": SKY, "B": BLUE},
 	&"spark_badge": {"Y": SAND, "y": ORANGE},
+	&"shade_badge": {"M": MAUVE, "P": PLUM, "C": CYAN},
 	&"bolt_stone": {"A": GREEN, "a": DEEP, "H": LIME, "X": SAND},
 	&"dusk_stone": {"A": NIGHT, "a": NAVY, "H": SLATE, "X": PLUM, "Y": CYAN},
 }
@@ -130,6 +133,8 @@ const TRAINERS := {
 	&"hiker": {"A": ORANGE, "a": RED, "H": HAIR, "h": INK, "B": GREEN, "b": DEEP, "X": WOOD, "x": WOOD_DARK, "Y": WOOD_DARK, "P": SLATE, "F": WOOD_DARK},
 	&"engineer": {"Y": SAND, "y": ORANGE, "H": HAIR, "B": ORANGE, "O": BLUE, "o": NAVY, "F": WOOD_DARK},
 	&"cora": {"H": SAND, "h": ORANGE, "G": SLATE, "L": CYAN, "B": NIGHT, "b": INK, "C": SAND, "Y": ORANGE, "P": NAVY, "F": INK},
+	&"mystic": {"H": PLUM, "h": NAVY, "B": MAUVE, "b": PLUM, "O": CYAN, "o": SKY, "F": INK},
+	&"vesper": {"H": MAUVE, "h": PLUM, "Y": FOG, "C": CYAN, "B": NIGHT, "b": INK, "F": INK},
 }
 
 ## Colors for the letters in TrainerDesigns.PLAYER_BACK: the player's cap,
@@ -167,6 +172,8 @@ const MONSTERS := {
 	&"duskwraith": {"B": PLUM, "b": NAVY, "L": MAUVE, "C": CYAN, "c": SKY, "H": NIGHT, "h": NAVY},
 	&"pipwing": {"B": WOOD, "b": WOOD_DARK, "L": SAND, "l": DIRT, "C": RED, "c": PLUM, "Y": ORANGE, "y": RED, "F": ORANGE},
 	&"galehawk": {"B": WOOD, "b": WOOD_DARK, "D": HAIR, "L": SAND, "l": DIRT, "C": RED, "c": PLUM, "Y": SAND, "y": ORANGE, "F": ORANGE, "f": RED},
+	&"wickling": {"B": WHITE, "b": FOG, "d": SLATE, "C": CYAN, "c": SKY, "n": BLUE, "Y": SAND, "M": PINK_DARK},
+	&"gloomlamp": {"F": SLATE, "f": NIGHT, "G": TEAL, "g": NAVY, "C": CYAN, "c": SKY, "n": BLUE, "M": PINK_DARK},
 }
 
 ## Quick stand-ins for species nobody has drawn yet: id -> [seed, element],

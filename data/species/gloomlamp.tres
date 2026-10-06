@@ -1,0 +1,74 @@
+[gd_resource type="Resource" script_class="MonsterSpecies" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/wick.tres" id="1_srs7a"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/gloomlamp_back.png" id="2_c1sr7"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_8og4k"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/gloomlamp.png" id="4_dvudh"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_f6bqh"]
+[ext_resource type="Resource" path="res://data/moves/ember.tres" id="6_p5fvg"]
+[ext_resource type="Resource" path="res://data/moves/harden.tres" id="7_b0mdi"]
+[ext_resource type="Resource" path="res://data/moves/lick.tres" id="8_bmx57"]
+[ext_resource type="Resource" path="res://data/moves/wisp_fire.tres" id="9_2gy6x"]
+[ext_resource type="Resource" path="res://data/moves/dizzy_ray.tres" id="10_jcofv"]
+[ext_resource type="Resource" path="res://data/moves/spirit_flare.tres" id="11_3oink"]
+[ext_resource type="Resource" path="res://data/moves/shade_orb.tres" id="12_clqth"]
+[ext_resource type="Resource" path="res://data/moves/phantasm.tres" id="13_suh31"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="14_xjtbl"]
+
+[sub_resource type="Resource" id="Resource_gd2tt"]
+script = ExtResource("5_f6bqh")
+move = ExtResource("6_p5fvg")
+
+[sub_resource type="Resource" id="Resource_7wecu"]
+script = ExtResource("5_f6bqh")
+move = ExtResource("7_b0mdi")
+
+[sub_resource type="Resource" id="Resource_t5n5v"]
+script = ExtResource("5_f6bqh")
+level = 5
+move = ExtResource("8_bmx57")
+
+[sub_resource type="Resource" id="Resource_e7t7s"]
+script = ExtResource("5_f6bqh")
+level = 9
+move = ExtResource("9_2gy6x")
+
+[sub_resource type="Resource" id="Resource_x2vnj"]
+script = ExtResource("5_f6bqh")
+level = 13
+move = ExtResource("10_jcofv")
+
+[sub_resource type="Resource" id="Resource_cmpht"]
+script = ExtResource("5_f6bqh")
+level = 17
+move = ExtResource("11_3oink")
+
+[sub_resource type="Resource" id="Resource_vsk6l"]
+script = ExtResource("5_f6bqh")
+level = 21
+move = ExtResource("12_clqth")
+
+[sub_resource type="Resource" id="Resource_w5wp3"]
+script = ExtResource("5_f6bqh")
+level = 30
+move = ExtResource("13_suh31")
+
+[resource]
+script = ExtResource("14_xjtbl")
+display_name = "GLOOMLAMP"
+element = "ghost"
+ability = ExtResource("1_srs7a")
+front_texture = ExtResource("4_dvudh")
+back_texture = ExtResource("2_c1sr7")
+base_hp = 60
+base_defense = 70
+base_special = 105
+base_speed = 60
+growth = 2
+exp_yield = 152
+learnset = Array[ExtResource("5_f6bqh")]([SubResource("Resource_gd2tt"), SubResource("Resource_7wecu"), SubResource("Resource_t5n5v"), SubResource("Resource_e7t7s"), SubResource("Resource_x2vnj"), SubResource("Resource_cmpht"), SubResource("Resource_vsk6l"), SubResource("Resource_w5wp3")])
+dex_number = 16
+category = "LANTERN"
+height = 1.2
+weight = 18.0
+dex_entry = "Its lantern glows on foggy nights, leading lost travelers home... or further astray."

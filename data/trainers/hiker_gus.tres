@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="TrainerData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/trainers/hiker.png" id="1_galqx"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_monster.gd" id="2_2iem2"]
+[ext_resource type="Resource" path="res://data/species/pebblet.tres" id="3_c6mjx"]
+[ext_resource type="Resource" path="res://data/species/bouldron.tres" id="4_qo0c8"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_data.gd" id="5_f82a8"]
+
+[sub_resource type="Resource" id="Resource_y8u6g"]
+script = ExtResource("2_2iem2")
+species = ExtResource("3_c6mjx")
+level = 18
+
+[sub_resource type="Resource" id="Resource_mg25r"]
+script = ExtResource("2_2iem2")
+species = ExtResource("4_qo0c8")
+level = 20
+
+[resource]
+script = ExtResource("5_f82a8")
+trainer_class = "HIKER"
+trainer_name = "GUS"
+battle_sprite = ExtResource("1_galqx")
+party = Array[ExtResource("2_2iem2")]([SubResource("Resource_y8u6g"), SubResource("Resource_mg25r")])
+payout = 36
+intro = PackedStringArray("These boulders won\'t\nbudge for anybody!", "Unless your MONSTERS\nare really strong...")
+defeat = PackedStringArray("You\'re tougher than\nany boulder!")
+after = PackedStringArray("DUSKHOLLOW\'s LEADER\nhands out a BADGE that\nlets you use STRENGTH.")
+badge_lines = PackedStringArray()

@@ -1,7 +1,7 @@
 class_name Player
 extends GridActor
 ## The player character: reads input, interacts with whatever it faces, and
-## owns the field moves that change how it moves (SURF, ledge hops).
+## owns the field moves that change how it moves (SURF, STRENGTH, ledge hops).
 ##
 ## Controls: arrows/WASD move, hold Shift/X to run, Z/Space interacts.
 
@@ -112,7 +112,8 @@ func _try_step(dir: Vector2i) -> void:
 		start_step(dir, 2, walk_speed, true)
 		return
 	if not can_step(dir):
-		Audio.play_sfx(&"bump")
+		if not _push_boulder(dir):
+			Audio.play_sfx(&"bump")
 		bump(dir)
 		return
 	if is_surfing and terrain != Terrain.WATER:
@@ -121,6 +122,17 @@ func _try_step(dir: Vector2i) -> void:
 		return
 	var running := Input.is_action_pressed(&"run")
 	start_step(dir, 1, SURF_SPEED if is_surfing else (RUN_SPEED if running else walk_speed))
+
+
+## With STRENGTH on, walking into a boulder shoves it one tile ahead while the
+## player pushes in place, as in Emerald.
+func _push_boulder(dir: Vector2i) -> bool:
+	if is_surfing or _map == null or not _map.strength_on:
+		return false
+	for body in query_cell(get_cell() + dir, PhysicsLayers.OBSTACLES):
+		if body is Boulder:
+			return body.push(dir)
+	return false
 
 
 func _on_step_finished(cell: Vector2i) -> void:

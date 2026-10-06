@@ -1,0 +1,80 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_ymlud"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_cbjpo"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/trainer.tscn" id="3_a06ui"]
+[ext_resource type="Resource" path="res://data/trainers/leader_vesper.tres" id="4_4714f"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_vesper.png" id="5_xoe4e"]
+[ext_resource type="Resource" path="res://data/trainers/mystic_noor.tres" id="6_q0efs"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_medium.png" id="7_n5fta"]
+[ext_resource type="Resource" path="res://data/trainers/mystic_esme.tres" id="8_sl4h2"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="9_6k3wi"]
+[ext_resource type="Texture2D" path="res://assets/characters/townsfolk/fighter.png" id="10_ejqxi"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="11_54gr3"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="12_45xai"]
+
+[node name="GymDuskhollow" type="Node2D" unique_id=1343666078]
+script = ExtResource("1_ymlud")
+display_name = "DUSKHOLLOW GYM"
+allow_fly = false
+tint = Color(0.72, 0.66, 0.92, 1)
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=2126452028]
+tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAABAAYAAAADAAAAAAABAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAKAAAAAAABAAYAAAALAAAAAAABAAYAAAAAAAEAAAAIAAYAAAABAAEAAAAAAAYAAAACAAEAAAAAAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAAAAYAAAAJAAEAAAAAAAYAAAAKAAEAAAAAAAYAAAALAAEAAAAIAAYAAAAAAAIAAAAKAAYAAAABAAIAAAAKAAYAAAACAAIAAAAKAAYAAAADAAIAAAAKAAYAAAAEAAIAAAAAAAYAAAAFAAIAAAAAAAYAAAAGAAIAAAAAAAYAAAAHAAIAAAAAAAYAAAAIAAIAAAAKAAYAAAAJAAIAAAAKAAYAAAAKAAIAAAAKAAYAAAALAAIAAAAKAAYAAAAAAAMAAAAKAAYAAAABAAMAAAAKAAYAAAACAAMAAAAKAAYAAAADAAMAAAAKAAYAAAAEAAMAAAAAAAYAAAAFAAMAAAAAAAYAAAAGAAMAAAAAAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAKAAYAAAAJAAMAAAAKAAYAAAAKAAMAAAAKAAYAAAALAAMAAAAKAAYAAAAAAAQAAAAKAAYAAAABAAQAAAAKAAYAAAACAAQAAAAAAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAAAAYAAAAKAAQAAAAKAAYAAAALAAQAAAAKAAYAAAAAAAUAAAAKAAYAAAABAAUAAAAKAAYAAAACAAUAAAAKAAYAAAADAAUAAAAKAAYAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAKAAYAAAAJAAUAAAAKAAYAAAAKAAUAAAAKAAYAAAALAAUAAAAKAAYAAAAAAAYAAAAKAAYAAAABAAYAAAAKAAYAAAACAAYAAAAKAAYAAAADAAYAAAAKAAYAAAAEAAYAAAAAAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAKAAYAAAAJAAYAAAAKAAYAAAAKAAYAAAAKAAYAAAALAAYAAAAKAAYAAAAAAAcAAAAKAAYAAAABAAcAAAAKAAYAAAACAAcAAAAAAAYAAAADAAcAAAAAAAYAAAAEAAcAAAAAAAYAAAAFAAcAAAAAAAYAAAAGAAcAAAAAAAYAAAAHAAcAAAAAAAYAAAAIAAcAAAAAAAYAAAAJAAcAAAAAAAYAAAAKAAcAAAAKAAYAAAALAAcAAAAKAAYAAAAAAAgAAAAKAAYAAAABAAgAAAAKAAYAAAACAAgAAAAKAAYAAAADAAgAAAAKAAYAAAAEAAgAAAAAAAYAAAAFAAgAAAAAAAYAAAAGAAgAAAAAAAYAAAAHAAgAAAAAAAYAAAAIAAgAAAAKAAYAAAAJAAgAAAAKAAYAAAAKAAgAAAAKAAYAAAALAAgAAAAKAAYAAAAAAAkAAAAIAAYAAAABAAkAAAAAAAYAAAACAAkAAAAAAAYAAAADAAkAAAAAAAYAAAAEAAkAAAAAAAYAAAAFAAkAAAAAAAYAAAAGAAkAAAAAAAYAAAAHAAkAAAAAAAYAAAAIAAkAAAAAAAYAAAAJAAkAAAAAAAYAAAAKAAkAAAAAAAYAAAALAAkAAAAIAAYAAAAAAAoAAAAAAAYAAAABAAoAAAAAAAYAAAACAAoAAAAAAAYAAAADAAoAAAAAAAYAAAAEAAoAAAAAAAYAAAAFAAoAAAAFAAYAAAAGAAoAAAAAAAYAAAAHAAoAAAAAAAYAAAAIAAoAAAAAAAYAAAAJAAoAAAAAAAYAAAAKAAoAAAAAAAYAAAALAAoAAAAAAAYAAAA=")
+tile_set = ExtResource("2_cbjpo")
+
+[node name="Entities" type="Node2D" parent="." unique_id=328556571]
+y_sort_enabled = true
+
+[node name="NPC_Vesper1" parent="Entities" unique_id=861504271 instance=ExtResource("3_a06ui")]
+position = Vector2(88, 24)
+data = ExtResource("4_4714f")
+sight = 1
+swims = false
+sprite_sheet = ExtResource("5_xoe4e")
+lines = PackedStringArray("Hello there!")
+
+[node name="NPC_Medium2" parent="Entities" unique_id=1492190550 instance=ExtResource("3_a06ui")]
+position = Vector2(40, 72)
+data = ExtResource("6_q0efs")
+sight = 5
+swims = false
+sprite_sheet = ExtResource("7_n5fta")
+lines = PackedStringArray("Hello there!")
+start_facing = 3
+
+[node name="NPC_Medium3" parent="Entities" unique_id=676592543 instance=ExtResource("3_a06ui")]
+position = Vector2(152, 120)
+data = ExtResource("8_sl4h2")
+sight = 5
+swims = false
+sprite_sheet = ExtResource("7_n5fta")
+lines = PackedStringArray("Hello there!")
+start_facing = 2
+
+[node name="NPC_Fighter4" parent="Entities" unique_id=627400211 instance=ExtResource("9_6k3wi")]
+position = Vector2(136, 152)
+sprite_sheet = ExtResource("10_ejqxi")
+lines = PackedStringArray("Yo, challenger! VESPER\nuses GHOST-type\nMONSTERS.", "NORMAL moves can\'t\ntouch them. GHOST moves\nhit them hard!")
+wander_radius = 0
+start_facing = 2
+
+[node name="Warps" type="Node2D" parent="." unique_id=517927595]
+
+[node name="Warp1" parent="Warps" unique_id=139235946 instance=ExtResource("11_54gr3")]
+position = Vector2(88, 168)
+target_map = "res://scenes/maps/town_duskhollow.tscn"
+target_spawn = &"from_gym"
+blocked_lines = PackedStringArray()
+
+[node name="Spawns" type="Node2D" parent="." unique_id=785389865]
+
+[node name="default" type="Marker2D" parent="Spawns" unique_id=1907317939]
+position = Vector2(88, 152)
+script = ExtResource("12_45xai")
+facing = 1
+
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=2084392706]
+position = Vector2(88, 152)
+script = ExtResource("12_45xai")
+facing = 1

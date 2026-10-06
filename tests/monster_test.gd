@@ -82,6 +82,20 @@ func _test_evolution() -> void:
 			shared_growth = shared_growth and evolution.into.growth == species.growth
 	_check(shared_growth, "every evolution shares its pre-evolution's growth rate")
 
+	var wickling := _monster(&"wickling", 23, &"HARDY")
+	_check(wickling.evolution_by_level() == null, "WICKLING doesn't evolve before level 24")
+	wickling.level = 24
+	_check(wickling.evolution_by_level() == GameData.species(&"gloomlamp"), "...and becomes GLOOMLAMP at 24")
+
+	# Every move a monster can learn has its own animation.
+	var recipes: Dictionary = load("res://scenes/battle/move_animator.gd").get_script_constant_map()["RECIPES"]
+	var missing: Array[String] = []
+	for species in GameData.all_species():
+		for entry in species.learnset:
+			if not recipes.has(entry.move.animation) and entry.move.display_name not in missing:
+				missing.append(entry.move.display_name)
+	_check(missing.is_empty(), "every learnable move has an animation (missing: %s)" % ", ".join(missing))
+
 
 # --- Helpers -------------------------------------------------------------------
 

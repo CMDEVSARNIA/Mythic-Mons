@@ -4,14 +4,14 @@ extends SceneTree
 ## battle backdrop all share one style:
 ##
 ##   world_tiles.png        every map tile, laid out as in WorldTiles
-##   signpost.png, cut_tree.png, smash_rock.png, pc.png
+##   signpost.png, cut_tree.png, smash_rock.png, boulder.png, pc.png
 ##   battle_background.png  240x160, platforms where BattleScene expects them
 ##
 ##   godot --headless --path . --script res://tools/import_world_art.gd
 ##   godot --headless --path . --import
 ##
 ## Tiles with see-through parts are laid over grass (or floor indoors). The
-## sheet has no tall grass, ledges, interiors or cracked boulders, so those are
+## sheet has no tall grass, ledges, interiors or boulders, so those are
 ## drawn here in its colors, and the house gets red, blue, slate and teal roofs for
 ## the MONSTER CENTER, MART, lab and GYM.
 
@@ -279,6 +279,30 @@ const SMASH_ROCK := [
 	"................",
 ]
 
+## A round boulder for STRENGTH to push, in greys.
+const BOULDER := [
+	"................",
+	"................",
+	".....KKKKKK.....",
+	"...KKpplllmKK...",
+	"..KpplllllmmmK..",
+	"..KplllllllmmK..",
+	".KpllldllllmmdK.",
+	".KllllllllmmmdK.",
+	".KlllllllmmmmdK.",
+	".KmllllllmmmddK.",
+	".KmmlllmmmmmddK.",
+	"..KmmmmmmmmddK..",
+	"..KdmmmmmmdddK..",
+	"...KKddddddKK...",
+	"..ssKKKKKKKKss..",
+	"................",
+]
+const STONE := {
+	"K": Color("201729"), "p": Color("d4d8e0"), "l": Color("a3a9b8"), "m": Color("7a8194"), "d": Color("4f5669"),
+	"s": Color(Color("201729"), 0.4),
+}
+
 ## The house roof's browns (light, mid, dark) and their replacements.
 const ROOF_BROWNS := [Color("94785c"), Color("79584f"), Color("563a3f")]
 const ROOFS := {
@@ -301,6 +325,7 @@ func _initialize() -> void:
 	_save(_tile(SIGNPOST), OUT_DIR + "signpost.png")
 	_save(_draw(_empty(), CUT_TREE, GREENS), OUT_DIR + "cut_tree.png")
 	_save(_draw(_empty(), SMASH_ROCK, COLORS), OUT_DIR + "smash_rock.png")
+	_save(_draw(_empty(), BOULDER, STONE), OUT_DIR + "boulder.png")
 	_save(_draw(_empty(), PC, COLORS), OUT_DIR + "pc.png")
 	_save(_battle_background(), OUT_DIR + "battle_background.png")
 	quit()

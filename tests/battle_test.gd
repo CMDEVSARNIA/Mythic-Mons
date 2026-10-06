@@ -92,6 +92,14 @@ func _test_abilities() -> void:
 	events = battle.take_turn(Battle.fight(0))
 	_check(battle.enemy.monster.hp > 5 and _has_text(events, "SOAK UP"), "SOAK UP turns water damage into healing")
 
+	# WICK: the same for fire moves, on a GHOST.
+	battle = _battle([_monster(&"flamlet", 5)], _monster(&"wickling", 5))
+	_only_move(battle.enemy.monster, &"growl")
+	battle.player.monster.replace_move(0, GameData.move(&"ember"))
+	battle.enemy.monster.hp = 5
+	events = battle.take_turn(Battle.fight(0))
+	_check(battle.enemy.monster.hp > 5 and _has_text(events, "WICK"), "WICK turns fire damage into healing")
+
 	# SUNSOAK: heals a little every turn.
 	battle = _battle([_monster(&"flamlet", 5)], _monster(&"sproutle", 5))
 	_only_move(battle.enemy.monster, &"growl")

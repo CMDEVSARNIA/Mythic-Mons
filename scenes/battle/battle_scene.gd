@@ -23,6 +23,8 @@ const FOE_THROW_FROM := Vector2(252, 4)
 const FOE_MARKS_AT := Vector2(14, 16)
 const PLAYER_MARKS_AT := Vector2(150, 84)
 const MARK_DIR := "res://assets/placeholder/effects/"
+## Characters of "<name> do?" that fit left of the FIGHT/BAG/MON/RUN box.
+const PROMPT_WIDTH := 13
 ## Where the trainer's hand lets go of the first orb, from the trainer's spot.
 const HAND_OFFSET := Vector2(26, -26)
 ## The white-hot, then red, glow of a monster turning into light.
@@ -120,7 +122,11 @@ func _choose_action() -> Dictionary:
 	var action := {}
 	var monster_name := battle.player.monster.get_display_name()
 	while action.is_empty():
-		_prompt.text = "What will\n%s do?" % monster_name
+		var question := "%s do?" % monster_name
+		# Ten-letter names like DUSKWRAITH would run under the menu.
+		if question.length() > PROMPT_WIDTH:
+			question = "%s\ndo?" % monster_name
+		_prompt.text = "What will\n" + question
 		var choice: int = await _action_menu.choose(["FIGHT", "BAG", "MON", "RUN"], _last_action)
 		_prompt.text = ""
 		if choice >= 0:

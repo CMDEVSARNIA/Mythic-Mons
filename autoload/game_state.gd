@@ -6,7 +6,7 @@ extends Node
 ## save file is something players can edit or share.
 
 ## Field moves that change how the player can traverse the world.
-const FIELD_MOVES: Array[StringName] = [&"cut", &"rock_smash", &"surf", &"fly"]
+const FIELD_MOVES: Array[StringName] = [&"cut", &"rock_smash", &"surf", &"fly", &"strength"]
 const MAX_PARTY := 6
 ## Most of one item the BAG holds.
 const MAX_ITEM_COUNT := 99
@@ -26,6 +26,7 @@ const MAX_NAME_LENGTH := 7
 const BADGES := {
 	&"tide_badge": ["TIDE BADGE", [&"surf"]],
 	&"spark_badge": ["SPARK BADGE", [&"fly"]],
+	&"shade_badge": ["SHADE BADGE", [&"strength"]],
 }
 
 var player_name := DEFAULT_NAME

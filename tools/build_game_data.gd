@@ -63,6 +63,7 @@ const MOVES := {
 	"synthesis": ["SYNTHESIS", "grass", STATUS, 0, 100, 5, 0, {}, SELF, 100, "Soaks up sunlight to restore half its HP.", {"heal": 50}],
 	"roost": ["ROOST", "normal", STATUS, 0, 100, 10, 0, {}, SELF, 100, "Lands to rest, restoring half its HP.", {"heal": 50}],
 	"dizzy_ray": ["DIZZY RAY", "ghost", STATUS, 0, 100, 10, 0, {}, FOE, 0, "An eerie, swirling light that confuses the foe.", {"confuse_chance": 100}],
+	"spirit_flare": ["SPIRIT FLARE", "ghost", SPECIAL, 70, 100, 15, 0, {}, FOE, 0, "A ghostly blue flame. May burn the foe.", ["burn", 20]],
 	"supersonic": ["SUPERSONIC", "normal", STATUS, 0, 55, 20, 0, {}, FOE, 0, "Odd sound waves that confuse the foe.", {"confuse_chance": 100}],
 	# Status moves: the last entry is [status condition, chance].
 	"poison_dust": ["POISON DUST", "grass", STATUS, 0, 75, 35, 0, {}, FOE, 0, "Scatters a toxic dust that poisons.", ["poison", 100]],
@@ -82,6 +83,7 @@ const ABILITIES := {
 	"jolt": ["stat_on_hit_ability.gd", "JOLT", "When hit, may lower the attacker's SPEED.", {"chance": 0.3, "stat": "speed", "stages": -1}],
 	"dread": ["stat_on_enter_ability.gd", "DREAD", "Lowers the foe's ATTACK on entering battle.", {"stat": "attack", "stages": -1}],
 	"gale_force": ["stat_on_enter_ability.gd", "GALE FORCE", "Buffets the foe on entering battle, lowering its SPEED.", {"stat": "speed", "stages": -1}],
+	"wick": ["absorb_element_ability.gd", "WICK", "Fire moves feed its flame, healing it instead.", {"element": "fire", "heal_fraction": 0.25}],
 }
 
 ## id: [name, element, ability, [hp, attack, defense, special, speed], catch rate, exp yield, learnset, dex entry]
@@ -129,6 +131,12 @@ const SPECIES := {
 	"galehawk": ["GALEHAWK", "normal", "gale_force", [63, 72, 60, 52, 91], 45, 145,
 		[[1, "tackle"], [1, "growl"], [5, "quick_hit"], [9, "gust"], [11, "supersonic"], [13, "leer"], [17, "wing_slash"], [21, "roost"], [28, "aerial_dive"]],
 		"It rides storm winds above the clouds, then dives faster than the eye can follow."],
+	"wickling": ["WICKLING", "ghost", "wick", [40, 30, 45, 70, 45], 190, 58,
+		[[1, "ember"], [1, "harden"], [5, "lick"], [9, "wisp_fire"], [13, "dizzy_ray"], [17, "spirit_flare"], [21, "shade_orb"]],
+		"A candle that wandered off on its own. Its blue flame gives off no heat at all."],
+	"gloomlamp": ["GLOOMLAMP", "ghost", "wick", [60, 45, 70, 105, 60], 45, 152,
+		[[1, "ember"], [1, "harden"], [5, "lick"], [9, "wisp_fire"], [13, "dizzy_ray"], [17, "spirit_flare"], [21, "shade_orb"], [30, "phantasm"]],
+		"Its lantern glows on foggy nights, leading lost travelers home... or further astray."],
 }
 
 const BY_LEVEL := Evolution.Method.LEVEL
@@ -142,6 +150,7 @@ const EVOLUTIONS := {
 	"zapkit": ["voltvix", BY_ITEM, "bolt_stone"],
 	"shadeling": ["duskwraith", BY_ITEM, "dusk_stone"],
 	"pipwing": ["galehawk", BY_LEVEL, 18],
+	"wickling": ["gloomlamp", BY_LEVEL, 24],
 }
 
 const BALL := ItemData.Kind.BALL
@@ -256,6 +265,34 @@ const TRAINERS := {
 			"CORA: That's the SPARK\nBADGE! You earned it!",
 			"With it, your MONSTERS\ncan FLY between towns\noutside of battle.",
 		]}],
+	"hiker_gus": ["HIKER", "GUS", "hiker", 36, [["pebblet", 18], ["bouldron", 20]],
+		["These boulders won't\nbudge for anybody!", "Unless your MONSTERS\nare really strong..."],
+		["You're tougher than\nany boulder!"],
+		["DUSKHOLLOW's LEADER\nhands out a BADGE that\nlets you use STRENGTH."]],
+	"mystic_luna": ["MYSTIC", "LUNA", "mystic", 32, [["shadeling", 18], ["wickling", 19]],
+		["The candles told me\nyou'd come this way..."],
+		["The candles were\nwrong..."],
+		["WICKLING drinks up\nFIRE moves. Don't feed\nits flame!"]],
+	"lass_ivy": ["LASS", "IVY", "lass", 16, [["sproutle", 18], ["pipwing", 19]],
+		["Out here all alone?\nLet's battle!"],
+		["Aww, my poor team..."],
+		["DUSKHOLLOW is always\ndark, even at noon."]],
+	"mystic_esme": ["MYSTIC", "ESME", "mystic", 32, [["wickling", 20], ["shadeling", 21]],
+		["Shh... The spirits\nare restless tonight."],
+		["The spirits have\nspoken..."],
+		["NORMAL moves pass right\nthrough GHOSTS. Only\nGHOST moves hit hard!"]],
+	"mystic_noor": ["MYSTIC", "NOOR", "mystic", 32, [["shadeling", 21], ["wickling", 22]],
+		["Can you find your way\nin the dark?"],
+		["Lights out..."],
+		["VESPER has been\nwaiting for you."]],
+	"leader_vesper": ["LEADER", "VESPER", "vesper", 100, [["wickling", 23], ["duskwraith", 24], ["gloomlamp", 26]],
+		["VESPER: Welcome to the\nDUSKHOLLOW GYM.", "Every candle here once\nlit a traveler's way\nhome.", "Let's see how bright\nyour flame burns!"],
+		["My candles... all\nblown out."],
+		["VESPER: STRENGTH lets\nyour MONSTERS shove big\nboulders aside.", "Someone left a puzzle\nof boulders on ROUTE 3.\nGive it a try!"],
+		{"music": &"gym_battle", "badge": &"shade_badge", "badge_lines": [
+			"VESPER: Take the SHADE\nBADGE. You've earned it.",
+			"With it, your MONSTERS\ncan use STRENGTH to push\nboulders outside battle.",
+		]}],
 }
 
 var _force := false
@@ -344,6 +381,8 @@ const DEX := {
 	"duskwraith": ["SHADE", 1.5, 0.3, MEDIUM_SLOW],
 	"pipwing": ["TINY BIRD", 0.3, 1.8, MEDIUM_SLOW],
 	"galehawk": ["STORM HAWK", 1.2, 24.5, MEDIUM_SLOW],
+	"wickling": ["CANDLE", 0.3, 1.1, MEDIUM_SLOW],
+	"gloomlamp": ["LANTERN", 1.2, 18.0, MEDIUM_SLOW],
 }
 
 

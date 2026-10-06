@@ -9,7 +9,7 @@ built with **Godot 4.7** and GDScript.
 
 So far: tile-locked movement, a multi-town world, dialogue, field moves,
 a starter from the local professor, animated turn-based battles against
-wild monsters and trainers (including your rival), two GYMs and their
+wild monsters and trainers (including your rival), three GYMs and their
 badges, unique abilities, EXP and level-ups, evolution, catching with ten
 kinds of orb, items to find, a MONDEX, a MART, a party screen, nicknames, a
 TRAINER CARD, and saving.
@@ -70,16 +70,36 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   Orbs lying on the ground hold items: one sits behind a CUT tree, one on a
   sandbar in the river.
 - **Copperdale Town** has a MONSTER CENTER, a MART, a GYM, and CORA's dad,
-  who hands out SUPER ORBs. ROUTE 3 is closed for now.
+  who hands out SUPER ORBs. Its east gate opens once you have the SPARK BADGE.
 - **The COPPERDALE GYM.** Stacks of generators line one walkway, where
   ENGINEERs ROY and IDA each watch a crossing. LEADER CORA uses ZAPKIT,
   BOULDRON and VOLTVIX (levels 18 to 21). Beat her for the **SPARK BADGE**
   and $2100.
 
   ![Route 2, Copperdale Town, the COPPERDALE GYM and LEADER CORA's battle](docs/images/copperdale.png)
+- **Route 3** winds east under the cliffs to Duskhollow. LASS IVY, HIKER GUS
+  and MYSTIC LUNA watch the path, and wild WICKLING and SHADELING haunt the
+  grass. A pocket in the cliffs holds a **boulder puzzle** with a MAX REVIVE
+  at the end; you'll need STRENGTH to solve it.
+- **Duskhollow Town** sits in a never-ending dusk (the whole map is tinted).
+  It has a MONSTER CENTER, a MART that stocks DUSK STONEs and NET and DIVE
+  ORBs, a little memorial garden, and an OLD HOUSE where an elder tells the
+  legend of the lantern in the fog and gives you a DUSK STONE.
+- **The DUSKHOLLOW GYM.** A pitch-black hall crossed by one walkway, where
+  MYSTICs ESME and NOOR each watch a crossing. LEADER VESPER uses WICKLING,
+  DUSKWRAITH and GLOOMLAMP (levels 23 to 26). NORMAL moves can't touch her
+  GHOSTs, and WICKLING's flame drinks up FIRE moves. Beat her for the
+  **SHADE BADGE** and $2600.
+
+  ![Route 3's boulder puzzle, Duskhollow Town, the DUSKHOLLOW GYM and LEADER VESPER's battle](docs/images/duskhollow.png)
+- **STRENGTH.** With the SHADE BADGE, press A on a boulder and your lead
+  monster uses STRENGTH: until you leave the map, walking into a boulder
+  shoves it one tile (not into walls, water, people or doorways). Leaving
+  and coming back puts every boulder back where it started, so a stuck
+  puzzle can always be retried.
 - **Badges unlock field moves**, as in Emerald. CUT and ROCK SMASH work from
-  the start, SURF needs the TIDE BADGE and FLY the SPARK BADGE. Until then,
-  the water is just "dyed a deep blue...".
+  the start, SURF needs the TIDE BADGE, FLY the SPARK BADGE and STRENGTH the
+  SHADE BADGE. Until then, the water is just "dyed a deep blue...".
 - **MONSTER CENTERs** are where you wake up after whiting out, once the
   nurse has healed you there (until then, it's home).
 - **FLY** from the start menu (Enter) to any town you've visited.
@@ -182,8 +202,8 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
 - **MONDEX.** PROF. ASTER gives it to you with your starter. It lists every
   species by number: unseen ones as dashes, ones you've battled by name, and
   caught ones with an orb. Caught entries open a page with the picture,
-  category, element, height, weight and a description. The seven base forms
-  can be caught, and evolving them fills in the other seven:
+  category, element, height, weight and a description. The eight base forms
+  can be caught, and evolving them fills in the other eight:
 
   | Where | Monsters |
   |---|---|
@@ -192,6 +212,7 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   | Emberfall's secret garden (behind the CUT tree) | SHADELING |
   | Route 2 tall grass | PIPWING, ZAPKIT, SPROUTLE, PEBBLET |
   | Route 2 river (while surfing) | AQUAPUP |
+  | Route 3 tall grass | WICKLING, SHADELING, PIPWING, PEBBLET, ZAPKIT |
 - **Evolution.** Like Emerald, a monster that reaches its evolution level in
   a battle evolves once the battle is over. Hold B during the flashing to
   stop it, and it tries again at its next level-up. ZAPKIT and SHADELING
@@ -231,14 +252,16 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
 - **Townsfolk** with tips: a GARDENER in Emberfall, a YOUNGSTER and a
   FIGHTER on Route 1, an OFFICER and a MYSTIC in Tidewater. They're
   converted from a downloaded sprite sheet into the game's palette.
-- **Fourteen hand-drawn monsters in seven evolution lines.** Each line has a
+- **Sixteen hand-drawn monsters in eight evolution lines.** Each line has a
   unique ability: FLAMLET → BLAZARD (KINDLE), AQUAPUP → TIDEHOUND (SOAK UP),
   SPROUTLE → GROVETLE (SUNSOAK), PEBBLET → BOULDRON (STURDY SHELL), ZAPKIT →
   VOLTVIX (JOLT), SHADELING → DUSKWRAITH (DREAD), PIPWING → GALEHAWK (GALE
-  FORCE). Each evolved form learns a new signature move, such as HEAT WAVE,
-  THUNDER, PHANTASM and AERIAL DIVE.
+  FORCE), WICKLING → GLOOMLAMP (WICK: FIRE moves heal it, at level 24). Each
+  evolved form learns a new signature move, such as HEAT WAVE, THUNDER,
+  PHANTASM and AERIAL DIVE, and the WICKLING line has its own blue-flamed
+  SPIRIT FLARE.
 
-  ![The seven base monsters (top) and their evolutions (bottom)](docs/images/monsters.png)
+  ![The eight base monsters (top) and their evolutions (bottom)](docs/images/monsters.png)
 
 ## Project layout
 
@@ -307,15 +330,15 @@ browser's storage).
 ## Tests
 
 ```sh
-# Battle rules: formulas, turn order, abilities, catching, special orbs, trainers, status conditions, confusion, flinching, draining, recoil, healing moves, switching between a trainer's monsters, trainer AI, items, PP, EXP (128 checks)
+# Battle rules: formulas, turn order, abilities, catching, special orbs, trainers, status conditions, confusion, flinching, draining, recoil, healing moves, switching between a trainer's monsters, trainer AI, items, PP, EXP (129 checks)
 godot --headless --path . --script res://tests/battle_test.gd
-# EXP curves, IVs, natures and evolution (20 checks)
+# EXP curves, IVs, natures, evolution, and an animation for every learnable move (23 checks)
 godot --headless --path . --script res://tests/monster_test.gd
-# Party, BOX (withdraw, deposit, release), BAG, money, MONDEX, badges and field moves, play time, REPEL steps, flags and save/load round trips (57 checks)
+# Party, BOX (withdraw, deposit, release), BAG, money, MONDEX, badges and field moves, play time, REPEL steps, flags and save/load round trips (58 checks)
 godot --headless --path . --script res://tests/game_state_test.gd
-# Plays the whole game by injecting input: the title screen, naming, starter, battles, nicknames, trainers, status, evolutions, MONDEX, buildings, shops, the PC, both GYMs and badges, the TRAINER CARD, the NAME RATER, Route 2 and Copperdale, OPTION, DEBUG, REVIVE and REPEL (160 checks)
+# Plays the whole game by injecting input: the title screen, naming, starter, battles, nicknames, trainers, status, evolutions, MONDEX, buildings, shops, the PC, all three GYMs and badges, the TRAINER CARD, the NAME RATER, Route 2 and Copperdale, Route 3 and Duskhollow, the STRENGTH boulder puzzle, OPTION, DEBUG, REVIVE and REPEL (181 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
-# Talks to every NPC and reads every sign on every map, from where a player can stand (63 checks)
+# Talks to every NPC and reads every sign on every map, from where a player can stand (88 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/npc_test.gd
 ```
 
@@ -333,14 +356,16 @@ your real save.
    shake animation, and caught monsters joining the party or BOX.
 4. ~~**Party & starter.**~~ Done: PROF. ASTER's starter, party screen and
    summary, BAG outside battle, MOM healing, save/load with a title screen.
-5. ~~**Field-move gating.**~~ Done: SURF needs the TIDE BADGE and FLY the
-   SPARK BADGE. Later badges can unlock more (add them to `GameState.BADGES`).
+5. ~~**Field-move gating.**~~ Done: SURF needs the TIDE BADGE, FLY the
+   SPARK BADGE and STRENGTH the SHADE BADGE. Later badges can unlock more
+   (add them to `GameState.BADGES`).
 6. **Content.** More GYMs and badges, more routes, towns and trainers
-   (ROUTE 3 is next), and more real art from the sources in ASSETS.md.
-   ~~A mart~~, ~~a Monster Center~~, ~~enterable buildings~~, ~~trainers
-   with line-of-sight battles~~, ~~status conditions~~, ~~a PC for the
-   BOX~~, ~~two GYMs~~, ~~a TRAINER CARD~~, ~~nicknames~~ and ~~Route 2 and
-   Copperdale~~ are done.
+   (ROUTE 4, east of Duskhollow, is next), and more real art from the
+   sources in ASSETS.md. ~~A mart~~, ~~a Monster Center~~, ~~enterable
+   buildings~~, ~~trainers with line-of-sight battles~~, ~~status
+   conditions~~, ~~a PC for the BOX~~, ~~three GYMs~~, ~~a TRAINER CARD~~,
+   ~~nicknames~~, ~~Route 2 and Copperdale~~, ~~Route 3 and Duskhollow~~
+   and ~~STRENGTH~~ are done.
 7. **Stat depth.** Split SPECIAL into SP. ATK and SP. DEF, and add EVs
    (effort points from each defeated monster), as in Gen 3.
 
@@ -351,7 +376,7 @@ your real save.
 - Palette: mostly [Sweetie 16](https://lospec.com/palette-list/sweetie-16) by GrafxKid.
 - World art: [Zelda-like tilesets and sprites](https://opengameart.org/content/zelda-like-tilesets-and-sprites)
   by ArMM1998, CC0 (`assets/world/source/`). The roofs are recolored, and the
-  tall grass, ledges, interiors, CUT tree, boulder and battle backdrop were
+  tall grass, ledges, interiors, CUT tree, boulders and battle backdrop were
   drawn for this project in its colors.
 - Townsfolk (YOUNGSTER, OFFICER, MYSTIC, FIGHTER, GARDENER): recolored from
   [16x16 8-bit RPG character set](https://opengameart.org/content/16x16-8-bit-rpg-character-set)

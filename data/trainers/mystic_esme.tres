@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="TrainerData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/trainers/mystic.png" id="1_lquyh"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_monster.gd" id="2_dehd8"]
+[ext_resource type="Resource" path="res://data/species/wickling.tres" id="3_fur18"]
+[ext_resource type="Resource" path="res://data/species/shadeling.tres" id="4_yrl05"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_data.gd" id="5_8j1ne"]
+
+[sub_resource type="Resource" id="Resource_xij7w"]
+script = ExtResource("2_dehd8")
+species = ExtResource("3_fur18")
+level = 20
+
+[sub_resource type="Resource" id="Resource_njgk2"]
+script = ExtResource("2_dehd8")
+species = ExtResource("4_yrl05")
+level = 21
+
+[resource]
+script = ExtResource("5_8j1ne")
+trainer_class = "MYSTIC"
+trainer_name = "ESME"
+battle_sprite = ExtResource("1_lquyh")
+party = Array[ExtResource("2_dehd8")]([SubResource("Resource_xij7w"), SubResource("Resource_njgk2")])
+payout = 32
+intro = PackedStringArray("Shh... The spirits\nare restless tonight.")
+defeat = PackedStringArray("The spirits have\nspoken...")
+after = PackedStringArray("NORMAL moves pass right\nthrough GHOSTS. Only\nGHOST moves hit hard!")
+badge_lines = PackedStringArray()

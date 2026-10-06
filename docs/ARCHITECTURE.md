@@ -30,8 +30,9 @@ Mythic-Mons/
 │   │   ├── world_map.gd       Root script of every map (terrain lookups, spawns, encounters)
 │   │   └── *.tscn             Emberfall (home, lab, REN's house), Route 1, Tidewater
 │   │                          (MART, MONSTER CENTER, GYM, seaside house), Route 2,
-│   │                          Copperdale (MONSTER CENTER, MART, GYM, house)
-│   ├── objects/               Warp, SpawnPoint, Signpost, CUT tree, ROCK SMASH boulder,
+│   │                          Copperdale (MONSTER CENTER, MART, GYM, house), Route 3,
+│   │                          Duskhollow (MONSTER CENTER, MART, GYM, old house)
+│   ├── objects/               Warp, SpawnPoint, Signpost, CUT tree, ROCK SMASH rock, Boulder,
 │   │                          StoragePC (the MONSTER CENTER's PC), ItemBall
 │   ├── battle/                BattleScene (menus + animation), MoveAnimator (move and
 │   │                          orb effects), BattlerPanel, StatBar, EvolutionScene
@@ -54,14 +55,15 @@ Mythic-Mons/
 │   │                          world_tiles.gd (WorldTiles: the map atlas layout)
 │   └── audio/                 ChipSynth (SFX), Chiptune (sequencer), Songs (music data)
 ├── data/                      Game data as .tres, file name = id
-│   ├── species/               flamlet, blazard, aquapup, tidehound, ... (14, in dex order)
+│   ├── species/               flamlet, blazard, aquapup, tidehound, ... (16, in dex order)
 │   ├── moves/                 tackle, ember, water_gun, ...
-│   ├── abilities/             kindle, soak_up, sunsoak, sturdy_shell, jolt, dread, gale_force
+│   ├── abilities/             kindle, soak_up, sunsoak, sturdy_shell, jolt, dread, gale_force, wick
 │   ├── items/                 ten orbs (mon_orb ... gala_orb), potion, big_potion, stones
 │   └── trainers/              lass_mia, youngster_tim, rival_ren, swimmer_luca,
 │                              swimmer_nia, leader_marina, hiker_dale, youngster_joey,
 │                              swimmer_rio, rival_ren_2, engineer_roy, engineer_ida,
-│                              leader_cora
+│                              leader_cora, lass_ivy, hiker_gus, mystic_luna,
+│                              mystic_esme, mystic_noor, leader_vesper
 ├── assets/
 │   ├── placeholder/           Generated PNGs: characters, objects, monsters, items,
 │   │                          effects, trainers (battle sprites)
@@ -143,7 +145,7 @@ NPCs (`npc.tscn`) use the same layout without the camera and surf mount.
 
 ```
 TownEmberfall (Node2D)                   world_map.gd: display_name, is_town, allow_fly,
-│                                        music, encounter_rate, wild_monsters
+│                                        music, tint, encounter_rate, wild_monsters
 ├── Ground (TileMapLayer)                overworld_tileset.tres
 ├── Buildings (TileMapLayer)             5 × 5 houses from WorldTiles (towns only)
 ├── Entities (Node2D, Y Sort enabled)    NPCs, signs, field obstacles (+ the player at runtime)
@@ -161,7 +163,7 @@ you like. `WorldMap.get_terrain()` reads the topmost tile that sets a terrain.
 | 1 | world | 1 | Solid tiles (trees, walls, roofs, ledges), signs |
 | 2 | water | 2 | Water tiles |
 | 3 | actors | 4 | Player and NPCs |
-| 4 | obstacles | 8 | CUT trees, ROCK SMASH boulders |
+| 4 | obstacles | 8 | CUT trees, ROCK SMASH rocks, STRENGTH boulders |
 | 5 | triggers | 16 | Warps (areas; never block movement) |
 
 Surfing works by removing the `water` bit from the player's
@@ -221,15 +223,20 @@ next to them, so they don't walk off just as you press A.
 |---|---|
 | CUT / ROCK SMASH | `FieldObstacle` (StaticBody2D on `obstacles`). Pressing A asks to use the move, then plays an effect and frees the node. It returns when the map reloads, like Emerald. |
 | SURF | Press A facing water. The player gets the surf mount, loses the `water` collision bit and hops in. Moving onto land hops back out. |
+| STRENGTH | `Boulder` (StaticBody2D on `obstacles`). Pressing A on one with the SHADE BADGE sets `WorldMap.strength_on`; after that, `Player._try_step()` turns a bump into `Boulder.push()`, which moves the body to the next cell at once (so nothing can walk into it mid-push) and slides only the sprite. A boulder won't move into anything a walker collides with, off the map, or onto a warp. The flag lives on the map instance, so leaving resets it and puts every boulder back. |
 | FLY | Start menu (Enter) → FLY lists `GameState.visited_towns`. A map with `is_town = true` registers itself when entered. A map with `allow_fly = false` (interiors) refuses. Lands on the target town's `fly` spawn. |
 
 `GameState.can_use_field_move()` decides availability through badges, as in
 Emerald: `GameState.BADGES` maps each badge id to its name and the field moves
 it unlocks, and a badge is owned when its flag is set. CUT and ROCK SMASH are
-in no badge's list, so they work from the start; SURF needs the TIDE BADGE
-and FLY the SPARK BADGE. Without them, SURF only shows "The water is dyed a
-deep blue..." and FLY names the missing badge (`badge_for()`). The river on
-Route 2 makes SURF the way on to Copperdale.
+in no badge's list, so they work from the start; SURF needs the TIDE BADGE,
+FLY the SPARK BADGE and STRENGTH the SHADE BADGE. Without them, SURF only
+shows "The water is dyed a deep blue...", a boulder is just described, and
+FLY names the missing badge (`badge_for()`). The river on Route 2 makes SURF
+the way on to Copperdale, and Copperdale's east gate (a warp with
+`required_flag = spark_badge`) opens onto Route 3 once CORA is beaten.
+Route 3's boulder puzzle is optional, for players who come back with
+STRENGTH.
 
 ## Items on the map
 
@@ -666,6 +673,8 @@ marks the new species as caught in the MONDEX.
 3. Add `SpawnPoint` markers under `Spawns`, named by id.
 4. Add `warp.tscn` instances under `Warps`. Set `target_map` and `target_spawn`.
 5. Set `display_name`, `music`, `is_town`, and the encounter table in the inspector.
+   `tint` colors the whole map through a CanvasModulate (Duskhollow's dusk);
+   the battle and menus are on their own layers, so they keep their colors.
 
 ## Tests
 
@@ -678,16 +687,17 @@ marks the new species as caught in the MONDEX.
   trainer AI, orbs and POTIONs, the rival's evolved counter-pick,
   confusion and flinching, draining, recoil and healing moves, switching
   before a trainer's next monster, and REVIVE, MAX REVIVE and ETHER on any
-  party member (128 checks).
+  party member (129 checks).
 - `tests/monster_test.gd` covers the four EXP curves, IV ranges, every
   nature turning up, nature effects on stats, level and stone evolution
-  (what's kept and what changes), and that evolutions share their
-  pre-evolution's curve (20 checks).
+  (what's kept and what changes), that evolutions share their
+  pre-evolution's curve, and that every learnable move has an animation
+  recipe (23 checks).
 - `tests/game_state_test.gd` covers the party, BOX (withdraw, deposit,
   release and their limits), BAG limits, money, the
-  MONDEX (all 14 species), badges and the field moves they unlock, the card's time format, flags, monster serialization (natures, orbs and statuses included,
+  MONDEX (all 16 species), badges and the field moves they unlock, the card's time format, flags, monster serialization (natures, orbs and statuses included,
   and older saves without them), a full save/load round trip, and corrupt or
-  newer-version saves (57 checks). It uses its own save file.
+  newer-version saves (58 checks). It uses its own save file.
 - `tests/smoke_test.gd` plays the real game by injecting input: the title
   screen (PRESS START, then NEW GAME or CONTINUE first), typing the
   player's name in the intro, movement, signs, NPCs, CUT, doors, the starter
@@ -711,14 +721,20 @@ marks the new species as caught in the MONDEX.
   leaving every building, then Route 2 (an item ball behind a CUT tree,
   SURF across the river where a SWIMMER swims over, REN's evolved
   counter-pick), Copperdale (a one-time gift, the second GYM, the $2100
-  prize and the SPARK BADGE), the OPTION screen, the DEBUG menu's HEAL and
+  prize and the SPARK BADGE), Copperdale's east gate (closed without the
+  SPARK BADGE), Route 3 (a boulder that won't budge yet, MYSTIC LUNA),
+  Duskhollow (its tint, the OLD HOUSE's DUSK STONE, the GHOST GYM with a
+  borrowed DUSKWRAITH, the $2600 prize and the SHADE BADGE), then back on
+  Route 3 the STRENGTH puzzle (using STRENGTH, pushing boulders, one that
+  won't go into a tree, the MAX REVIVE prize, and the boulders resetting
+  when the route reloads), the OPTION screen, the DEBUG menu's HEAL and
   wild-encounter toggle, a REVIVE and a REPEL from the BAG (and the REPEL
-  wearing off), and FLY (160 checks). It uses its own save and settings
+  wearing off), and FLY (181 checks). It uses its own save and settings
   files.
 - `tests/npc_test.gd` visits every map and talks to every NPC and sign,
   standing where a player could (a reachable neighboring cell, counting CUT,
   ROCK SMASH and SURF, or across a counter), then examines a bookshelf.
-  Trainers count as beaten, so they chat (63 checks).
+  Trainers count as beaten, so they chat (88 checks).
 
 ```sh
 godot --headless --path . --script res://tests/battle_test.gd

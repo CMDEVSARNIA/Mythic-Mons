@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/move_data.gd" id="1_bca8h"]
+
+[resource]
+script = ExtResource("1_bca8h")
+display_name = "SPIRIT FLARE"
+element = "ghost"
+category = 1
+power = 70
+max_pp = 15
+status_effect = &"burn"
+status_chance = 20
+description = "A ghostly blue flame. May burn the foe."
+animation = &"spirit_flare"

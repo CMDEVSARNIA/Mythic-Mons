@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="TrainerData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/trainers/mystic.png" id="1_d1cp1"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_monster.gd" id="2_dqg84"]
+[ext_resource type="Resource" path="res://data/species/shadeling.tres" id="3_03cp3"]
+[ext_resource type="Resource" path="res://data/species/wickling.tres" id="4_r38dp"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_data.gd" id="5_odpir"]
+
+[sub_resource type="Resource" id="Resource_1eg8j"]
+script = ExtResource("2_dqg84")
+species = ExtResource("3_03cp3")
+level = 21
+
+[sub_resource type="Resource" id="Resource_jno0o"]
+script = ExtResource("2_dqg84")
+species = ExtResource("4_r38dp")
+level = 22
+
+[resource]
+script = ExtResource("5_odpir")
+trainer_class = "MYSTIC"
+trainer_name = "NOOR"
+battle_sprite = ExtResource("1_d1cp1")
+party = Array[ExtResource("2_dqg84")]([SubResource("Resource_1eg8j"), SubResource("Resource_jno0o")])
+payout = 32
+intro = PackedStringArray("Can you find your way\nin the dark?")
+defeat = PackedStringArray("Lights out...")
+after = PackedStringArray("VESPER has been\nwaiting for you.")
+badge_lines = PackedStringArray()

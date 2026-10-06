@@ -5,7 +5,7 @@ extends RefCounted
 const WORLD := 1       ## Walls, buildings, signs, ledges: blocks everyone.
 const WATER := 2       ## Water tiles: blocks walkers, ignored while surfing.
 const ACTORS := 4      ## Player and NPCs.
-const OBSTACLES := 8   ## Field-move blockers (CUT trees, ROCK SMASH boulders).
+const OBSTACLES := 8   ## Field-move blockers (CUT trees, ROCK SMASH rocks, STRENGTH boulders).
 const TRIGGERS := 16   ## Warps and other step-on areas (never block movement).
 
 ## What a walking actor collides with.

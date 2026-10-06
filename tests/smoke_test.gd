@@ -2,7 +2,7 @@ extends SceneTree
 ## Automated walkthrough of the prototype. It plays the real game by injecting
 ## input events and checks the results, from naming the player and the first
 ## steps through getting a starter, battling, catching, evolving, trainers, the start menu, saving,
-## continuing and the first GYM.
+## continuing, all three GYMs and the field moves their badges unlock.
 ##
 ## Logic only (fast, no window):
 ##   godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
@@ -820,6 +820,136 @@ func _run() -> void:
 	await _wait(1.0)
 	_check(_map_name() == "COPPERDALE TOWN" and _player.get_cell() == Vector2i(17, 7), "the GYM mat leads back outside")
 
+	# --- ROUTE 3, DUSKHOLLOW, the GHOST GYM and STRENGTH -------------------------
+	_game_state.flags.erase(&"spark_badge")
+	await _place(Vector2i(22, 8), Vector2i.RIGHT)
+	await _tap(&"move_right")
+	await _until_dialogue()
+	_check(_dialogue.is_open and "BADGE" in _dialogue.get_node(^"Box/Text").text, "COPPERDALE's east gate needs the SPARK BADGE")
+	await _close_dialogue()
+	await _wait(0.5)
+	_check(_map_name() == "COPPERDALE TOWN" and _player.get_cell() == Vector2i(22, 8), "...and turns you back without it")
+	_game_state.set_flag(&"spark_badge")
+	# NORMAL moves can't touch GHOSTs, so a GHOST champion this time.
+	team = _game_state.party.duplicate()
+	_game_state.party.assign([_ghost_champion(60)])
+	_game_state.set_flag(&"beat_lass_ivy")
+	_game_state.set_flag(&"beat_hiker_gus")
+	await _place(Vector2i(22, 8), Vector2i.RIGHT)
+	await _tap(&"move_right")
+	await _wait(1.0)
+	_check(_map_name() == "ROUTE 3" and _player.get_cell() == Vector2i(1, 8), "with it, the gate opens onto ROUTE 3")
+	var route_three: Node2D = _main.current_map
+	route_three.encounter_rate = 0.0
+	_shot("40_route3")
+	var boulder: Node2D = route_three.entities.get_node(^"Boulder1")
+	await _place(Vector2i(15, 5), Vector2i.UP)
+	await _tap(&"confirm")
+	await _wait(0.2)
+	_check(_dialogue.is_open and "boulder" in _dialogue.get_node(^"Box/Text").text and not _choices.visible, "without the SHADE BADGE, a boulder is just a boulder")
+	await _close_dialogue()
+	await _tap(&"move_up")
+	_check(_cell_of(boulder) == Vector2i(15, 4), "...and walking into it does nothing")
+
+	await _place(Vector2i(22, 8), Vector2i.RIGHT)
+	await _tap(&"move_right")
+	await _tap(&"move_right") # MYSTIC LUNA spots you from the grass.
+	await _until_dialogue()
+	await _close_dialogue()
+	await _wait(2.0)
+	await _press_through_battle()
+	_check(_game_state.has_flag(&"beat_mystic_luna"), "MYSTIC LUNA is beaten on ROUTE 3")
+	await _place(Vector2i(32, 8), Vector2i.RIGHT)
+	await _tap(&"move_right")
+	await _wait(1.0)
+	_check(_map_name() == "DUSKHOLLOW TOWN" and _player.get_cell() == Vector2i(1, 8), "ROUTE 3 leads to DUSKHOLLOW TOWN")
+	_check(_main.current_map.get_node_or_null(^"Tint") != null, "...where it's always dusk")
+	_shot("41_duskhollow")
+
+	var stones_before: int = _game_state.item_count(&"dusk_stone")
+	await _place(Vector2i(17, 16), Vector2i.UP)
+	await _tap(&"move_up")
+	await _wait(1.0)
+	await _place(Vector2i(6, 3), Vector2i.UP)
+	await _tap(&"confirm")
+	await _close_dialogue()
+	_check(_map_name() == "OLD HOUSE" and _game_state.item_count(&"dusk_stone") == stones_before + 1, "the OLD HOUSE gives away a DUSK STONE")
+	await _place(Vector2i(4, 5), Vector2i.DOWN)
+	await _tap(&"move_down")
+	await _wait(1.0)
+
+	await _place(Vector2i(17, 7), Vector2i.UP)
+	await _tap(&"move_up")
+	await _wait(1.0)
+	_check(_map_name() == "DUSKHOLLOW GYM" and _player.get_cell() == Vector2i(5, 9), "the DUSKHOLLOW GYM door leads inside")
+	_shot("42_gym3")
+	await _tap(&"move_up")
+	await _tap(&"move_up") # MYSTIC ESME...
+	await _until_dialogue()
+	await _close_dialogue()
+	await _wait(2.0)
+	await _press_through_battle()
+	for i in 4: # ...and MYSTIC NOOR.
+		await _tap(&"move_up")
+	await _until_dialogue()
+	await _close_dialogue()
+	await _wait(2.0)
+	await _press_through_battle()
+	_check(_game_state.has_flag(&"beat_mystic_esme") and _game_state.has_flag(&"beat_mystic_noor"), "both MYSTICs are beaten")
+	money_before_leader = _game_state.money
+	for i in 3:
+		await _tap(&"move_up")
+	await _until_dialogue()
+	await _close_dialogue()
+	await _wait(2.0)
+	await _until_action_menu()
+	_shot("43_gym3_battle")
+	await _press_through_battle()
+	_check(_game_state.has_flag(&"beat_leader_vesper") and _game_state.money == money_before_leader + 2600, "beating VESPER pays $2600 (payout 100 x level 26)")
+	_check(_dialogue.is_open and "SHADE BADGE" in _dialogue.get_node(^"Box/Text").text, "...and she hands over the SHADE BADGE")
+	await _close_dialogue()
+	_check(_game_state.has_flag(&"shade_badge") and _game_state.badge_count() == 3, "three badges now")
+
+	# STRENGTH: back to the boulder puzzle on ROUTE 3.
+	await _place(Vector2i(5, 9), Vector2i.DOWN)
+	await _tap(&"move_down")
+	await _wait(1.0)
+	await _place(Vector2i(1, 8), Vector2i.LEFT)
+	await _tap(&"move_left")
+	await _wait(1.0)
+	_check(_map_name() == "ROUTE 3" and _player.get_cell() == Vector2i(32, 8), "DUSKHOLLOW's west exit leads back to ROUTE 3")
+	route_three = _main.current_map
+	route_three.encounter_rate = 0.0
+	boulder = route_three.entities.get_node(^"Boulder1")
+	await _place(Vector2i(15, 5), Vector2i.UP)
+	await _tap(&"confirm")
+	await _until_choices(_choices)
+	await _tap(&"confirm") # Use STRENGTH? YES
+	await _close_dialogue()
+	_check(route_three.strength_on and not _player.is_locked(), "with the SHADE BADGE, a monster uses STRENGTH")
+	await _tap(&"move_up")
+	_check(_cell_of(boulder) == Vector2i(15, 3) and _player.get_cell() == Vector2i(15, 5), "walking into a boulder shoves it one tile")
+	_shot("44_strength")
+	# Shove the corridor boulder up and out of the way, lift the left boulder
+	# off the row, then push the right one along to reach the item ball.
+	for action: StringName in [&"move_up", &"move_up", &"move_up", &"move_right", &"move_right", &"move_up", &"move_up", &"move_up",
+			&"move_right", &"move_right", &"move_right", &"move_right", &"move_right"]:
+		await _tap(action)
+	var far_boulder: Node2D = route_three.entities.get_node(^"Boulder3")
+	_check(_cell_of(far_boulder) == Vector2i(19, 2) and _player.get_cell() == Vector2i(18, 2), "boulders can be pushed around to clear a path")
+	await _tap(&"move_right")
+	_check(_cell_of(far_boulder) == Vector2i(19, 2) and _player.get_cell() == Vector2i(18, 2), "...but not into a tree")
+	var revives_before: int = _game_state.item_count(&"max_revive")
+	await _tap(&"move_up")
+	await _tap(&"confirm")
+	await _close_dialogue()
+	_check(_game_state.item_count(&"max_revive") == revives_before + 1, "the puzzle's prize is a MAX REVIVE")
+	_main.change_map(MAPS + "route_03.tscn", &"east")
+	await _wait(1.0)
+	route_three = _main.current_map
+	_check(_cell_of(route_three.entities.get_node(^"Boulder1")) == Vector2i(15, 4) and not route_three.strength_on, "leaving the route puts the boulders back")
+	_game_state.party.assign(team)
+
 	# --- OPTION, DEBUG, REVIVE and REPEL ------------------------------------------
 	await _tap(&"menu")
 	for i in 6: # MONDEX, MONSTERS, BAG, CARD, FLY, SAVE, OPTION
@@ -913,6 +1043,19 @@ func _champion(level: int) -> Resource:
 	champ.pp.remove_at(dash)
 	champ.pp.insert(0, move.max_pp)
 	return champ
+
+
+## A borrowed DUSKWRAITH for the GHOST GYM: GHOST moves hit GHOSTs hard, and
+## SHADE ORB (15 PP) goes first.
+func _ghost_champion(level: int) -> Resource:
+	var champ: Resource = load("res://scripts/monsters/monster.gd").create(load("res://data/species/duskwraith.tres"), level)
+	champ.replace_move(0, load("res://data/moves/shade_orb.tres"))
+	return champ
+
+
+## The grid cell a map object stands on.
+func _cell_of(node: Node2D) -> Vector2i:
+	return Vector2i((node.global_position / 16.0).floor())
 
 
 ## Presses A until the battle is over, taking screenshots of the menus.

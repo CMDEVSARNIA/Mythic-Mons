@@ -17,6 +17,8 @@ extends Node2D
 @export var allow_fly := true
 ## Track id played by the Audio autoload (see Songs, assets/audio/music/).
 @export var music: StringName = &"town"
+## Tints everything on the map, like Duskhollow's endless dusk. White = none.
+@export var tint := Color.WHITE
 
 @export_group("Wild Encounters")
 ## Chance of an encounter per step in tall grass.
@@ -29,6 +31,9 @@ extends Node2D
 @export var water_monsters: Array[StringName] = []
 ## Chance of an encounter per step while surfing.
 @export_range(0.0, 1.0, 0.01) var water_encounter_rate := 0.05
+
+## STRENGTH lets the player push boulders until they leave the map.
+var strength_on := false
 
 var _layers: Array[TileMapLayer] = []
 var _bounds := Rect2i()
@@ -43,6 +48,11 @@ func _ready() -> void:
 			var used: Rect2i = child.get_used_rect()
 			_bounds = used if _layers.is_empty() else _bounds.merge(used)
 			_layers.append(child)
+	if tint != Color.WHITE:
+		var shade := CanvasModulate.new()
+		shade.name = "Tint"
+		shade.color = tint
+		add_child(shade)
 
 
 ## The cell's terrain tag (see Terrain), from the topmost layer that sets one.

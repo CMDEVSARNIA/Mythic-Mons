@@ -31,7 +31,7 @@ const RECIPES := {
 	&"thunder": &"_thunder", &"shade_orb": &"_shade_orb", &"phantasm": &"_phantasm",
 	&"growl": &"_growl", &"leer": &"_leer", &"scary_face": &"_scary_face", &"harden": &"_harden",
 	&"poison_dust": &"_poison_dust", &"sleep_dust": &"_sleep_dust", &"volt_wave": &"_volt_wave",
-	&"hypnosis": &"_hypnosis", &"wisp_fire": &"_wisp_fire",
+	&"hypnosis": &"_hypnosis", &"wisp_fire": &"_wisp_fire", &"spirit_flare": &"_spirit_flare",
 	&"gust": &"_gust", &"wing_slash": &"_wing_slash", &"aerial_dive": &"_aerial_dive",
 	&"headbutt": &"_headbutt", &"take_down": &"_take_down", &"absorb": &"_absorb",
 	&"giga_drain": &"_giga_drain", &"synthesis": &"_synthesis", &"roost": &"_roost",
@@ -657,6 +657,29 @@ func _wisp_fire() -> void:
 		_fly(wisp, _target.position + Vector2(-8.0 + 8.0 * i, -4.0), 0.6, 16.0 if i % 2 == 0 else -16.0)
 		await _wait(0.12)
 	await _wait(0.55)
+
+
+## A blue ghost-flame swells at the user, flies over, and flares up in a ring
+## around the target.
+func _spirit_flare() -> void:
+	Audio.play_sfx(&"ghost")
+	var flare := _spawn(&"flame", _user.position + Vector2(0.0, -8.0), 1.0)
+	flare.modulate = WISP_TINT
+	var grow := create_tween()
+	grow.tween_property(flare, "scale", Vector2.ONE * 3.0, 0.25)
+	await grow.finished
+	await _fly(flare, _target.position, 0.3, 10.0).finished
+	Audio.play_sfx(&"burn")
+	var flames: Array[Sprite2D] = []
+	var fade := create_tween().set_parallel()
+	for i in 5:
+		var flame := _spawn(&"flame", _target.position + Vector2.from_angle(TAU * i / 5.0 - PI / 2.0) * 16.0, 1.5)
+		flame.modulate = WISP_TINT
+		fade.tween_property(flame, "modulate:a", 0.0, 0.45).set_ease(Tween.EASE_IN)
+		flames.append(flame)
+	await fade.finished
+	for flame in flames:
+		flame.queue_free()
 
 
 # --- Building blocks -----------------------------------------------------------

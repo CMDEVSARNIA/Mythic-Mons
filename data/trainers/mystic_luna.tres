@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="TrainerData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/trainers/mystic.png" id="1_2qwcg"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_monster.gd" id="2_g6kjp"]
+[ext_resource type="Resource" path="res://data/species/shadeling.tres" id="3_grtos"]
+[ext_resource type="Resource" path="res://data/species/wickling.tres" id="4_or2yc"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_data.gd" id="5_k3asr"]
+
+[sub_resource type="Resource" id="Resource_41oxs"]
+script = ExtResource("2_g6kjp")
+species = ExtResource("3_grtos")
+level = 18
+
+[sub_resource type="Resource" id="Resource_a0iqw"]
+script = ExtResource("2_g6kjp")
+species = ExtResource("4_or2yc")
+level = 19
+
+[resource]
+script = ExtResource("5_k3asr")
+trainer_class = "MYSTIC"
+trainer_name = "LUNA"
+battle_sprite = ExtResource("1_2qwcg")
+party = Array[ExtResource("2_g6kjp")]([SubResource("Resource_41oxs"), SubResource("Resource_a0iqw")])
+payout = 32
+intro = PackedStringArray("The candles told me\nyou\'d come this way...")
+defeat = PackedStringArray("The candles were\nwrong...")
+after = PackedStringArray("WICKLING drinks up\nFIRE moves. Don\'t feed\nits flame!")
+badge_lines = PackedStringArray()

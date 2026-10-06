@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="TrainerData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/trainers/vesper.png" id="1_nntxm"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_monster.gd" id="2_s3c5w"]
+[ext_resource type="Resource" path="res://data/species/wickling.tres" id="3_rcgrp"]
+[ext_resource type="Resource" path="res://data/species/duskwraith.tres" id="4_bjegc"]
+[ext_resource type="Resource" path="res://data/species/gloomlamp.tres" id="5_042j5"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_data.gd" id="6_t5dyx"]
+
+[sub_resource type="Resource" id="Resource_a15dy"]
+script = ExtResource("2_s3c5w")
+species = ExtResource("3_rcgrp")
+level = 23
+
+[sub_resource type="Resource" id="Resource_qny4j"]
+script = ExtResource("2_s3c5w")
+species = ExtResource("4_bjegc")
+level = 24
+
+[sub_resource type="Resource" id="Resource_bxhdn"]
+script = ExtResource("2_s3c5w")
+species = ExtResource("5_042j5")
+level = 26
+
+[resource]
+script = ExtResource("6_t5dyx")
+trainer_class = "LEADER"
+trainer_name = "VESPER"
+battle_sprite = ExtResource("1_nntxm")
+party = Array[ExtResource("2_s3c5w")]([SubResource("Resource_a15dy"), SubResource("Resource_qny4j"), SubResource("Resource_bxhdn")])
+payout = 100
+music = &"gym_battle"
+badge = &"shade_badge"
+intro = PackedStringArray("VESPER: Welcome to the\nDUSKHOLLOW GYM.", "Every candle here once\nlit a traveler\'s way\nhome.", "Let\'s see how bright\nyour flame burns!")
+defeat = PackedStringArray("My candles... all\nblown out.")
+after = PackedStringArray("VESPER: STRENGTH lets\nyour MONSTERS shove big\nboulders aside.", "Someone left a puzzle\nof boulders on ROUTE 3.\nGive it a try!")
+badge_lines = PackedStringArray("VESPER: Take the SHADE\nBADGE. You\'ve earned it.", "With it, your MONSTERS\ncan use STRENGTH to push\nboulders outside battle.")

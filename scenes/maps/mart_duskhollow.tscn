@@ -1,0 +1,77 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_c8v2o"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_mt30u"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/clerk.tscn" id="3_gw0jx"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="4_00kyf"]
+[ext_resource type="Resource" path="res://data/items/mon_orb.tres" id="5_0vrs4"]
+[ext_resource type="Resource" path="res://data/items/super_orb.tres" id="6_4hkvv"]
+[ext_resource type="Resource" path="res://data/items/hyper_orb.tres" id="7_euci1"]
+[ext_resource type="Resource" path="res://data/items/potion.tres" id="8_f1s8f"]
+[ext_resource type="Resource" path="res://data/items/big_potion.tres" id="9_bjjev"]
+[ext_resource type="Resource" path="res://data/items/antidote.tres" id="10_fk63n"]
+[ext_resource type="Resource" path="res://data/items/para_heal.tres" id="11_fvmbi"]
+[ext_resource type="Resource" path="res://data/items/awakening.tres" id="12_vptba"]
+[ext_resource type="Resource" path="res://data/items/burn_heal.tres" id="13_gdbvc"]
+[ext_resource type="Resource" path="res://data/items/full_heal.tres" id="14_awut0"]
+[ext_resource type="Resource" path="res://data/items/repel.tres" id="15_fd1bp"]
+[ext_resource type="Resource" path="res://data/items/revive.tres" id="16_xongx"]
+[ext_resource type="Resource" path="res://data/items/dusk_stone.tres" id="17_y3doo"]
+[ext_resource type="Resource" path="res://data/items/timer_orb.tres" id="18_nqx5f"]
+[ext_resource type="Resource" path="res://data/items/net_orb.tres" id="19_bvrnd"]
+[ext_resource type="Resource" path="res://data/items/dive_orb.tres" id="20_vjsm4"]
+[ext_resource type="Resource" path="res://data/items/ether.tres" id="21_qvxjf"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="22_82w6s"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_medium.png" id="23_bffhq"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="24_kj85m"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="25_cjqry"]
+
+[node name="MartDuskhollow" type="Node2D" unique_id=29666268]
+script = ExtResource("1_c8v2o")
+display_name = "DUSKHOLLOW MART"
+allow_fly = false
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=523110296]
+tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAABAAYAAAADAAAAAAABAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAAAAEAAAAAAAYAAAABAAEAAAAAAAYAAAACAAEAAAAGAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAAAAYAAAAJAAEAAAAIAAYAAAAAAAIAAAAAAAYAAAABAAIAAAAAAAYAAAACAAIAAAAGAAYAAAADAAIAAAAAAAYAAAAEAAIAAAAAAAYAAAAFAAIAAAAHAAYAAAAGAAIAAAAHAAYAAAAHAAIAAAAAAAYAAAAIAAIAAAAAAAYAAAAJAAIAAAAAAAYAAAAAAAMAAAAGAAYAAAABAAMAAAAGAAYAAAACAAMAAAAGAAYAAAADAAMAAAAAAAYAAAAEAAMAAAAAAAYAAAAFAAMAAAAHAAYAAAAGAAMAAAAHAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAAAAYAAAAJAAMAAAAAAAYAAAAAAAQAAAAAAAYAAAABAAQAAAAAAAYAAAACAAQAAAAAAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAJAAYAAAAAAAUAAAAAAAYAAAABAAUAAAAAAAYAAAACAAUAAAAAAAYAAAADAAUAAAAAAAYAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAAAAYAAAAJAAUAAAAAAAYAAAAAAAYAAAAAAAYAAAABAAYAAAAAAAYAAAACAAYAAAAAAAYAAAADAAYAAAAAAAYAAAAEAAYAAAAFAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAAAAYAAAAJAAYAAAAAAAYAAAA=")
+tile_set = ExtResource("2_mt30u")
+
+[node name="Entities" type="Node2D" parent="." unique_id=1359030003]
+y_sort_enabled = true
+
+[node name="NPC_Clerk1" parent="Entities" unique_id=489179491 instance=ExtResource("3_gw0jx")]
+position = Vector2(24, 40)
+stock = Array[ExtResource("4_00kyf")]([ExtResource("5_0vrs4"), ExtResource("6_4hkvv"), ExtResource("7_euci1"), ExtResource("8_f1s8f"), ExtResource("9_bjjev"), ExtResource("10_fk63n"), ExtResource("11_fvmbi"), ExtResource("12_vptba"), ExtResource("13_gdbvc"), ExtResource("14_awut0"), ExtResource("15_fd1bp"), ExtResource("16_xongx")])
+lines = PackedStringArray("Hello there!")
+start_facing = 3
+
+[node name="NPC_Clerk2" parent="Entities" unique_id=1349843821 instance=ExtResource("3_gw0jx")]
+position = Vector2(24, 24)
+stock = Array[ExtResource("4_00kyf")]([ExtResource("17_y3doo"), ExtResource("18_nqx5f"), ExtResource("19_bvrnd"), ExtResource("20_vjsm4"), ExtResource("21_qvxjf")])
+lines = PackedStringArray("Hello there!")
+start_facing = 3
+
+[node name="NPC_Medium3" parent="Entities" unique_id=1945212742 instance=ExtResource("22_82w6s")]
+position = Vector2(120, 72)
+sprite_sheet = ExtResource("23_bffhq")
+lines = PackedStringArray("BURN HEALs are a must\nin this town.", "Those blue flames\nreally sting!")
+wander_radius = 1
+
+[node name="Warps" type="Node2D" parent="." unique_id=1378641411]
+
+[node name="Warp1" parent="Warps" unique_id=851664318 instance=ExtResource("24_kj85m")]
+position = Vector2(72, 104)
+target_map = "res://scenes/maps/town_duskhollow.tscn"
+target_spawn = &"from_mart"
+blocked_lines = PackedStringArray()
+
+[node name="Spawns" type="Node2D" parent="." unique_id=1437686579]
+
+[node name="default" type="Marker2D" parent="Spawns" unique_id=1214375197]
+position = Vector2(72, 88)
+script = ExtResource("25_cjqry")
+facing = 1
+
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=1690282130]
+position = Vector2(72, 88)
+script = ExtResource("25_cjqry")
+facing = 1

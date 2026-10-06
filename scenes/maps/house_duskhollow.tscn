@@ -1,0 +1,49 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_a7fl6"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_eeeb0"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/gift_giver.tscn" id="3_2ycj8"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_elder.png" id="4_rr5w1"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="5_7wtlp"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="6_6u1le"]
+
+[node name="HouseDuskhollow" type="Node2D" unique_id=1114924614]
+script = ExtResource("1_a7fl6")
+display_name = "OLD HOUSE"
+allow_fly = false
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=1249678649]
+tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAACAAYAAAADAAAAAAACAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAAAAEAAAAIAAYAAAABAAEAAAAAAAYAAAACAAEAAAAAAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAEAAYAAAAJAAEAAAAAAAYAAAAAAAIAAAAAAAYAAAABAAIAAAAAAAYAAAACAAIAAAAAAAYAAAADAAIAAAAAAAYAAAAEAAIAAAAAAAYAAAAFAAIAAAAAAAYAAAAGAAIAAAAAAAYAAAAHAAIAAAAAAAYAAAAIAAIAAAAAAAYAAAAJAAIAAAAAAAYAAAAAAAMAAAAAAAYAAAABAAMAAAAAAAYAAAACAAMAAAADAAYAAAADAAMAAAAAAAYAAAAEAAMAAAAAAAYAAAAFAAMAAAAAAAYAAAAGAAMAAAAAAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAAAAYAAAAJAAMAAAAAAAYAAAAAAAQAAAAAAAYAAAABAAQAAAAAAAYAAAACAAQAAAADAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAJAAYAAAAAAAUAAAAAAAYAAAABAAUAAAAAAAYAAAACAAUAAAAAAAYAAAADAAUAAAAAAAYAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAAAAYAAAAJAAUAAAAAAAYAAAAAAAYAAAAAAAYAAAABAAYAAAAAAAYAAAACAAYAAAAAAAYAAAADAAYAAAAAAAYAAAAEAAYAAAAFAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAAAAYAAAAJAAYAAAAAAAYAAAA=")
+tile_set = ExtResource("2_eeeb0")
+
+[node name="Entities" type="Node2D" parent="." unique_id=1089917594]
+y_sort_enabled = true
+
+[node name="NPC_Elder1" parent="Entities" unique_id=1508841691 instance=ExtResource("3_2ycj8")]
+position = Vector2(104, 40)
+gift = &"dusk_stone"
+count = 1
+flag = &"gift_house_duskhollow_6_2"
+offer = PackedStringArray("This stone is as cold\nas a winter night.", "A SHADELING would love\nit. Please, take it.")
+sprite_sheet = ExtResource("4_rr5w1")
+lines = PackedStringArray("Long ago, a lantern lit\nthe way through the\nfog to this town.", "Folks say it still\nfloats out there... a\nGLOOMLAMP, perhaps?")
+
+[node name="Warps" type="Node2D" parent="." unique_id=1382584760]
+
+[node name="Warp1" parent="Warps" unique_id=278371982 instance=ExtResource("5_7wtlp")]
+position = Vector2(72, 104)
+target_map = "res://scenes/maps/town_duskhollow.tscn"
+target_spawn = &"from_house"
+blocked_lines = PackedStringArray()
+
+[node name="Spawns" type="Node2D" parent="." unique_id=1631950618]
+
+[node name="default" type="Marker2D" parent="Spawns" unique_id=1322865744]
+position = Vector2(72, 88)
+script = ExtResource("6_6u1le")
+facing = 1
+
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=1012066120]
+position = Vector2(72, 88)
+script = ExtResource("6_6u1le")
+facing = 1

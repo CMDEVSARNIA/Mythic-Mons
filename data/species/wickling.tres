@@ -1,0 +1,75 @@
+[gd_resource type="Resource" script_class="MonsterSpecies" format=3]
+
+[ext_resource type="Resource" path="res://data/abilities/wick.tres" id="1_j0r7x"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/wickling_back.png" id="2_csn8x"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_ejblm"]
+[ext_resource type="Resource" path="res://data/species/gloomlamp.tres" id="4_csn8x"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/wickling.png" id="4_qmf8m"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_gne6q"]
+[ext_resource type="Resource" path="res://data/moves/ember.tres" id="6_walls"]
+[ext_resource type="Resource" path="res://data/moves/harden.tres" id="7_uoj41"]
+[ext_resource type="Resource" path="res://data/moves/lick.tres" id="8_6gdgq"]
+[ext_resource type="Resource" path="res://data/moves/wisp_fire.tres" id="9_wn1kh"]
+[ext_resource type="Resource" path="res://data/moves/dizzy_ray.tres" id="10_vc3h6"]
+[ext_resource type="Resource" path="res://data/moves/spirit_flare.tres" id="11_05drs"]
+[ext_resource type="Resource" path="res://data/moves/shade_orb.tres" id="12_6wk7u"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="13_frjq8"]
+
+[sub_resource type="Resource" id="Resource_ejblm"]
+script = ExtResource("3_ejblm")
+into = ExtResource("4_csn8x")
+level = 24
+
+[sub_resource type="Resource" id="Resource_46mbh"]
+script = ExtResource("5_gne6q")
+move = ExtResource("6_walls")
+
+[sub_resource type="Resource" id="Resource_tkyaj"]
+script = ExtResource("5_gne6q")
+move = ExtResource("7_uoj41")
+
+[sub_resource type="Resource" id="Resource_ejvms"]
+script = ExtResource("5_gne6q")
+level = 5
+move = ExtResource("8_6gdgq")
+
+[sub_resource type="Resource" id="Resource_kbfym"]
+script = ExtResource("5_gne6q")
+level = 9
+move = ExtResource("9_wn1kh")
+
+[sub_resource type="Resource" id="Resource_uusr7"]
+script = ExtResource("5_gne6q")
+level = 13
+move = ExtResource("10_vc3h6")
+
+[sub_resource type="Resource" id="Resource_vhba8"]
+script = ExtResource("5_gne6q")
+level = 17
+move = ExtResource("11_05drs")
+
+[sub_resource type="Resource" id="Resource_7ud8y"]
+script = ExtResource("5_gne6q")
+level = 21
+move = ExtResource("12_6wk7u")
+
+[resource]
+script = ExtResource("13_frjq8")
+display_name = "WICKLING"
+element = "ghost"
+ability = ExtResource("1_j0r7x")
+front_texture = ExtResource("4_qmf8m")
+back_texture = ExtResource("2_csn8x")
+base_hp = 40
+base_attack = 30
+base_special = 70
+growth = 2
+catch_rate = 190
+exp_yield = 58
+learnset = Array[ExtResource("5_gne6q")]([SubResource("Resource_46mbh"), SubResource("Resource_tkyaj"), SubResource("Resource_ejvms"), SubResource("Resource_kbfym"), SubResource("Resource_uusr7"), SubResource("Resource_vhba8"), SubResource("Resource_7ud8y")])
+evolutions = Array[ExtResource("3_ejblm")]([SubResource("Resource_ejblm")])
+dex_number = 15
+category = "CANDLE"
+height = 0.3
+weight = 1.1
+dex_entry = "A candle that wandered off on its own. Its blue flame gives off no heat at all."

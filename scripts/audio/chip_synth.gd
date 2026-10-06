@@ -123,6 +123,8 @@ static func sfx(id: StringName) -> AudioStreamWAV:
 			samples = sequence([tone(Wave.NOISE, 20000.0, 7000.0, 0.1, 0.35), tone(Wave.NOISE, 9000.0, 3000.0, 0.14, 0.3)])
 		&"smash":
 			samples = layer([tone(Wave.NOISE, 1800.0, 300.0, 0.35, 0.45), tone(Wave.TRIANGLE, 120.0, 40.0, 0.3, 0.6)])
+		&"strength":
+			samples = layer([tone(Wave.NOISE, 900.0, 200.0, 0.3, 0.4), tone(Wave.TRIANGLE, 90.0, 55.0, 0.3, 0.6)])
 		&"surf":
 			samples = layer([tone(Wave.NOISE, 2500.0, 7000.0, 0.45, 0.2), tone(Wave.TRIANGLE, 196.0, 392.0, 0.35, 0.45)])
 		&"fly":

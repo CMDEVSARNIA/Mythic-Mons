@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="AbsorbElementAbility" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/abilities/absorb_element_ability.gd" id="1_vkd5a"]
+
+[resource]
+script = ExtResource("1_vkd5a")
+element = "fire"
+display_name = "WICK"
+description = "Fire moves feed its flame, healing it instead."
