@@ -47,7 +47,13 @@ func _run() -> void:
 	_choices = _dialogue.get_node(^"ChoiceArea/Choices")
 	await _start_game()
 
-	# --- New game: PROF. ASTER asks your name ----------------------------------
+	# --- Title screen and new game: PROF. ASTER asks your name -----------------
+	_check(_main.title_screen.visible, "the game opens on the title screen")
+	await _wait(1.2) # The logo drops in.
+	_shot("00_title")
+	await _tap(&"confirm") # PRESS START
+	var title_menu: Node = _main.title_screen.get_node(^"MenuArea/Menu")
+	_check(title_menu.visible and "NEW GAME" in title_menu.get_node(^"List").get_child(0).text, "...where NEW GAME comes first when there's no save")
 	for i in 30:
 		if _naming.is_open:
 			break
@@ -426,6 +432,8 @@ func _run() -> void:
 	await _start_game()
 	_check(_main.title_screen.visible, "with a save, the game opens on the title screen")
 	_shot_once("16_title")
+	await _tap(&"confirm") # PRESS START
+	_check("CONTINUE" in title_menu.get_node(^"List").get_child(0).text, "...and CONTINUE comes first")
 	await _tap(&"confirm") # CONTINUE
 	await _wait(0.6)
 	_check(_map_name() == saved_map and _player.get_cell() == saved_cell, "CONTINUE resumes where you saved")

@@ -111,7 +111,7 @@ Main (Node)                              main.gd
 │   ├── PartyMenu (party_menu.tscn)      party list + MonsterSummary
 │   ├── DexMenu (dex_menu.tscn)          the MONDEX
 │   ├── TrainerCard (trainer_card.tscn)  name, money, MONDEX, play time, badges
-│   ├── TitleScreen (Control)            CONTINUE / NEW GAME / OPTION when a save exists
+│   ├── TitleScreen (title_screen.tscn)  animated title, PRESS START, CONTINUE / NEW GAME / OPTION
 │   └── OptionsMenu (options_menu.tscn)  the OPTION screen (drawn over the title screen)
 ├── BattleLayer (CanvasLayer, layer 8)   a BattleScene (or EvolutionScene) is added here
 └── Transition (CanvasLayer, layer 20)
@@ -539,11 +539,22 @@ marks the new species as caught in the MONDEX.
   `blocked_lines` until the flag is on. That's how Emberfall's north exit
   waits for `got_starter`. Use the same pattern for gyms, roadblocks, and
   so on.
-- **New game.** With no save (or NEW GAME on the title screen), Main plays
-  `_intro()` over the title backdrop: PROF. ASTER's welcome, then the naming
-  screen for `GameState.player_name` (up to 7 letters; empty means
-  `DEFAULT_NAME`). It sets `GameState.INTRO_FLAG`, so tests that start a
-  game directly set that flag to skip it.
+- **Title screen.** `TitleScreen` (`scenes/ui/title_screen.tscn`) draws its
+  scenery in `_draw()` every frame: banded dawn sky, twinkling stars,
+  drifting clouds, the sun and two rows of hills, all in the PixelArt
+  palette. The logo is two Labels with `LabelSettings` (outline and a red
+  drop shadow, at 16 and 32 px, crisp multiples of the 8 px font). The
+  starters' sprites bob in turn, and a GALEHAWK silhouette crosses every
+  12 seconds. `open()` drops the logo in and waits for START or A;
+  `choose()` shows the menu; `show_backdrop()` keeps only the scenery.
+  `Main._title_screen()` runs it on every boot (the menu has CONTINUE only
+  with a save), and the version comes from `application/config/version`.
+  Tests that start on the map set `GameState.skip_title`.
+- **New game.** NEW GAME on the title screen (or no title, in tests) makes
+  Main play `_intro()` over the title's sky (`show_backdrop()`): PROF.
+  ASTER's welcome, then the naming screen for `GameState.player_name` (up to
+  7 letters; empty means `DEFAULT_NAME`). It sets `GameState.INTRO_FLAG`, so
+  tests that start a game directly set that flag to skip it.
 - **Naming.** `NameEntry` (autoload, `scenes/ui/name_entry.tscn`, CanvasLayer
   12) is Emerald's naming screen: letters, digits and `. , - '` above SPACE /
   BACK / OK. `await NameEntry.ask(prompt, max_length, picture, start_text)`
@@ -625,8 +636,7 @@ marks the new species as caught in the MONDEX.
   save survives refactors as long as ids stay the same, and unknown species
   or moves are skipped rather than crashing. It's JSON because loading a
   `.tres` can run scripts embedded in it, and players edit and share save
-  files. When a save exists, the game opens on a title screen with
-  CONTINUE / NEW GAME. A save with a different `version` is ignored, so
+  files. With a save, the title screen offers CONTINUE first. A save with a different `version` is ignored, so
   bump `SAVE_VERSION` and convert old data when the format changes.
 
 ## Communication

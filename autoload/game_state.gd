@@ -29,6 +29,8 @@ const BADGES := {
 }
 
 var player_name := DEFAULT_NAME
+## Tests set this to start straight on the map, without the title screen.
+var skip_title := false
 ## Seconds played, for the trainer card.
 var play_seconds := 0.0
 ## Steps left on a REPEL: until 0, wild monsters weaker than the lead stay away.

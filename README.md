@@ -3,6 +3,8 @@
 An 8-bit, top-down monster-collecting RPG in the spirit of Pokémon Emerald,
 built with **Godot 4.7** and GDScript.
 
+![The title screen: the MYTHIC MONS logo over a dawn sky, the three starters on a hill, and the menu](docs/images/title.png)
+
 ![The cast: player, professor, mom, rival, lass, elder, hiker, swimmer and nurse](docs/images/characters.png)
 
 So far: tile-locked movement, a multi-town world, dialogue, field moves,
@@ -206,9 +208,12 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   pre-evolution's curve.
 - **Start menu (Enter):** MONDEX, MONSTERS (party list, a two-page summary, and
   SWITCH to change your lead), BAG (use POTIONs on any party member; every
-  item has an icon, and long lists scroll), CARD, FLY, SAVE and OPTION. With
-  a save, the game opens on a title screen with CONTINUE / NEW GAME /
-  OPTION.
+  item has an icon, and long lists scroll), CARD, FLY, SAVE and OPTION.
+- **Title screen.** The game opens on the MYTHIC MONS logo bouncing in over
+  a dawn sky, with twinkling stars, drifting clouds, the sun behind the
+  hills, the three starters on a hill and a GALEHAWK gliding past. PRESS
+  START brings up CONTINUE (when you have a save), NEW GAME and OPTION, and
+  a new game's intro plays over the same sky.
 - **OPTION**, like Emerald's: TEXT SPEED (SLOW, MID, FAST), BATTLE SCENE
   (OFF skips move animations), BATTLE STYLE (SHIFT or SET), and MUSIC and
   SOUND volume from 0 to 10. Options are saved apart from your game, in

@@ -37,8 +37,7 @@ var wild_encounters := true
 @onready var hint_box: Control = $UI/HintBox
 @onready var hint_label: Label = $UI/HintBox/Label
 @onready var hint_icon: TextureRect = $UI/HintBox/Icon
-@onready var title_screen: Control = $UI/TitleScreen
-@onready var title_menu: ChoiceBox = $UI/TitleScreen/MenuArea/Menu
+@onready var title_screen: TitleScreen = $UI/TitleScreen
 @onready var battle_layer: CanvasLayer = $BattleLayer
 
 
@@ -50,7 +49,7 @@ func _ready() -> void:
 	player.step_finished.connect(_on_player_step)
 	player.lock()
 	var location := {}
-	if GameState.has_save():
+	if not GameState.skip_title:
 		fade.color = Color(0.0, 0.0, 0.0, 0.0) # The title screen has its own backdrop.
 		location = await _title_screen()
 	fade.color = Color(0.0, 0.0, 0.0, 1.0)
@@ -131,11 +130,9 @@ func _on_arrived() -> void:
 
 
 ## A new game: PROF. ASTER welcomes the player and asks their name, over
-## the title screen's backdrop. Leaves the screen black.
+## the title screen's dawn sky. Leaves the screen black.
 func _intro() -> void:
-	title_screen.get_node(^"Logo").hide()
-	title_screen.get_node(^"Title").hide()
-	title_screen.show()
+	title_screen.show_backdrop()
 	Audio.play_music(&"title")
 	await _fade_to(0.0)
 	Dialogue.show_picture(GameData.species(&"flamlet").front_texture)
@@ -156,24 +153,30 @@ func _intro() -> void:
 	])
 	await _fade_to(1.0)
 	title_screen.hide()
-	title_screen.get_node(^"Logo").show()
-	title_screen.get_node(^"Title").show()
 
 
-## Shows CONTINUE / NEW GAME. Returns the saved location to resume, or {}.
+## The title screen: PRESS START, then CONTINUE (with a save), NEW GAME or
+## OPTION. Fades out and returns the saved location to resume, or {} for a
+## new game.
 func _title_screen() -> Dictionary:
 	Audio.play_music(&"title")
-	title_screen.show()
-	var choice := -1
-	while choice < 0 or choice == 2:
-		choice = await title_menu.choose(["CONTINUE", "NEW GAME", "OPTION"])
-		if choice == 2:
+	await title_screen.open()
+	var options := PackedStringArray(["NEW GAME", "OPTION"])
+	if GameState.has_save():
+		options.insert(0, "CONTINUE")
+	var picked := ""
+	while picked.is_empty() or picked == "OPTION":
+		var index: int = await title_screen.choose(options)
+		picked = options[index] if index >= 0 else ""
+		if picked == "OPTION":
 			await options_menu.open()
+	await _fade_to(1.0)
 	title_screen.hide()
-	if choice != 0:
+	if picked != "CONTINUE":
 		return {}
 	var location := GameState.load_game()
 	if location.is_empty():
+		await _fade_to(0.0)
 		await Dialogue.say(["The save file couldn't\nbe read. Starting a\nnew game."])
 	return location
 
