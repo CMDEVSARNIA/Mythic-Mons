@@ -1,47 +1,59 @@
 [gd_resource type="Resource" script_class="MonsterSpecies" format=3]
 
-[ext_resource type="Resource" path="res://data/abilities/sturdy_shell.tres" id="1_md8w6"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/pebblet_back.png" id="2_1ecn6"]
-[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_qu2gx"]
-[ext_resource type="Resource" path="res://data/species/bouldron.tres" id="4_1ecn6"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/pebblet.png" id="4_n7xul"]
-[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_5ecmc"]
-[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="6_x85jn"]
-[ext_resource type="Resource" path="res://data/moves/harden.tres" id="7_1usq5"]
-[ext_resource type="Resource" path="res://data/moves/rock_throw.tres" id="8_22aip"]
-[ext_resource type="Resource" path="res://data/moves/scary_face.tres" id="9_my84f"]
-[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="10_655ik"]
+[ext_resource type="Resource" path="res://data/abilities/sturdy_shell.tres" id="1_qu2gx"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/pebblet_back.png" id="2_n7xul"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_5ecmc"]
+[ext_resource type="Resource" path="res://data/species/bouldron.tres" id="4_n7xul"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/pebblet.png" id="4_x85jn"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_1usq5"]
+[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="6_22aip"]
+[ext_resource type="Resource" path="res://data/moves/harden.tres" id="7_my84f"]
+[ext_resource type="Resource" path="res://data/moves/rock_throw.tres" id="8_655ik"]
+[ext_resource type="Resource" path="res://data/moves/headbutt.tres" id="9_pq44e"]
+[ext_resource type="Resource" path="res://data/moves/scary_face.tres" id="10_0q5wi"]
+[ext_resource type="Resource" path="res://data/moves/take_down.tres" id="11_lhdlj"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="12_6xoqj"]
 
-[sub_resource type="Resource" id="Resource_qu2gx"]
-script = ExtResource("3_qu2gx")
-into = ExtResource("4_1ecn6")
+[sub_resource type="Resource" id="Resource_5ecmc"]
+script = ExtResource("3_5ecmc")
+into = ExtResource("4_n7xul")
 level = 14
 
-[sub_resource type="Resource" id="Resource_pq44e"]
-script = ExtResource("5_5ecmc")
-move = ExtResource("6_x85jn")
+[sub_resource type="Resource" id="Resource_jba0u"]
+script = ExtResource("5_1usq5")
+move = ExtResource("6_22aip")
 
-[sub_resource type="Resource" id="Resource_0q5wi"]
-script = ExtResource("5_5ecmc")
-move = ExtResource("7_1usq5")
+[sub_resource type="Resource" id="Resource_3q1n5"]
+script = ExtResource("5_1usq5")
+move = ExtResource("7_my84f")
 
-[sub_resource type="Resource" id="Resource_lhdlj"]
-script = ExtResource("5_5ecmc")
+[sub_resource type="Resource" id="Resource_5hpng"]
+script = ExtResource("5_1usq5")
 level = 8
-move = ExtResource("8_22aip")
+move = ExtResource("8_655ik")
 
-[sub_resource type="Resource" id="Resource_6xoqj"]
-script = ExtResource("5_5ecmc")
+[sub_resource type="Resource" id="Resource_bdx35"]
+script = ExtResource("5_1usq5")
+level = 12
+move = ExtResource("9_pq44e")
+
+[sub_resource type="Resource" id="Resource_txkqf"]
+script = ExtResource("5_1usq5")
 level = 16
-move = ExtResource("9_my84f")
+move = ExtResource("10_0q5wi")
+
+[sub_resource type="Resource" id="Resource_xy00f"]
+script = ExtResource("5_1usq5")
+level = 20
+move = ExtResource("11_lhdlj")
 
 [resource]
-script = ExtResource("10_655ik")
+script = ExtResource("12_6xoqj")
 display_name = "PEBBLET"
 element = "rock"
-ability = ExtResource("1_md8w6")
-front_texture = ExtResource("4_n7xul")
-back_texture = ExtResource("2_1ecn6")
+ability = ExtResource("1_qu2gx")
+front_texture = ExtResource("4_x85jn")
+back_texture = ExtResource("2_n7xul")
 base_hp = 40
 base_attack = 80
 base_defense = 100
@@ -49,8 +61,8 @@ base_special = 30
 base_speed = 20
 growth = 2
 catch_rate = 190
-learnset = Array[ExtResource("5_5ecmc")]([SubResource("Resource_pq44e"), SubResource("Resource_0q5wi"), SubResource("Resource_lhdlj"), SubResource("Resource_6xoqj")])
-evolutions = Array[ExtResource("3_qu2gx")]([SubResource("Resource_qu2gx")])
+learnset = Array[ExtResource("5_1usq5")]([SubResource("Resource_jba0u"), SubResource("Resource_3q1n5"), SubResource("Resource_5hpng"), SubResource("Resource_bdx35"), SubResource("Resource_txkqf"), SubResource("Resource_xy00f")])
+evolutions = Array[ExtResource("3_5ecmc")]([SubResource("Resource_5ecmc")])
 dex_number = 7
 category = "PEBBLE"
 height = 0.3

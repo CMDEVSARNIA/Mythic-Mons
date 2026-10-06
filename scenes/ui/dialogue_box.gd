@@ -7,13 +7,12 @@ extends CanvasLayer
 ##
 ## A page holds three lines of about 27 characters; use "\n" to break lines.
 ## Confirm (A) or cancel (B) finishes the typewriter effect, then turns the page.
+## The typing speed is the player's TEXT SPEED option (Settings).
 ## Pass `auto_advance` (seconds) to turn pages on their own, as battle text does.
 ## show_picture() puts an image (e.g. a monster) in a frame above the text box.
 
 signal _page_typed
 signal _confirmed
-
-const CHARS_PER_SECOND := 50.0
 
 var is_open := false
 
@@ -87,7 +86,7 @@ func _process(delta: float) -> void:
 			_confirmed.emit()
 	if not _typing:
 		return
-	_shown += delta * CHARS_PER_SECOND
+	_shown += delta * Settings.chars_per_second()
 	_text.visible_characters = int(_shown)
 	if _text.visible_characters >= _text.get_total_character_count():
 		_finish_typing()

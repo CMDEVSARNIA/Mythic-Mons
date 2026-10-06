@@ -24,3 +24,4 @@ party = Array[ExtResource("2_ot8t8")]([SubResource("Resource_67bns"), SubResourc
 intro = PackedStringArray("Hey! Our eyes met!\nThat means we have to\nbattle!")
 defeat = PackedStringArray("What?! My PEBBLET is\nsupposed to be tough!")
 after = PackedStringArray("I\'ll train in the tall\ngrass until my team\ngets stronger!")
+badge_lines = PackedStringArray()

@@ -22,7 +22,8 @@ extends RefCounted
 ##   shake     {}                 the ball wobbles (0-3 times)
 ##   caught    {} / break_free {}
 ##   status    {side, status}     a status condition was inflicted ("" = cured)
-##   afflicted {side, status}     a status shows its effect (asleep, hurt by poison...)
+##   afflicted {side, status}     a status shows its effect (asleep, hurt by poison...;
+##                                &"confusion" while confused)
 ##
 ## Damage is the Generation 3 formula (STAB 1.5x, type matchups, 1/16 crits
 ## worth 2x, a random 85-100% roll), simplified to the five stats of Monster.
@@ -33,6 +34,11 @@ extends RefCounted
 ## stops 1 turn in 4, sleep lasts 2-5 turns, and a frozen monster thaws 1
 ## turn in 5 or when hit by fire. Fainting clears them; otherwise they last
 ## after the battle.
+##
+## Confusion and flinching are volatile, as in Gen 3: they live on the
+## Battler and end when it leaves. A confused monster hurts itself half the
+## time for 2-5 turns; a flinching one loses its move this turn. Moves can
+## also drain HP, cause recoil, or heal the user (see MoveData).
 ##
 ## Trainer battles (against_trainer()) follow Gen 3 as well: the trainer sends
 ## out its team one by one, you can't run, thrown balls are knocked away,
@@ -135,8 +141,10 @@ static func run_away() -> Dictionary:
 
 
 ## Balls and healing items. The caller removes the item from the BAG.
-static func use_item(item: ItemData) -> Dictionary:
-	return {"action": Action.ITEM, "item": item}
+## `target` is a party index for items used on a monster (the active one
+## if -1); `move` picks the move an ETHER restores.
+static func use_item(item: ItemData, target := -1, move := -1) -> Dictionary:
+	return {"action": Action.ITEM, "item": item, "target": target, "move": move}
 
 
 # --- Flow --------------------------------------------------------------------
@@ -167,7 +175,7 @@ func take_turn(action: Dictionary) -> Array[Dictionary]:
 			_switch_player(action.index, false)
 			_use_move(enemy, player, _enemy_move())
 		Action.ITEM:
-			_use_item(action.item)
+			_use_item(action.item, action.get("target", -1), action.get("move", -1))
 			_use_move(enemy, player, _enemy_move())
 		Action.FIGHT:
 			var player_move := _player_move(action.move)
@@ -208,6 +216,26 @@ func send_next_foe() -> Array[Dictionary]:
 
 func switch_after_faint(party_index: int) -> Array[Dictionary]:
 	_switch_player(party_index, true)
+	return _flush()
+
+
+## The trainer's next monster that can still fight, or null.
+func next_foe() -> Monster:
+	return _next_foe()
+
+
+## True if the player has a monster other than the active one that can fight.
+func can_shift() -> bool:
+	for i in party.size():
+		if can_switch_to(i):
+			return true
+	return false
+
+
+## Gen 3's SHIFT style: when the trainer is about to send out its next
+## monster, the player may switch first, and it doesn't cost a turn.
+func shift_to(party_index: int) -> Array[Dictionary]:
+	_switch_player(party_index, false)
 	return _flush()
 
 
@@ -359,6 +387,21 @@ func cure(battler: Battler) -> void:
 	message(CURED_TEXT[was] % battler.name)
 
 
+## Confuses `battler` for 2-5 turns. Fails (quietly unless `announce_fail`)
+## if it's already confused or has fainted.
+func confuse(battler: Battler, announce_fail := false) -> bool:
+	if battler.is_fainted():
+		return false
+	if battler.confused_turns > 0:
+		if announce_fail:
+			message("%s is\nalready confused!" % battler.name)
+		return false
+	battler.confused_turns = rng.randi_range(2, 5)
+	_push(&"afflicted", {"side": battler.side, "status": &"confusion"})
+	message("%s became\nconfused!" % battler.name)
+	return true
+
+
 ## Changes a stat stage and reports it. Returns false if it was already at the limit.
 func change_stat(battler: Battler, stat: StringName, stages: int) -> bool:
 	var before: int = battler.stages[stat]
@@ -396,8 +439,12 @@ func _use_move(user: Battler, target: Battler, move: MoveData) -> void:
 		return
 	if not move.is_damaging():
 		_push(&"attack", {"side": user.side, "move": move})
+		if move.heal > 0:
+			_heal_user(user, move)
 		if not move.status_effect.is_empty():
 			inflict(target, move.status_effect, true)
+		if move.confuse_chance > 0:
+			confuse(target, true)
 		if not move.stat_changes.is_empty():
 			_apply_stat_effect(user, target, move)
 		return
@@ -424,10 +471,23 @@ func _use_move(user: Battler, target: Battler, move: MoveData) -> void:
 	for text in _after_hit:
 		message(text)
 	_after_hit.clear()
-	if _check_faint(target):
+	if damage > 0 and move.drain > 0 and heal(user, maxi(1, floori(damage * move.drain / 100.0))) > 0:
+		message("%s had its\nenergy drained!" % target.name)
+	if damage > 0 and move.recoil > 0:
+		user.monster.hp = maxi(user.monster.hp - maxi(1, floori(damage * move.recoil / 100.0)), 0)
+		_push(&"hp", {"side": user.side, "hp": user.monster.hp})
+		message("%s is hit\nwith recoil!" % user.name)
+	var target_fainted := _check_faint(target)
+	if move.recoil > 0 and outcome == Outcome.ONGOING:
+		_check_faint(user)
+	if target_fainted:
 		return
 	if damage > 0 and target.ability:
 		target.ability.on_hit(self, target, user, move, damage)
+	if damage > 0 and move.flinch_chance > 0 and rng.randi_range(1, 100) <= move.flinch_chance:
+		target.flinched = true # Only matters if it hasn't moved yet this turn.
+	if damage > 0 and move.confuse_chance > 0 and rng.randi_range(1, 100) <= move.confuse_chance:
+		confuse(target)
 	if damage > 0 and move.element == "fire" and target.monster.status == &"freeze":
 		cure(target) # Fire melts the ice.
 	if not move.status_effect.is_empty() and rng.randi_range(1, 100) <= move.status_chance:
@@ -436,21 +496,25 @@ func _use_move(user: Battler, target: Battler, move: MoveData) -> void:
 		_apply_stat_effect(user, target, move)
 
 
-func _use_item(item: ItemData) -> void:
+func _use_item(item: ItemData, target := -1, move := -1) -> void:
 	message("%s used\n%s!" % [trainer_name, item.display_name])
-	match item.kind:
-		ItemData.Kind.BALL:
-			_throw_ball(item)
-		ItemData.Kind.HEAL:
-			_push(&"restore", {"side": player.side})
-			var healed := heal(player, item.heal_amount)
-			message("%s's HP was\nrestored by %d point%s." % [player.name, healed, "" if healed == 1 else "s"])
-		ItemData.Kind.CURE:
-			if item.cures_status(player.monster.status):
-				_push(&"restore", {"side": player.side})
-				cure(player)
-			else:
-				message("It had no effect.")
+	if item.kind == ItemData.Kind.BALL:
+		_throw_ball(item)
+		return
+	var monster := party[target] if target >= 0 else player.monster
+	if not item.targets_monster() or not item.can_use_on(monster, move):
+		message("It had no effect.")
+		return
+	var active := monster == player.monster
+	var status_before := monster.status
+	if active:
+		_push(&"restore", {"side": PLAYER})
+	var text := item.use_on(monster, move)
+	if active and item.kind == ItemData.Kind.HEAL:
+		_push(&"hp", {"side": PLAYER, "hp": monster.hp})
+	if active and monster.status != status_before:
+		_push(&"status", {"side": PLAYER, "status": monster.status})
+	message(text)
 
 
 func _throw_ball(ball: ItemData) -> void:
@@ -472,6 +536,15 @@ func _throw_ball(ball: ItemData) -> void:
 	else:
 		_push(&"break_free", {})
 		message(BREAK_FREE_TEXT[shakes])
+
+
+## SYNTHESIS and the like: restore move.heal% of max HP, unless HP is full.
+func _heal_user(user: Battler, move: MoveData) -> void:
+	if user.monster.hp >= user.monster.max_hp():
+		message("%s's HP is full!" % user.name)
+		return
+	heal(user, ceili(user.monster.max_hp() * move.heal / 100.0))
+	message("%s regained\nhealth!" % user.name)
 
 
 func _apply_stat_effect(user: Battler, target: Battler, move: MoveData) -> void:
@@ -496,6 +569,8 @@ func _check_faint(battler: Battler) -> bool:
 
 
 func _end_of_turn() -> void:
+	player.flinched = false
+	enemy.flinched = false
 	for battler in _by_speed():
 		if outcome != Outcome.ONGOING or battler.is_fainted() or battler.ability == null:
 			continue
@@ -536,12 +611,40 @@ func _can_act(battler: Battler) -> bool:
 				_push(&"afflicted", {"side": battler.side, "status": &"freeze"})
 				message("%s is\nfrozen solid!" % battler.name)
 				return false
-		&"paralysis":
-			if rng.randf() < 0.25:
-				_push(&"afflicted", {"side": battler.side, "status": &"paralysis"})
-				message("%s is paralyzed!\nIt can't move!" % battler.name)
-				return false
+	if battler.flinched:
+		message("%s flinched!" % battler.name)
+		return false
+	if battler.confused_turns > 0 and not _confusion_check(battler):
+		return false
+	if monster.status == &"paralysis" and rng.randf() < 0.25:
+		_push(&"afflicted", {"side": battler.side, "status": &"paralysis"})
+		message("%s is paralyzed!\nIt can't move!" % battler.name)
+		return false
 	return true
+
+
+## Gen 3 confusion: each turn it counts down, and until it wears off the
+## monster hits itself half the time (a 40-power typeless physical attack)
+## instead of moving. Returns false if it lost its turn.
+func _confusion_check(battler: Battler) -> bool:
+	battler.confused_turns -= 1
+	if battler.confused_turns <= 0:
+		message("%s snapped\nout of confusion!" % battler.name)
+		return true
+	_push(&"afflicted", {"side": battler.side, "status": &"confusion"})
+	message("%s is\nconfused!" % battler.name)
+	if rng.randf() >= 0.5:
+		return true
+	var self_hit := MoveData.new()
+	self_hit.power = 40
+	self_hit.element = "" # Typeless: no STAB, no matchups.
+	var damage := calculate_damage(battler, battler, self_hit, false, 1.0, rng.randi_range(85, 100))
+	battler.monster.hp = maxi(battler.monster.hp - damage, 0)
+	message("It hurt itself in\nits confusion!")
+	_push(&"hit", {"side": battler.side, "effectiveness": 1.0})
+	_push(&"hp", {"side": battler.side, "hp": battler.monster.hp})
+	_check_faint(battler)
+	return false
 
 
 func _switch_player(party_index: int, forced: bool) -> void:
@@ -602,7 +705,15 @@ func _enemy_move() -> MoveData:
 func move_score(user: Battler, target: Battler, move: MoveData) -> float:
 	if move.is_damaging():
 		var stab := 1.5 if move.element == user.element else 1.0
-		return move.power * TypeChart.multiplier(move.element, target.element) * stab * move.accuracy / 100.0
+		var score := move.power * TypeChart.multiplier(move.element, target.element) * stab * move.accuracy / 100.0
+		var hurt := 1.0 - float(user.monster.hp) / user.monster.max_hp()
+		score *= 1.0 - move.recoil / 200.0 # A little wary of recoil...
+		return score * (1.0 + hurt * move.drain / 100.0) # ...and keen to drain when hurt.
+	if move.heal > 0:
+		var missing := 1.0 - float(user.monster.hp) / user.monster.max_hp()
+		return 0.0 if missing < 0.3 else 120.0 * missing
+	if move.confuse_chance > 0:
+		return 0.0 if target.confused_turns > 0 else 35.0
 	if not move.status_effect.is_empty():
 		var blocked: bool = not target.monster.status.is_empty() or StringName(target.element) in STATUS_IMMUNITIES.get(move.status_effect, [])
 		return 0.0 if blocked else 45.0
@@ -641,7 +752,6 @@ func _try_run() -> bool:
 	return rng.randi_range(0, 255) < odds
 
 
-## The trainer's next monster that can still fight, or null.
 func _next_foe() -> Monster:
 	for monster in foe_party:
 		if not monster.is_fainted():

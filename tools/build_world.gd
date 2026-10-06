@@ -386,9 +386,9 @@ const MAPS := [
 			# specialty orbs plus evolution stones.
 			[Vector2i(1, 2), "clerk", 0, [], {"scene": "clerk", "start_facing": 3,
 				"stock": ["mon_orb", "super_orb", "hyper_orb", "potion", "big_potion",
-					"antidote", "para_heal", "awakening", "burn_heal", "full_heal"]}],
+					"antidote", "para_heal", "awakening", "burn_heal", "full_heal", "repel"]}],
 			[Vector2i(1, 1), "clerk", 0, [], {"scene": "clerk", "start_facing": 3,
-				"stock": ["net_orb", "dive_orb", "nest_orb", "repeat_orb", "timer_orb", "bolt_stone", "dusk_stone"]}],
+				"stock": ["net_orb", "dive_orb", "nest_orb", "repeat_orb", "timer_orb", "bolt_stone", "dusk_stone", "revive", "ether"]}],
 			[Vector2i(8, 4), "hiker", 1, ["I always stock up on\nPOTIONs before a long\ntrip.", "The upper counter sells\nspecial ORBs. A DIVE ORB\nis great at sea!", "Buy 10 MON ORBs at once\nand they throw in a\nGALA ORB for free!"]],
 		],
 	},
@@ -522,6 +522,7 @@ const MAPS := [
 			[Vector2i(1, 10), "item_ball", {"item": &"super_orb", "count": 3}],
 			[Vector2i(15, 11), "item_ball", {"item": &"full_heal"}],
 			[Vector2i(28, 13), "item_ball", {"item": &"big_potion"}],
+			[Vector2i(28, 1), "item_ball", {"item": &"max_revive"}],
 		],
 	},
 	{
@@ -636,9 +637,9 @@ const MAPS := [
 		"npcs": [
 			[Vector2i(1, 2), "clerk", 0, [], {"scene": "clerk", "start_facing": RIGHT,
 				"stock": ["mon_orb", "super_orb", "hyper_orb", "potion", "big_potion",
-					"antidote", "para_heal", "awakening", "burn_heal", "full_heal"]}],
+					"antidote", "para_heal", "awakening", "burn_heal", "full_heal", "repel", "revive"]}],
 			[Vector2i(1, 1), "clerk", 0, [], {"scene": "clerk", "start_facing": RIGHT,
-				"stock": ["timer_orb", "repeat_orb", "nest_orb", "bolt_stone", "dusk_stone"]}],
+				"stock": ["timer_orb", "repeat_orb", "nest_orb", "bolt_stone", "dusk_stone", "ether"]}],
 			[Vector2i(7, 4), "elder", 1, ["PARA HEALs are a must\nin this town.", "The GYM's MONSTERS love\nto paralyze!"]],
 		],
 	},

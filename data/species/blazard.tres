@@ -1,53 +1,59 @@
 [gd_resource type="Resource" script_class="MonsterSpecies" format=3]
 
-[ext_resource type="Resource" path="res://data/abilities/kindle.tres" id="1_2fy1g"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/blazard_back.png" id="2_qu1ks"]
-[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_xkxw7"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/blazard.png" id="4_f81yg"]
-[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_lcpc6"]
-[ext_resource type="Resource" path="res://data/moves/scratch.tres" id="6_fdg6v"]
-[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_bjao6"]
-[ext_resource type="Resource" path="res://data/moves/ember.tres" id="8_eet0t"]
-[ext_resource type="Resource" path="res://data/moves/leer.tres" id="9_un16e"]
-[ext_resource type="Resource" path="res://data/moves/flame_dash.tres" id="10_qr0bw"]
-[ext_resource type="Resource" path="res://data/moves/heat_wave.tres" id="11_7tbby"]
-[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="12_u2xqo"]
-
-[sub_resource type="Resource" id="Resource_u3sge"]
-script = ExtResource("5_lcpc6")
-move = ExtResource("6_fdg6v")
-
-[sub_resource type="Resource" id="Resource_tfa2l"]
-script = ExtResource("5_lcpc6")
-move = ExtResource("7_bjao6")
+[ext_resource type="Resource" path="res://data/abilities/kindle.tres" id="1_qu1ks"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/blazard_back.png" id="2_xkxw7"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_f81yg"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/blazard.png" id="4_lcpc6"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_fdg6v"]
+[ext_resource type="Resource" path="res://data/moves/scratch.tres" id="6_bjao6"]
+[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_eet0t"]
+[ext_resource type="Resource" path="res://data/moves/ember.tres" id="8_un16e"]
+[ext_resource type="Resource" path="res://data/moves/leer.tres" id="9_qr0bw"]
+[ext_resource type="Resource" path="res://data/moves/headbutt.tres" id="10_7tbby"]
+[ext_resource type="Resource" path="res://data/moves/flame_dash.tres" id="11_u2xqo"]
+[ext_resource type="Resource" path="res://data/moves/heat_wave.tres" id="12_u3sge"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="13_tfa2l"]
 
 [sub_resource type="Resource" id="Resource_gv0tc"]
-script = ExtResource("5_lcpc6")
-level = 7
-move = ExtResource("8_eet0t")
+script = ExtResource("5_fdg6v")
+move = ExtResource("6_bjao6")
 
 [sub_resource type="Resource" id="Resource_q03le"]
-script = ExtResource("5_lcpc6")
-level = 13
-move = ExtResource("9_un16e")
+script = ExtResource("5_fdg6v")
+move = ExtResource("7_eet0t")
 
 [sub_resource type="Resource" id="Resource_nc52j"]
-script = ExtResource("5_lcpc6")
-level = 19
-move = ExtResource("10_qr0bw")
+script = ExtResource("5_fdg6v")
+level = 7
+move = ExtResource("8_un16e")
 
 [sub_resource type="Resource" id="Resource_xsw31"]
-script = ExtResource("5_lcpc6")
+script = ExtResource("5_fdg6v")
+level = 13
+move = ExtResource("9_qr0bw")
+
+[sub_resource type="Resource" id="Resource_gtqau"]
+script = ExtResource("5_fdg6v")
+level = 16
+move = ExtResource("10_7tbby")
+
+[sub_resource type="Resource" id="Resource_hsrvl"]
+script = ExtResource("5_fdg6v")
+level = 19
+move = ExtResource("11_u2xqo")
+
+[sub_resource type="Resource" id="Resource_jv22l"]
+script = ExtResource("5_fdg6v")
 level = 28
-move = ExtResource("11_7tbby")
+move = ExtResource("12_u3sge")
 
 [resource]
-script = ExtResource("12_u2xqo")
+script = ExtResource("13_tfa2l")
 display_name = "BLAZARD"
 element = "fire"
-ability = ExtResource("1_2fy1g")
-front_texture = ExtResource("4_f81yg")
-back_texture = ExtResource("2_qu1ks")
+ability = ExtResource("1_qu1ks")
+front_texture = ExtResource("4_lcpc6")
+back_texture = ExtResource("2_xkxw7")
 base_hp = 58
 base_attack = 72
 base_defense = 58
@@ -55,7 +61,7 @@ base_special = 75
 base_speed = 80
 growth = 2
 exp_yield = 142
-learnset = Array[ExtResource("5_lcpc6")]([SubResource("Resource_u3sge"), SubResource("Resource_tfa2l"), SubResource("Resource_gv0tc"), SubResource("Resource_q03le"), SubResource("Resource_nc52j"), SubResource("Resource_xsw31")])
+learnset = Array[ExtResource("5_fdg6v")]([SubResource("Resource_gv0tc"), SubResource("Resource_q03le"), SubResource("Resource_nc52j"), SubResource("Resource_xsw31"), SubResource("Resource_gtqau"), SubResource("Resource_hsrvl"), SubResource("Resource_jv22l")])
 dex_number = 2
 category = "BLAZE DRAKE"
 height = 1.1

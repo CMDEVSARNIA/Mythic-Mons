@@ -11,6 +11,10 @@ var monster: Monster
 var side: StringName
 var is_wild: bool
 var stages: Dictionary[StringName, int] = {}
+## Volatile conditions, gone once it leaves the field: how many more of its
+## turns confusion lasts, and whether it flinched this turn.
+var confused_turns := 0
+var flinched := false
 
 ## Name used in battle text: "Wild SPROUTLE" for wild monsters, "Foe
 ## SPROUTLE" for a trainer's.

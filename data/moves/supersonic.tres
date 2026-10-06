@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/move_data.gd" id="1_wnin1"]
+
+[resource]
+script = ExtResource("1_wnin1")
+display_name = "SUPERSONIC"
+category = 2
+power = 0
+accuracy = 55
+max_pp = 20
+confuse_chance = 100
+description = "Odd sound waves that confuse the foe."
+animation = &"supersonic"

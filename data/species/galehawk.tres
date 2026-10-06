@@ -1,58 +1,70 @@
 [gd_resource type="Resource" script_class="MonsterSpecies" format=3]
 
-[ext_resource type="Resource" path="res://data/abilities/gale_force.tres" id="1_dh07c"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/galehawk_back.png" id="2_g5avc"]
-[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_5cyf4"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/galehawk.png" id="4_8iomo"]
-[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_n2qfm"]
-[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="6_i2dbl"]
-[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_3hsh6"]
-[ext_resource type="Resource" path="res://data/moves/quick_hit.tres" id="8_md5mo"]
-[ext_resource type="Resource" path="res://data/moves/gust.tres" id="9_y1qsg"]
-[ext_resource type="Resource" path="res://data/moves/leer.tres" id="10_rosjx"]
-[ext_resource type="Resource" path="res://data/moves/wing_slash.tres" id="11_fejiq"]
-[ext_resource type="Resource" path="res://data/moves/aerial_dive.tres" id="12_yxtl5"]
-[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="13_arxo4"]
-
-[sub_resource type="Resource" id="Resource_nlmtk"]
-script = ExtResource("5_n2qfm")
-move = ExtResource("6_i2dbl")
-
-[sub_resource type="Resource" id="Resource_1x63h"]
-script = ExtResource("5_n2qfm")
-move = ExtResource("7_3hsh6")
-
-[sub_resource type="Resource" id="Resource_dmj1m"]
-script = ExtResource("5_n2qfm")
-level = 5
-move = ExtResource("8_md5mo")
-
-[sub_resource type="Resource" id="Resource_a6cpn"]
-script = ExtResource("5_n2qfm")
-level = 9
-move = ExtResource("9_y1qsg")
+[ext_resource type="Resource" path="res://data/abilities/gale_force.tres" id="1_5cyf4"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/galehawk_back.png" id="2_8iomo"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_n2qfm"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/galehawk.png" id="4_i2dbl"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_3hsh6"]
+[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="6_md5mo"]
+[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_y1qsg"]
+[ext_resource type="Resource" path="res://data/moves/quick_hit.tres" id="8_rosjx"]
+[ext_resource type="Resource" path="res://data/moves/gust.tres" id="9_fejiq"]
+[ext_resource type="Resource" path="res://data/moves/supersonic.tres" id="10_yxtl5"]
+[ext_resource type="Resource" path="res://data/moves/leer.tres" id="11_arxo4"]
+[ext_resource type="Resource" path="res://data/moves/wing_slash.tres" id="12_nlmtk"]
+[ext_resource type="Resource" path="res://data/moves/roost.tres" id="13_1x63h"]
+[ext_resource type="Resource" path="res://data/moves/aerial_dive.tres" id="14_dmj1m"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="15_a6cpn"]
 
 [sub_resource type="Resource" id="Resource_svkrn"]
-script = ExtResource("5_n2qfm")
-level = 13
-move = ExtResource("10_rosjx")
+script = ExtResource("5_3hsh6")
+move = ExtResource("6_md5mo")
 
 [sub_resource type="Resource" id="Resource_laeah"]
-script = ExtResource("5_n2qfm")
-level = 17
-move = ExtResource("11_fejiq")
+script = ExtResource("5_3hsh6")
+move = ExtResource("7_y1qsg")
 
 [sub_resource type="Resource" id="Resource_5txi8"]
-script = ExtResource("5_n2qfm")
+script = ExtResource("5_3hsh6")
+level = 5
+move = ExtResource("8_rosjx")
+
+[sub_resource type="Resource" id="Resource_dhlpk"]
+script = ExtResource("5_3hsh6")
+level = 9
+move = ExtResource("9_fejiq")
+
+[sub_resource type="Resource" id="Resource_5taso"]
+script = ExtResource("5_3hsh6")
+level = 11
+move = ExtResource("10_yxtl5")
+
+[sub_resource type="Resource" id="Resource_pp2pc"]
+script = ExtResource("5_3hsh6")
+level = 13
+move = ExtResource("11_arxo4")
+
+[sub_resource type="Resource" id="Resource_cnuux"]
+script = ExtResource("5_3hsh6")
+level = 17
+move = ExtResource("12_nlmtk")
+
+[sub_resource type="Resource" id="Resource_6t7hx"]
+script = ExtResource("5_3hsh6")
+level = 21
+move = ExtResource("13_1x63h")
+
+[sub_resource type="Resource" id="Resource_cas81"]
+script = ExtResource("5_3hsh6")
 level = 28
-move = ExtResource("12_yxtl5")
+move = ExtResource("14_dmj1m")
 
 [resource]
-script = ExtResource("13_arxo4")
+script = ExtResource("15_a6cpn")
 display_name = "GALEHAWK"
-ability = ExtResource("1_dh07c")
-front_texture = ExtResource("4_8iomo")
-back_texture = ExtResource("2_g5avc")
+ability = ExtResource("1_5cyf4")
+front_texture = ExtResource("4_i2dbl")
+back_texture = ExtResource("2_8iomo")
 base_hp = 63
 base_attack = 72
 base_defense = 60
@@ -60,7 +72,7 @@ base_special = 52
 base_speed = 91
 growth = 2
 exp_yield = 145
-learnset = Array[ExtResource("5_n2qfm")]([SubResource("Resource_nlmtk"), SubResource("Resource_1x63h"), SubResource("Resource_dmj1m"), SubResource("Resource_a6cpn"), SubResource("Resource_svkrn"), SubResource("Resource_laeah"), SubResource("Resource_5txi8")])
+learnset = Array[ExtResource("5_3hsh6")]([SubResource("Resource_svkrn"), SubResource("Resource_laeah"), SubResource("Resource_5txi8"), SubResource("Resource_dhlpk"), SubResource("Resource_5taso"), SubResource("Resource_pp2pc"), SubResource("Resource_cnuux"), SubResource("Resource_6t7hx"), SubResource("Resource_cas81")])
 dex_number = 14
 category = "STORM HAWK"
 height = 1.2

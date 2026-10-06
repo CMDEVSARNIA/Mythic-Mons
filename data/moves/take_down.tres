@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/move_data.gd" id="1_11ows"]
+
+[resource]
+script = ExtResource("1_11ows")
+display_name = "TAKE DOWN"
+power = 90
+accuracy = 85
+max_pp = 20
+recoil = 25
+description = "A reckless charge that also hurts the user."
+animation = &"take_down"

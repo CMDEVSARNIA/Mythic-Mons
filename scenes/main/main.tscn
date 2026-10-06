@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" path="res://icon.png" id="6_icon"]
 [ext_resource type="PackedScene" path="res://scenes/ui/dex_menu.tscn" id="7_dex"]
 [ext_resource type="PackedScene" path="res://scenes/ui/trainer_card.tscn" id="8_card"]
+[ext_resource type="PackedScene" path="res://scenes/ui/options_menu.tscn" id="9_options"]
 
 [node name="Main" type="Node"]
 script = ExtResource("1_main")
@@ -130,6 +131,8 @@ theme_override_constants/margin_top = 100
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 0
+
+[node name="OptionsMenu" parent="UI" instance=ExtResource("9_options")]
 
 [node name="BattleLayer" type="CanvasLayer" parent="."]
 layer = 8

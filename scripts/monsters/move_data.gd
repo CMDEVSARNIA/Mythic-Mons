@@ -29,6 +29,20 @@ enum Target { FOE, SELF }
 @export var status_effect: StringName
 @export_range(0, 100) var status_chance := 100
 
+@export_group("Extra Effects")
+## Percent of the damage dealt that the user regains (ABSORB, GIGA DRAIN).
+@export_range(0, 100) var drain := 0
+## Percent of the damage dealt that the user takes back (TAKE DOWN).
+@export_range(0, 100) var recoil := 0
+## Percent of its max HP a STATUS move restores to the user (SYNTHESIS).
+## Give such moves stat_target SELF so they never miss.
+@export_range(0, 100) var heal := 0
+## Chance (percent) the target flinches and loses its move, if it hasn't
+## moved yet this turn (HEADBUTT, ROCK SLIDE).
+@export_range(0, 100) var flinch_chance := 0
+## Chance (percent) the target becomes confused (DIZZY RAY, SUPERSONIC).
+@export_range(0, 100) var confuse_chance := 0
+
 @export_multiline var description := ""
 ## Which MoveAnimator recipe plays when the move is used (see
 ## MoveAnimator.RECIPES). Leave empty to pick one from the element and

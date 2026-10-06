@@ -1,54 +1,60 @@
 [gd_resource type="Resource" script_class="MonsterSpecies" format=3]
 
-[ext_resource type="Resource" path="res://data/abilities/dread.tres" id="1_53een"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/shadeling_back.png" id="2_t7s48"]
-[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_ysbtf"]
-[ext_resource type="Resource" path="res://data/species/duskwraith.tres" id="4_t7s48"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/shadeling.png" id="4_xq4se"]
-[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_sw5pf"]
-[ext_resource type="Resource" path="res://data/moves/lick.tres" id="6_sd3it"]
-[ext_resource type="Resource" path="res://data/moves/scary_face.tres" id="7_div35"]
-[ext_resource type="Resource" path="res://data/moves/shade_orb.tres" id="8_jvduk"]
-[ext_resource type="Resource" path="res://data/moves/hypnosis.tres" id="9_2sbxl"]
-[ext_resource type="Resource" path="res://data/moves/wisp_fire.tres" id="10_1y2t4"]
-[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="11_joaq1"]
+[ext_resource type="Resource" path="res://data/abilities/dread.tres" id="1_t7s48"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/shadeling_back.png" id="2_ysbtf"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_xq4se"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/shadeling.png" id="4_sw5pf"]
+[ext_resource type="Resource" path="res://data/species/duskwraith.tres" id="4_ysbtf"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_sd3it"]
+[ext_resource type="Resource" path="res://data/moves/lick.tres" id="6_div35"]
+[ext_resource type="Resource" path="res://data/moves/scary_face.tres" id="7_jvduk"]
+[ext_resource type="Resource" path="res://data/moves/shade_orb.tres" id="8_2sbxl"]
+[ext_resource type="Resource" path="res://data/moves/hypnosis.tres" id="9_1y2t4"]
+[ext_resource type="Resource" path="res://data/moves/dizzy_ray.tres" id="10_joaq1"]
+[ext_resource type="Resource" path="res://data/moves/wisp_fire.tres" id="11_bkcmy"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="12_3pdv8"]
 
-[sub_resource type="Resource" id="Resource_ysbtf"]
-script = ExtResource("3_ysbtf")
-into = ExtResource("4_t7s48")
+[sub_resource type="Resource" id="Resource_xq4se"]
+script = ExtResource("3_xq4se")
+into = ExtResource("4_ysbtf")
 method = 1
 item = &"dusk_stone"
 
-[sub_resource type="Resource" id="Resource_bkcmy"]
-script = ExtResource("5_sw5pf")
-move = ExtResource("6_sd3it")
-
-[sub_resource type="Resource" id="Resource_3pdv8"]
-script = ExtResource("5_sw5pf")
-move = ExtResource("7_div35")
-
 [sub_resource type="Resource" id="Resource_b1mf3"]
-script = ExtResource("5_sw5pf")
-level = 8
-move = ExtResource("8_jvduk")
+script = ExtResource("5_sd3it")
+move = ExtResource("6_div35")
 
 [sub_resource type="Resource" id="Resource_plsa8"]
-script = ExtResource("5_sw5pf")
-level = 12
-move = ExtResource("9_2sbxl")
+script = ExtResource("5_sd3it")
+move = ExtResource("7_jvduk")
 
 [sub_resource type="Resource" id="Resource_q7h2h"]
-script = ExtResource("5_sw5pf")
+script = ExtResource("5_sd3it")
+level = 8
+move = ExtResource("8_2sbxl")
+
+[sub_resource type="Resource" id="Resource_y8fnm"]
+script = ExtResource("5_sd3it")
+level = 12
+move = ExtResource("9_1y2t4")
+
+[sub_resource type="Resource" id="Resource_iolf7"]
+script = ExtResource("5_sd3it")
+level = 15
+move = ExtResource("10_joaq1")
+
+[sub_resource type="Resource" id="Resource_7amiw"]
+script = ExtResource("5_sd3it")
 level = 18
-move = ExtResource("10_1y2t4")
+move = ExtResource("11_bkcmy")
 
 [resource]
-script = ExtResource("11_joaq1")
+script = ExtResource("12_3pdv8")
 display_name = "SHADELING"
 element = "ghost"
-ability = ExtResource("1_53een")
-front_texture = ExtResource("4_xq4se")
-back_texture = ExtResource("2_t7s48")
+ability = ExtResource("1_t7s48")
+front_texture = ExtResource("4_sw5pf")
+back_texture = ExtResource("2_ysbtf")
 base_hp = 30
 base_attack = 35
 base_defense = 30
@@ -57,8 +63,8 @@ base_speed = 80
 growth = 2
 catch_rate = 120
 exp_yield = 62
-learnset = Array[ExtResource("5_sw5pf")]([SubResource("Resource_bkcmy"), SubResource("Resource_3pdv8"), SubResource("Resource_b1mf3"), SubResource("Resource_plsa8"), SubResource("Resource_q7h2h")])
-evolutions = Array[ExtResource("3_ysbtf")]([SubResource("Resource_ysbtf")])
+learnset = Array[ExtResource("5_sd3it")]([SubResource("Resource_b1mf3"), SubResource("Resource_plsa8"), SubResource("Resource_q7h2h"), SubResource("Resource_y8fnm"), SubResource("Resource_iolf7"), SubResource("Resource_7amiw")])
+evolutions = Array[ExtResource("3_xq4se")]([SubResource("Resource_xq4se")])
 dex_number = 11
 category = "WISP"
 height = 0.7

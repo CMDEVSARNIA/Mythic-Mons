@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/move_data.gd" id="1_uvomh"]
+
+[resource]
+script = ExtResource("1_uvomh")
+display_name = "ROOST"
+category = 2
+power = 0
+max_pp = 10
+stat_target = 1
+heal = 50
+description = "Lands to rest, restoring half its HP."
+animation = &"roost"

@@ -20,3 +20,4 @@ payout = 60
 intro = PackedStringArray("REN: Hey, {PLAYER}! You got\na MONSTER from PROF.\nASTER too?", "I picked mine to beat\nyours. Let\'s battle!")
 defeat = PackedStringArray("Whoa... You\'re really\ngood!")
 after = PackedStringArray("REN: I\'m off to\nTIDEWATER to catch more\nMONSTERS.", "Next time, I\'ll win!")
+badge_lines = PackedStringArray()

@@ -1,77 +1,80 @@
 [gd_scene format=4]
 
-[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_l4mm8"]
-[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_52huy"]
-[ext_resource type="PackedScene" path="res://scenes/actors/npc/clerk.tscn" id="3_wssmd"]
-[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="4_58gc0"]
-[ext_resource type="Resource" path="res://data/items/mon_orb.tres" id="5_865nl"]
-[ext_resource type="Resource" path="res://data/items/super_orb.tres" id="6_2yhp5"]
-[ext_resource type="Resource" path="res://data/items/hyper_orb.tres" id="7_1ihcm"]
-[ext_resource type="Resource" path="res://data/items/potion.tres" id="8_jtl3c"]
-[ext_resource type="Resource" path="res://data/items/big_potion.tres" id="9_8u2ln"]
-[ext_resource type="Resource" path="res://data/items/antidote.tres" id="10_cay3m"]
-[ext_resource type="Resource" path="res://data/items/para_heal.tres" id="11_sni2n"]
-[ext_resource type="Resource" path="res://data/items/awakening.tres" id="12_mwbi2"]
-[ext_resource type="Resource" path="res://data/items/burn_heal.tres" id="13_v5qjm"]
-[ext_resource type="Resource" path="res://data/items/full_heal.tres" id="14_rjke6"]
-[ext_resource type="Resource" path="res://data/items/net_orb.tres" id="15_fuoi4"]
-[ext_resource type="Resource" path="res://data/items/dive_orb.tres" id="16_mjnqg"]
-[ext_resource type="Resource" path="res://data/items/nest_orb.tres" id="17_v3s7i"]
-[ext_resource type="Resource" path="res://data/items/repeat_orb.tres" id="18_cexmn"]
-[ext_resource type="Resource" path="res://data/items/timer_orb.tres" id="19_ljegb"]
-[ext_resource type="Resource" path="res://data/items/bolt_stone.tres" id="20_bc1p1"]
-[ext_resource type="Resource" path="res://data/items/dusk_stone.tres" id="21_r2jvb"]
-[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="22_7l4wl"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_hiker.png" id="23_vfbt6"]
-[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="24_ak531"]
-[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="25_xvlfm"]
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_58gc0"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_865nl"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/clerk.tscn" id="3_2yhp5"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="4_1ihcm"]
+[ext_resource type="Resource" path="res://data/items/mon_orb.tres" id="5_jtl3c"]
+[ext_resource type="Resource" path="res://data/items/super_orb.tres" id="6_8u2ln"]
+[ext_resource type="Resource" path="res://data/items/hyper_orb.tres" id="7_cay3m"]
+[ext_resource type="Resource" path="res://data/items/potion.tres" id="8_sni2n"]
+[ext_resource type="Resource" path="res://data/items/big_potion.tres" id="9_mwbi2"]
+[ext_resource type="Resource" path="res://data/items/antidote.tres" id="10_v5qjm"]
+[ext_resource type="Resource" path="res://data/items/para_heal.tres" id="11_rjke6"]
+[ext_resource type="Resource" path="res://data/items/awakening.tres" id="12_fuoi4"]
+[ext_resource type="Resource" path="res://data/items/burn_heal.tres" id="13_mjnqg"]
+[ext_resource type="Resource" path="res://data/items/full_heal.tres" id="14_v3s7i"]
+[ext_resource type="Resource" path="res://data/items/repel.tres" id="15_cexmn"]
+[ext_resource type="Resource" path="res://data/items/net_orb.tres" id="16_ljegb"]
+[ext_resource type="Resource" path="res://data/items/dive_orb.tres" id="17_bc1p1"]
+[ext_resource type="Resource" path="res://data/items/nest_orb.tres" id="18_r2jvb"]
+[ext_resource type="Resource" path="res://data/items/repeat_orb.tres" id="19_7l4wl"]
+[ext_resource type="Resource" path="res://data/items/timer_orb.tres" id="20_vfbt6"]
+[ext_resource type="Resource" path="res://data/items/bolt_stone.tres" id="21_ak531"]
+[ext_resource type="Resource" path="res://data/items/dusk_stone.tres" id="22_xvlfm"]
+[ext_resource type="Resource" path="res://data/items/revive.tres" id="23_7rml5"]
+[ext_resource type="Resource" path="res://data/items/ether.tres" id="24_7g6ce"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="25_8kmjw"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_hiker.png" id="26_jyn5t"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="27_wfa5f"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="28_smo2t"]
 
-[node name="MartTidewater" type="Node2D" unique_id=871492931]
-script = ExtResource("1_l4mm8")
+[node name="MartTidewater" type="Node2D" unique_id=1878213445]
+script = ExtResource("1_58gc0")
 display_name = "TIDEWATER MART"
 allow_fly = false
 
-[node name="Ground" type="TileMapLayer" parent="." unique_id=1226129217]
+[node name="Ground" type="TileMapLayer" parent="." unique_id=707571468]
 tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAABAAYAAAADAAAAAAABAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAAAAEAAAAAAAYAAAABAAEAAAAAAAYAAAACAAEAAAAGAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAAAAYAAAAJAAEAAAAIAAYAAAAAAAIAAAAAAAYAAAABAAIAAAAAAAYAAAACAAIAAAAGAAYAAAADAAIAAAAAAAYAAAAEAAIAAAAAAAYAAAAFAAIAAAAHAAYAAAAGAAIAAAAHAAYAAAAHAAIAAAAAAAYAAAAIAAIAAAAAAAYAAAAJAAIAAAAAAAYAAAAAAAMAAAAGAAYAAAABAAMAAAAGAAYAAAACAAMAAAAGAAYAAAADAAMAAAAAAAYAAAAEAAMAAAAAAAYAAAAFAAMAAAAHAAYAAAAGAAMAAAAHAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAAAAYAAAAJAAMAAAAAAAYAAAAAAAQAAAAAAAYAAAABAAQAAAAAAAYAAAACAAQAAAAAAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAJAAYAAAAAAAUAAAAAAAYAAAABAAUAAAAAAAYAAAACAAUAAAAAAAYAAAADAAUAAAAAAAYAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAAAAYAAAAJAAUAAAAAAAYAAAAAAAYAAAAAAAYAAAABAAYAAAAAAAYAAAACAAYAAAAAAAYAAAADAAYAAAAAAAYAAAAEAAYAAAAFAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAAAAYAAAAJAAYAAAAAAAYAAAA=")
-tile_set = ExtResource("2_52huy")
+tile_set = ExtResource("2_865nl")
 
-[node name="Entities" type="Node2D" parent="." unique_id=893735362]
+[node name="Entities" type="Node2D" parent="." unique_id=1388689690]
 y_sort_enabled = true
 
-[node name="NPC_Clerk1" parent="Entities" unique_id=1578407131 instance=ExtResource("3_wssmd")]
+[node name="NPC_Clerk1" parent="Entities" unique_id=1066511454 instance=ExtResource("3_2yhp5")]
 position = Vector2(24, 40)
-stock = Array[ExtResource("4_58gc0")]([ExtResource("5_865nl"), ExtResource("6_2yhp5"), ExtResource("7_1ihcm"), ExtResource("8_jtl3c"), ExtResource("9_8u2ln"), ExtResource("10_cay3m"), ExtResource("11_sni2n"), ExtResource("12_mwbi2"), ExtResource("13_v5qjm"), ExtResource("14_rjke6")])
+stock = Array[ExtResource("4_1ihcm")]([ExtResource("5_jtl3c"), ExtResource("6_8u2ln"), ExtResource("7_cay3m"), ExtResource("8_sni2n"), ExtResource("9_mwbi2"), ExtResource("10_v5qjm"), ExtResource("11_rjke6"), ExtResource("12_fuoi4"), ExtResource("13_mjnqg"), ExtResource("14_v3s7i"), ExtResource("15_cexmn")])
 lines = PackedStringArray("Hello there!")
 start_facing = 3
 
-[node name="NPC_Clerk2" parent="Entities" unique_id=931840119 instance=ExtResource("3_wssmd")]
+[node name="NPC_Clerk2" parent="Entities" unique_id=1374315596 instance=ExtResource("3_2yhp5")]
 position = Vector2(24, 24)
-stock = Array[ExtResource("4_58gc0")]([ExtResource("15_fuoi4"), ExtResource("16_mjnqg"), ExtResource("17_v3s7i"), ExtResource("18_cexmn"), ExtResource("19_ljegb"), ExtResource("20_bc1p1"), ExtResource("21_r2jvb")])
+stock = Array[ExtResource("4_1ihcm")]([ExtResource("16_ljegb"), ExtResource("17_bc1p1"), ExtResource("18_r2jvb"), ExtResource("19_7l4wl"), ExtResource("20_vfbt6"), ExtResource("21_ak531"), ExtResource("22_xvlfm"), ExtResource("23_7rml5"), ExtResource("24_7g6ce")])
 lines = PackedStringArray("Hello there!")
 start_facing = 3
 
-[node name="NPC_Hiker3" parent="Entities" unique_id=472452975 instance=ExtResource("22_7l4wl")]
+[node name="NPC_Hiker3" parent="Entities" unique_id=1013089539 instance=ExtResource("25_8kmjw")]
 position = Vector2(136, 72)
-sprite_sheet = ExtResource("23_vfbt6")
+sprite_sheet = ExtResource("26_jyn5t")
 lines = PackedStringArray("I always stock up on\nPOTIONs before a long\ntrip.", "The upper counter sells\nspecial ORBs. A DIVE ORB\nis great at sea!", "Buy 10 MON ORBs at once\nand they throw in a\nGALA ORB for free!")
 wander_radius = 1
 
-[node name="Warps" type="Node2D" parent="." unique_id=907022306]
+[node name="Warps" type="Node2D" parent="." unique_id=447868655]
 
-[node name="Warp1" parent="Warps" unique_id=839509931 instance=ExtResource("24_ak531")]
+[node name="Warp1" parent="Warps" unique_id=1774329420 instance=ExtResource("27_wfa5f")]
 position = Vector2(72, 104)
 target_map = "res://scenes/maps/town_tidewater.tscn"
 target_spawn = &"from_mart"
 blocked_lines = PackedStringArray()
 
-[node name="Spawns" type="Node2D" parent="." unique_id=1861525974]
+[node name="Spawns" type="Node2D" parent="." unique_id=319807987]
 
-[node name="default" type="Marker2D" parent="Spawns" unique_id=346263422]
+[node name="default" type="Marker2D" parent="Spawns" unique_id=1357005834]
 position = Vector2(72, 88)
-script = ExtResource("25_xvlfm")
+script = ExtResource("28_smo2t")
 facing = 1
 
-[node name="entrance" type="Marker2D" parent="Spawns" unique_id=1261199844]
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=1479218163]
 position = Vector2(72, 88)
-script = ExtResource("25_xvlfm")
+script = ExtResource("28_smo2t")
 facing = 1

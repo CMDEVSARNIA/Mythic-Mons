@@ -33,6 +33,9 @@ const RECIPES := {
 	&"poison_dust": &"_poison_dust", &"sleep_dust": &"_sleep_dust", &"volt_wave": &"_volt_wave",
 	&"hypnosis": &"_hypnosis", &"wisp_fire": &"_wisp_fire",
 	&"gust": &"_gust", &"wing_slash": &"_wing_slash", &"aerial_dive": &"_aerial_dive",
+	&"headbutt": &"_headbutt", &"take_down": &"_take_down", &"absorb": &"_absorb",
+	&"giga_drain": &"_giga_drain", &"synthesis": &"_synthesis", &"roost": &"_roost",
+	&"dizzy_ray": &"_dizzy_ray", &"supersonic": &"_supersonic",
 }
 ## Recipes for moves without their own, by element.
 const PHYSICAL_FALLBACK := {&"fire": &"flame_dash", &"water": &"water_gun", &"grass": &"vine_whip",
@@ -163,6 +166,8 @@ func status_effect(sprite: Sprite2D, status: StringName) -> void:
 		&"freeze":
 			_burst(&"glint", at, 6, 20.0, 0.4, 1.5)
 			await _tint_sprite(sprite, Color(0.7, 1.2, 1.6))
+		&"confusion":
+			await _stars_around(sprite)
 
 
 ## Green sparkles rising around a monster being healed.
@@ -209,6 +214,20 @@ func _lick() -> void:
 		_pop(&"shadow", _target.position + Vector2(-8.0 + 8.0 * i, -8.0 + 6.0 * i), 0.3, 1.0, 2.2)
 		await _wait(0.1)
 	await _shake(_target)
+
+
+func _headbutt() -> void:
+	Audio.play_sfx(&"swish")
+	await _lunge(22.0, func() -> void:
+		_impact()
+		_shake(_target, 4.0))
+	await _wait(0.15)
+
+
+## A heavy charge, then the user shudders from the recoil.
+func _take_down() -> void:
+	await _lunge(26.0, _impact, 0.12)
+	await _shake(_user, 3.0, 4, 0.05)
 
 
 func _wing_slash() -> void:
@@ -522,6 +541,68 @@ func _harden() -> void:
 
 # --- Status moves --------------------------------------------------------------
 
+func _absorb() -> void:
+	await _drain_from_target(3)
+
+
+func _giga_drain() -> void:
+	await _drain_from_target(6)
+
+
+func _synthesis() -> void:
+	Audio.play_sfx(&"glint")
+	for i in 4: # Sunlight falls on the user...
+		var ray := _spawn(&"glint", _user.position + Vector2(-18.0 + 12.0 * i, -48.0), 1.5)
+		ray.modulate = Color(1.4, 1.4, 0.8)
+		_fly(ray, _user.position + Vector2(-18.0 + 12.0 * i, -4.0), 0.4)
+		await _wait(0.06)
+	await _wait(0.35)
+	await _glow(_user, Color(1.1, 1.6, 0.9)) # ...and it soaks it up.
+
+
+func _roost() -> void:
+	Audio.play_sfx(&"swish")
+	var home := _user.position
+	var tween := create_tween()
+	tween.tween_property(_user, "position", home + Vector2(0.0, 6.0), 0.15)
+	tween.tween_property(_user, "position", home, 0.15)
+	await tween.finished
+	await _glow(_user, Color(1.4, 1.4, 1.4))
+
+
+func _dizzy_ray() -> void:
+	Audio.play_sfx(&"ghost")
+	for i in 3: # Rings of eerie light spiral out to the target.
+		var arc := SoundArc.new()
+		arc.color = PixelArt.MAUVE
+		arc.radius = 6.0
+		arc.position = _user.position
+		add_child(arc)
+		var tween := create_tween().set_parallel()
+		tween.tween_property(arc, "position", _target.position, 0.45)
+		tween.tween_property(arc, "facing", -TAU * 2.0, 0.45)
+		tween.tween_property(arc, "radius", 16.0, 0.45)
+		tween.chain().tween_callback(arc.queue_free)
+		await _wait(0.12)
+	await _wait(0.35)
+
+
+func _supersonic() -> void:
+	Audio.play_sfx(&"growl")
+	var dir := (_target.position - _user.position).normalized()
+	for i in 4:
+		var arc := SoundArc.new()
+		arc.facing = dir.angle()
+		arc.color = PixelArt.CYAN
+		arc.position = _user.position + dir * 14.0
+		add_child(arc)
+		var tween := create_tween().set_parallel()
+		tween.tween_property(arc, "position", _target.position, 0.3)
+		tween.tween_property(arc, "radius", 10.0, 0.3)
+		tween.chain().tween_callback(arc.queue_free)
+		await _wait(0.08)
+	await _wait(0.25)
+
 func _poison_dust() -> void:
 	Audio.play_sfx(&"swish")
 	await _dust(POISON_TINT)
@@ -579,6 +660,45 @@ func _wisp_fire() -> void:
 
 
 # --- Building blocks -----------------------------------------------------------
+
+## Green motes drift from the target to the user, which then glows: ABSORB,
+## GIGA DRAIN.
+func _drain_from_target(count: int) -> void:
+	Audio.play_sfx(&"leaf")
+	for i in count:
+		var mote := _spawn(&"glint", _target.position + Vector2(-10.0 + 20.0 * (i % 2), -6.0 + 4.0 * i), 1.5)
+		mote.modulate = Color(0.8, 1.6, 0.7)
+		_fly(mote, _user.position, 0.5, 12.0 if i % 2 == 0 else -12.0)
+		await _wait(0.07)
+	await _wait(0.45)
+	await _glow(_user, Color(1.1, 1.6, 0.9))
+
+
+## Healing light: sparkles and a soft pulse.
+func _glow(sprite: Sprite2D, tint: Color) -> void:
+	heal_sparkles(sprite)
+	var tween := create_tween()
+	for i in 2:
+		tween.tween_property(sprite, "modulate", tint, 0.12)
+		tween.tween_property(sprite, "modulate", Color.WHITE, 0.12)
+	await tween.finished
+
+
+## Stars circling over a confused monster's head.
+func _stars_around(sprite: Sprite2D) -> void:
+	var at := sprite.position + Vector2(0.0, -20.0)
+	var stars: Array[Sprite2D] = []
+	for i in 3:
+		stars.append(_spawn(&"glint", at, 1.3))
+	var orbit := func(t: float) -> void:
+		for i in stars.size():
+			var angle := TAU * i / stars.size() + t * TAU * 1.5
+			stars[i].position = at + Vector2(cos(angle) * 14.0, sin(angle) * 4.0)
+	var tween := create_tween()
+	tween.tween_method(orbit, 0.0, 1.0, 0.7)
+	await tween.finished
+	for star in stars:
+		star.queue_free()
 
 func _spawn(effect: StringName, at: Vector2, size := SIZE) -> Sprite2D:
 	var sprite := Sprite2D.new()

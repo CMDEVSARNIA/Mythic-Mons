@@ -10,12 +10,14 @@ extends SceneTree
 ## (or to the folder in the SCREENSHOT_DIR environment variable):
 ##   godot --path . --fixed-fps 60 --script res://tests/smoke_test.gd
 ##
-## Uses its own save file, so a real save is never read or overwritten.
+## Uses its own save and settings files, so a real save or the player's
+## options are never read or overwritten.
 ## Exits with code 0 when every check passes, 1 otherwise.
 
 const MAPS := "res://scenes/maps/"
 const MAIN_SCENE := "res://scenes/main/main.tscn"
 const TEST_SAVE := "user://smoke_test_save.json"
+const TEST_SETTINGS := "user://smoke_test_settings.cfg"
 
 var _failures := 0
 # Game objects stay untyped on purpose: game scripts must compile after the
@@ -38,6 +40,9 @@ func _run() -> void:
 	_game_state.save_path = TEST_SAVE
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SAVE))
 	_dialogue = root.get_node(^"Dialogue")
+	var settings: Node = root.get_node(^"Settings")
+	settings.save_path = TEST_SETTINGS
+	settings.reset()
 	_naming = root.get_node(^"NameEntry")
 	_choices = _dialogue.get_node(^"ChoiceArea/Choices")
 	await _start_game()
@@ -257,7 +262,7 @@ func _run() -> void:
 	# --- Trainers --------------------------------------------------------------
 	# A borrowed champion, so the fights are quick and nothing evolves mid-test.
 	var team: Array = _game_state.party.duplicate()
-	var champ: Resource = load("res://scripts/monsters/monster.gd").create(load("res://data/species/blazard.tres"), 30)
+	var champ: Resource = _champion(30)
 	_game_state.party.assign([champ])
 	_main.change_map(MAPS + "route_01.tscn", &"south")
 	await _wait(1.0)
@@ -455,7 +460,7 @@ func _run() -> void:
 	_check(not card.visible and not _player.is_locked(), "B closes the card and the menu")
 
 	team = _game_state.party.duplicate()
-	_game_state.party.assign([load("res://scripts/monsters/monster.gd").create(load("res://data/species/blazard.tres"), 30)])
+	_game_state.party.assign([_champion(30)])
 	await _place(Vector2i(5, 20), Vector2i.UP)
 	await _tap(&"move_up")
 	await _wait(1.0)
@@ -699,7 +704,7 @@ func _run() -> void:
 	# --- ROUTE 2, COPPERDALE and the second GYM ---------------------------------
 	# A stronger champion this time; HIKER DALE and YOUNGSTER JOEY sit this one out.
 	team = _game_state.party.duplicate()
-	_game_state.party.assign([load("res://scripts/monsters/monster.gd").create(load("res://data/species/blazard.tres"), 60)])
+	_game_state.party.assign([_champion(60)])
 	_game_state.set_flag(&"beat_hiker_dale")
 	_game_state.set_flag(&"beat_youngster_joey")
 	await _place(Vector2i(22, 13), Vector2i.RIGHT)
@@ -768,6 +773,7 @@ func _run() -> void:
 	await _tap(&"move_down")
 	await _wait(1.0)
 
+	_game_state.party[0].heal_full() # As a player would at the MONSTER CENTER: HEAT WAVE has only 10 PP.
 	await _place(Vector2i(17, 7), Vector2i.UP)
 	await _tap(&"move_up")
 	await _wait(1.0)
@@ -805,6 +811,60 @@ func _run() -> void:
 	await _wait(1.0)
 	_check(_map_name() == "COPPERDALE TOWN" and _player.get_cell() == Vector2i(17, 7), "the GYM mat leads back outside")
 
+	# --- OPTION, DEBUG, REVIVE and REPEL ------------------------------------------
+	await _tap(&"menu")
+	for i in 6: # MONDEX, MONSTERS, BAG, CARD, FLY, SAVE, OPTION
+		await _tap(&"move_down")
+	await _tap(&"confirm")
+	var options: Control = _main.options_menu
+	_check(options.visible, "OPTION opens the options screen")
+	await _tap(&"move_right")
+	_check(settings.text_speed == 2, "TEXT SPEED can be set to FAST")
+	_shot("38_options")
+	await _tap(&"move_left")
+	await _tap(&"move_down")
+	await _tap(&"confirm")
+	_check(settings.text_speed == 1 and not settings.battle_scene, "...and back, and BATTLE SCENE switched OFF")
+	await _tap(&"confirm")
+	await _tap(&"cancel")
+	_check(not options.visible and settings.battle_scene and FileAccess.file_exists(TEST_SETTINGS), "B saves the options and closes the screen")
+	_game_state.party[0].hp = 1
+	await _tap(&"move_down")
+	await _tap(&"confirm") # DEBUG (debug builds only)
+	await _tap(&"move_down")
+	await _tap(&"confirm") # HEAL
+	await _close_dialogue()
+	_check(_game_state.party[0].hp == _game_state.party[0].max_hp(), "the DEBUG menu can heal the party")
+	for i in 7:
+		await _tap(&"move_down")
+	await _tap(&"confirm") # WILD: ON -> OFF
+	_check(not _main.wild_encounters, "...and switch wild encounters off")
+	_shot("39_debug")
+	await _tap(&"confirm")
+	_check(_main.wild_encounters, "...and on again")
+	await _tap(&"cancel")
+	await _tap(&"cancel")
+	_check(not _player.is_locked(), "closing the menus returns control")
+
+	_game_state.bag.assign({&"revive": 1, &"repel": 1})
+	var fainted: Resource = _game_state.party[1]
+	fainted.hp = 0
+	await _open_bag_item() # REVIVE...
+	await _tap(&"move_down")
+	await _tap(&"confirm") # ...on the fainted second monster.
+	await _close_dialogue()
+	_check(fainted.hp == floori(fainted.max_hp() / 2.0) and not _game_state.bag.has(&"revive"), "a REVIVE from the BAG brings a monster back with half its HP")
+	await _tap(&"confirm") # REPEL
+	await _close_dialogue()
+	_check(_game_state.repel_steps == 100 and not _game_state.bag.has(&"repel"), "a REPEL keeps weaker monsters away for 100 steps")
+	await _tap(&"cancel")
+	_game_state.repel_steps = 1
+	_player.step_finished.emit(_player.get_cell())
+	await _wait(0.5)
+	_check(_dialogue.is_open and "wore off" in _dialogue.get_node(^"Box/Text").text, "...and says when it wears off")
+	await _close_dialogue()
+	_check(_game_state.repel_steps == 0 and not _player.is_locked(), "control returns after the REPEL message")
+
 	# --- FLY -----------------------------------------------------------------
 	await _place(Vector2i(11, 9), Vector2i.DOWN)
 	await _tap(&"menu")
@@ -819,6 +879,7 @@ func _run() -> void:
 	_check(_map_name() == "EMBERFALL TOWN" and _player.get_cell() == Vector2i(11, 9), "FLY returns to a visited town")
 
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SAVE))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SETTINGS))
 	print("\nSMOKE TEST %s (%d failed)" % ["PASSED" if _failures == 0 else "FAILED", _failures])
 	quit(1 if _failures > 0 else 0)
 
@@ -829,6 +890,15 @@ func _start_game() -> void:
 	await _wait(0.6)
 	_main = current_scene
 	_player = _main.player
+
+
+## A borrowed BLAZARD for quick trainer fights. Its newest move (HEAT WAVE)
+## goes first, since _press_through_battle() always picks the first move.
+func _champion(level: int) -> Resource:
+	var champ: Resource = load("res://scripts/monsters/monster.gd").create(load("res://data/species/blazard.tres"), level)
+	champ.moves.reverse()
+	champ.pp.reverse()
+	return champ
 
 
 ## Presses A until the battle is over, taking screenshots of the menus.

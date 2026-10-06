@@ -1,60 +1,78 @@
 [gd_resource type="Resource" script_class="MonsterSpecies" format=3]
 
-[ext_resource type="Resource" path="res://data/abilities/sunsoak.tres" id="1_qqusq"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/grovetle_back.png" id="2_1bq10"]
-[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_x4p4h"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/grovetle.png" id="4_bpejf"]
-[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_t3tta"]
-[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="6_7hykr"]
-[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_v4alb"]
-[ext_resource type="Resource" path="res://data/moves/vine_whip.tres" id="8_4uyhj"]
-[ext_resource type="Resource" path="res://data/moves/poison_dust.tres" id="9_gc82c"]
-[ext_resource type="Resource" path="res://data/moves/razor_leaf.tres" id="10_eson1"]
-[ext_resource type="Resource" path="res://data/moves/sleep_dust.tres" id="11_0igqb"]
-[ext_resource type="Resource" path="res://data/moves/leaf_storm.tres" id="12_o325m"]
-[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="13_4qqyk"]
-
-[sub_resource type="Resource" id="Resource_87n0r"]
-script = ExtResource("5_t3tta")
-move = ExtResource("6_7hykr")
-
-[sub_resource type="Resource" id="Resource_5kx3n"]
-script = ExtResource("5_t3tta")
-level = 3
-move = ExtResource("7_v4alb")
-
-[sub_resource type="Resource" id="Resource_gwrgu"]
-script = ExtResource("5_t3tta")
-level = 7
-move = ExtResource("8_4uyhj")
-
-[sub_resource type="Resource" id="Resource_kab4m"]
-script = ExtResource("5_t3tta")
-level = 10
-move = ExtResource("9_gc82c")
-
-[sub_resource type="Resource" id="Resource_s3227"]
-script = ExtResource("5_t3tta")
-level = 15
-move = ExtResource("10_eson1")
-
-[sub_resource type="Resource" id="Resource_s6l43"]
-script = ExtResource("5_t3tta")
-level = 20
-move = ExtResource("11_0igqb")
+[ext_resource type="Resource" path="res://data/abilities/sunsoak.tres" id="1_bpejf"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/grovetle_back.png" id="2_t3tta"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_7hykr"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/grovetle.png" id="4_v4alb"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_4uyhj"]
+[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="6_gc82c"]
+[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_eson1"]
+[ext_resource type="Resource" path="res://data/moves/absorb.tres" id="8_0igqb"]
+[ext_resource type="Resource" path="res://data/moves/vine_whip.tres" id="9_o325m"]
+[ext_resource type="Resource" path="res://data/moves/poison_dust.tres" id="10_4qqyk"]
+[ext_resource type="Resource" path="res://data/moves/razor_leaf.tres" id="11_87n0r"]
+[ext_resource type="Resource" path="res://data/moves/sleep_dust.tres" id="12_5kx3n"]
+[ext_resource type="Resource" path="res://data/moves/synthesis.tres" id="13_gwrgu"]
+[ext_resource type="Resource" path="res://data/moves/giga_drain.tres" id="14_kab4m"]
+[ext_resource type="Resource" path="res://data/moves/leaf_storm.tres" id="15_s3227"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="16_s6l43"]
 
 [sub_resource type="Resource" id="Resource_6gad8"]
-script = ExtResource("5_t3tta")
+script = ExtResource("5_4uyhj")
+move = ExtResource("6_gc82c")
+
+[sub_resource type="Resource" id="Resource_whvpp"]
+script = ExtResource("5_4uyhj")
+level = 3
+move = ExtResource("7_eson1")
+
+[sub_resource type="Resource" id="Resource_iga14"]
+script = ExtResource("5_4uyhj")
+level = 5
+move = ExtResource("8_0igqb")
+
+[sub_resource type="Resource" id="Resource_fk2yu"]
+script = ExtResource("5_4uyhj")
+level = 7
+move = ExtResource("9_o325m")
+
+[sub_resource type="Resource" id="Resource_oxmlv"]
+script = ExtResource("5_4uyhj")
+level = 10
+move = ExtResource("10_4qqyk")
+
+[sub_resource type="Resource" id="Resource_qnut1"]
+script = ExtResource("5_4uyhj")
+level = 15
+move = ExtResource("11_87n0r")
+
+[sub_resource type="Resource" id="Resource_wuoqg"]
+script = ExtResource("5_4uyhj")
+level = 20
+move = ExtResource("12_5kx3n")
+
+[sub_resource type="Resource" id="Resource_3iuts"]
+script = ExtResource("5_4uyhj")
+level = 23
+move = ExtResource("13_gwrgu")
+
+[sub_resource type="Resource" id="Resource_t1jlk"]
+script = ExtResource("5_4uyhj")
+level = 26
+move = ExtResource("14_kab4m")
+
+[sub_resource type="Resource" id="Resource_r0irr"]
+script = ExtResource("5_4uyhj")
 level = 30
-move = ExtResource("12_o325m")
+move = ExtResource("15_s3227")
 
 [resource]
-script = ExtResource("13_4qqyk")
+script = ExtResource("16_s6l43")
 display_name = "GROVETLE"
 element = "grass"
-ability = ExtResource("1_qqusq")
-front_texture = ExtResource("4_bpejf")
-back_texture = ExtResource("2_1bq10")
+ability = ExtResource("1_bpejf")
+front_texture = ExtResource("4_v4alb")
+back_texture = ExtResource("2_t3tta")
 base_hp = 62
 base_attack = 64
 base_defense = 72
@@ -62,7 +80,7 @@ base_special = 82
 base_speed = 55
 growth = 2
 exp_yield = 141
-learnset = Array[ExtResource("5_t3tta")]([SubResource("Resource_87n0r"), SubResource("Resource_5kx3n"), SubResource("Resource_gwrgu"), SubResource("Resource_kab4m"), SubResource("Resource_s3227"), SubResource("Resource_s6l43"), SubResource("Resource_6gad8")])
+learnset = Array[ExtResource("5_4uyhj")]([SubResource("Resource_6gad8"), SubResource("Resource_whvpp"), SubResource("Resource_iga14"), SubResource("Resource_fk2yu"), SubResource("Resource_oxmlv"), SubResource("Resource_qnut1"), SubResource("Resource_wuoqg"), SubResource("Resource_3iuts"), SubResource("Resource_t1jlk"), SubResource("Resource_r0irr")])
 dex_number = 6
 category = "GROVE TURTLE"
 height = 0.9

@@ -1,53 +1,59 @@
 [gd_resource type="Resource" script_class="MonsterSpecies" format=3]
 
-[ext_resource type="Resource" path="res://data/abilities/soak_up.tres" id="1_plkws"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/tidehound_back.png" id="2_08sub"]
-[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_nyyj0"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/tidehound.png" id="4_orygd"]
-[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_hwao7"]
-[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="6_qwy00"]
-[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_xbrjc"]
-[ext_resource type="Resource" path="res://data/moves/water_gun.tres" id="8_2v31o"]
-[ext_resource type="Resource" path="res://data/moves/harden.tres" id="9_rujrw"]
-[ext_resource type="Resource" path="res://data/moves/bubblebeam.tres" id="10_d0hb7"]
-[ext_resource type="Resource" path="res://data/moves/aqua_blast.tres" id="11_f058d"]
-[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="12_h1ais"]
-
-[sub_resource type="Resource" id="Resource_duh1g"]
-script = ExtResource("5_hwao7")
-move = ExtResource("6_qwy00")
-
-[sub_resource type="Resource" id="Resource_ejnbx"]
-script = ExtResource("5_hwao7")
-move = ExtResource("7_xbrjc")
+[ext_resource type="Resource" path="res://data/abilities/soak_up.tres" id="1_08sub"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/tidehound_back.png" id="2_nyyj0"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_orygd"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/tidehound.png" id="4_hwao7"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_qwy00"]
+[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="6_xbrjc"]
+[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_2v31o"]
+[ext_resource type="Resource" path="res://data/moves/water_gun.tres" id="8_rujrw"]
+[ext_resource type="Resource" path="res://data/moves/harden.tres" id="9_d0hb7"]
+[ext_resource type="Resource" path="res://data/moves/bubblebeam.tres" id="10_f058d"]
+[ext_resource type="Resource" path="res://data/moves/take_down.tres" id="11_h1ais"]
+[ext_resource type="Resource" path="res://data/moves/aqua_blast.tres" id="12_duh1g"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="13_ejnbx"]
 
 [sub_resource type="Resource" id="Resource_fgg22"]
-script = ExtResource("5_hwao7")
-level = 7
-move = ExtResource("8_2v31o")
+script = ExtResource("5_qwy00")
+move = ExtResource("6_xbrjc")
 
 [sub_resource type="Resource" id="Resource_2ejtq"]
-script = ExtResource("5_hwao7")
-level = 13
-move = ExtResource("9_rujrw")
+script = ExtResource("5_qwy00")
+move = ExtResource("7_2v31o")
 
 [sub_resource type="Resource" id="Resource_82hti"]
-script = ExtResource("5_hwao7")
-level = 19
-move = ExtResource("10_d0hb7")
+script = ExtResource("5_qwy00")
+level = 7
+move = ExtResource("8_rujrw")
 
 [sub_resource type="Resource" id="Resource_finp7"]
-script = ExtResource("5_hwao7")
+script = ExtResource("5_qwy00")
+level = 13
+move = ExtResource("9_d0hb7")
+
+[sub_resource type="Resource" id="Resource_p5lbb"]
+script = ExtResource("5_qwy00")
+level = 19
+move = ExtResource("10_f058d")
+
+[sub_resource type="Resource" id="Resource_m0sb2"]
+script = ExtResource("5_qwy00")
+level = 22
+move = ExtResource("11_h1ais")
+
+[sub_resource type="Resource" id="Resource_rbsgl"]
+script = ExtResource("5_qwy00")
 level = 28
-move = ExtResource("11_f058d")
+move = ExtResource("12_duh1g")
 
 [resource]
-script = ExtResource("12_h1ais")
+script = ExtResource("13_ejnbx")
 display_name = "TIDEHOUND"
 element = "water"
-ability = ExtResource("1_plkws")
-front_texture = ExtResource("4_orygd")
-back_texture = ExtResource("2_08sub")
+ability = ExtResource("1_08sub")
+front_texture = ExtResource("4_hwao7")
+back_texture = ExtResource("2_nyyj0")
 base_hp = 62
 base_attack = 66
 base_defense = 82
@@ -55,7 +61,7 @@ base_special = 68
 base_speed = 60
 growth = 2
 exp_yield = 143
-learnset = Array[ExtResource("5_hwao7")]([SubResource("Resource_duh1g"), SubResource("Resource_ejnbx"), SubResource("Resource_fgg22"), SubResource("Resource_2ejtq"), SubResource("Resource_82hti"), SubResource("Resource_finp7")])
+learnset = Array[ExtResource("5_qwy00")]([SubResource("Resource_fgg22"), SubResource("Resource_2ejtq"), SubResource("Resource_82hti"), SubResource("Resource_finp7"), SubResource("Resource_p5lbb"), SubResource("Resource_m0sb2"), SubResource("Resource_rbsgl")])
 dex_number = 4
 category = "SURF HOUND"
 height = 1.2

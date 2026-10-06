@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/items/repel.png" id="1_fqd50"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="2_r5hn2"]
+
+[resource]
+script = ExtResource("2_r5hn2")
+display_name = "REPEL"
+description = "Keeps weaker wild
+MONSTERS away for
+100 steps."
+kind = 6
+icon = ExtResource("1_fqd50")
+price = 350

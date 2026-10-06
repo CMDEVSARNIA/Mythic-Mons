@@ -1,53 +1,59 @@
 [gd_resource type="Resource" script_class="MonsterSpecies" format=3]
 
-[ext_resource type="Resource" path="res://data/abilities/soak_up.tres" id="1_b1v24"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/aquapup_back.png" id="2_elnng"]
-[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_l04rq"]
-[ext_resource type="Resource" path="res://data/species/tidehound.tres" id="4_elnng"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/aquapup.png" id="4_qvly0"]
-[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_fsyh5"]
-[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="6_ffq8o"]
-[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_felxb"]
-[ext_resource type="Resource" path="res://data/moves/water_gun.tres" id="8_7cgve"]
-[ext_resource type="Resource" path="res://data/moves/harden.tres" id="9_gnud2"]
-[ext_resource type="Resource" path="res://data/moves/bubblebeam.tres" id="10_8dk0g"]
-[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="11_ioh0p"]
+[ext_resource type="Resource" path="res://data/abilities/soak_up.tres" id="1_elnng"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/aquapup_back.png" id="2_l04rq"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_qvly0"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/aquapup.png" id="4_fsyh5"]
+[ext_resource type="Resource" path="res://data/species/tidehound.tres" id="4_l04rq"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_ffq8o"]
+[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="6_felxb"]
+[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_7cgve"]
+[ext_resource type="Resource" path="res://data/moves/water_gun.tres" id="8_gnud2"]
+[ext_resource type="Resource" path="res://data/moves/harden.tres" id="9_8dk0g"]
+[ext_resource type="Resource" path="res://data/moves/bubblebeam.tres" id="10_ioh0p"]
+[ext_resource type="Resource" path="res://data/moves/take_down.tres" id="11_7k1s1"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="12_yrpyo"]
 
-[sub_resource type="Resource" id="Resource_l04rq"]
-script = ExtResource("3_l04rq")
-into = ExtResource("4_elnng")
+[sub_resource type="Resource" id="Resource_qvly0"]
+script = ExtResource("3_qvly0")
+into = ExtResource("4_l04rq")
 level = 12
 
-[sub_resource type="Resource" id="Resource_7k1s1"]
-script = ExtResource("5_fsyh5")
-move = ExtResource("6_ffq8o")
-
-[sub_resource type="Resource" id="Resource_yrpyo"]
-script = ExtResource("5_fsyh5")
-move = ExtResource("7_felxb")
-
 [sub_resource type="Resource" id="Resource_nk378"]
-script = ExtResource("5_fsyh5")
-level = 7
-move = ExtResource("8_7cgve")
+script = ExtResource("5_ffq8o")
+move = ExtResource("6_felxb")
 
 [sub_resource type="Resource" id="Resource_vxcpg"]
-script = ExtResource("5_fsyh5")
-level = 13
-move = ExtResource("9_gnud2")
+script = ExtResource("5_ffq8o")
+move = ExtResource("7_7cgve")
 
 [sub_resource type="Resource" id="Resource_75us4"]
-script = ExtResource("5_fsyh5")
+script = ExtResource("5_ffq8o")
+level = 7
+move = ExtResource("8_gnud2")
+
+[sub_resource type="Resource" id="Resource_81kvy"]
+script = ExtResource("5_ffq8o")
+level = 13
+move = ExtResource("9_8dk0g")
+
+[sub_resource type="Resource" id="Resource_vgjrl"]
+script = ExtResource("5_ffq8o")
 level = 19
-move = ExtResource("10_8dk0g")
+move = ExtResource("10_ioh0p")
+
+[sub_resource type="Resource" id="Resource_wqyqv"]
+script = ExtResource("5_ffq8o")
+level = 22
+move = ExtResource("11_7k1s1")
 
 [resource]
-script = ExtResource("11_ioh0p")
+script = ExtResource("12_yrpyo")
 display_name = "AQUAPUP"
 element = "water"
-ability = ExtResource("1_b1v24")
-front_texture = ExtResource("4_qvly0")
-back_texture = ExtResource("2_elnng")
+ability = ExtResource("1_elnng")
+front_texture = ExtResource("4_fsyh5")
+back_texture = ExtResource("2_l04rq")
 base_hp = 44
 base_attack = 48
 base_defense = 65
@@ -55,8 +61,8 @@ base_special = 50
 base_speed = 43
 growth = 2
 exp_yield = 63
-learnset = Array[ExtResource("5_fsyh5")]([SubResource("Resource_7k1s1"), SubResource("Resource_yrpyo"), SubResource("Resource_nk378"), SubResource("Resource_vxcpg"), SubResource("Resource_75us4")])
-evolutions = Array[ExtResource("3_l04rq")]([SubResource("Resource_l04rq")])
+learnset = Array[ExtResource("5_ffq8o")]([SubResource("Resource_nk378"), SubResource("Resource_vxcpg"), SubResource("Resource_75us4"), SubResource("Resource_81kvy"), SubResource("Resource_vgjrl"), SubResource("Resource_wqyqv")])
+evolutions = Array[ExtResource("3_qvly0")]([SubResource("Resource_qvly0")])
 dex_number = 3
 category = "PUDDLE PUP"
 weight = 9.0

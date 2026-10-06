@@ -25,7 +25,9 @@ const STATUS := MoveData.Category.STATUS
 const FOE := MoveData.Target.FOE
 const SELF := MoveData.Target.SELF
 
-## id: [name, element, category, power, accuracy, pp, priority, stat changes, target, effect %, description]
+## id: [name, element, category, power, accuracy, pp, priority, stat changes, target, effect %, description,
+##      then optionally [status condition, chance] and/or {MoveData property: value}
+##      for drain, recoil, heal, flinch_chance and confuse_chance]
 const MOVES := {
 	"tackle": ["TACKLE", "normal", PHYSICAL, 40, 100, 35, 0, {}, FOE, 0, "A full-body charge."],
 	"scratch": ["SCRATCH", "normal", PHYSICAL, 40, 100, 35, 0, {}, FOE, 0, "Rakes the foe with sharp claws."],
@@ -48,12 +50,20 @@ const MOVES := {
 	"heat_wave": ["HEAT WAVE", "fire", SPECIAL, 90, 90, 10, 0, {}, FOE, 0, "Scorching air that may burn.", ["burn", 10]],
 	"aqua_blast": ["AQUA BLAST", "water", SPECIAL, 90, 90, 10, 0, {}, FOE, 0, "A crashing jet of seawater."],
 	"leaf_storm": ["LEAF STORM", "grass", SPECIAL, 90, 90, 10, 0, {}, FOE, 0, "A whirlwind of razor leaves."],
-	"rock_slide": ["ROCK SLIDE", "rock", PHYSICAL, 75, 90, 10, 0, {}, FOE, 0, "Buries the foe under boulders."],
+	"rock_slide": ["ROCK SLIDE", "rock", PHYSICAL, 75, 90, 10, 0, {}, FOE, 0, "Buries the foe under boulders. May make it flinch.", {"flinch_chance": 30}],
 	"thunder": ["THUNDER", "electric", SPECIAL, 110, 70, 10, 0, {}, FOE, 0, "A huge, wild bolt; may paralyze.", ["paralysis", 30]],
 	"phantasm": ["PHANTASM", "ghost", SPECIAL, 85, 100, 10, 0, {&"attack": -1}, FOE, 20, "May lower the foe's ATTACK."],
 	"gust": ["GUST", "normal", SPECIAL, 40, 100, 35, 0, {}, FOE, 0, "Whips up a strong gust of wind."],
 	"wing_slash": ["WING SLASH", "normal", PHYSICAL, 60, 100, 25, 0, {}, FOE, 0, "Strikes with wings spread wide."],
 	"aerial_dive": ["AERIAL DIVE", "normal", PHYSICAL, 90, 90, 10, 0, {}, FOE, 0, "Soars up high, then dives at the foe."],
+	"headbutt": ["HEADBUTT", "normal", PHYSICAL, 70, 100, 15, 0, {}, FOE, 0, "A ramming blow. May make the foe flinch.", {"flinch_chance": 30}],
+	"take_down": ["TAKE DOWN", "normal", PHYSICAL, 90, 85, 20, 0, {}, FOE, 0, "A reckless charge that also hurts the user.", {"recoil": 25}],
+	"absorb": ["ABSORB", "grass", SPECIAL, 20, 100, 25, 0, {}, FOE, 0, "Steals HP: half the damage heals the user.", {"drain": 50}],
+	"giga_drain": ["GIGA DRAIN", "grass", SPECIAL, 60, 100, 10, 0, {}, FOE, 0, "A big HP steal: half the damage heals the user.", {"drain": 50}],
+	"synthesis": ["SYNTHESIS", "grass", STATUS, 0, 100, 5, 0, {}, SELF, 100, "Soaks up sunlight to restore half its HP.", {"heal": 50}],
+	"roost": ["ROOST", "normal", STATUS, 0, 100, 10, 0, {}, SELF, 100, "Lands to rest, restoring half its HP.", {"heal": 50}],
+	"dizzy_ray": ["DIZZY RAY", "ghost", STATUS, 0, 100, 10, 0, {}, FOE, 0, "An eerie, swirling light that confuses the foe.", {"confuse_chance": 100}],
+	"supersonic": ["SUPERSONIC", "normal", STATUS, 0, 55, 20, 0, {}, FOE, 0, "Odd sound waves that confuse the foe.", {"confuse_chance": 100}],
 	# Status moves: the last entry is [status condition, chance].
 	"poison_dust": ["POISON DUST", "grass", STATUS, 0, 75, 35, 0, {}, FOE, 0, "Scatters a toxic dust that poisons.", ["poison", 100]],
 	"sleep_dust": ["SLEEP DUST", "grass", STATUS, 0, 75, 15, 0, {}, FOE, 0, "Scatters a dust that causes sleep.", ["sleep", 100]],
@@ -78,28 +88,28 @@ const ABILITIES := {
 ## In MONDEX order: each evolution right after its pre-evolution.
 const SPECIES := {
 	"flamlet": ["FLAMLET", "fire", "kindle", [39, 52, 43, 55, 65], 45, 62,
-		[[1, "scratch"], [1, "growl"], [7, "ember"], [13, "leer"], [19, "flame_dash"]],
+		[[1, "scratch"], [1, "growl"], [7, "ember"], [13, "leer"], [16, "headbutt"], [19, "flame_dash"]],
 		"Its tail-flame flickers brighter whenever it is excited."],
 	"blazard": ["BLAZARD", "fire", "kindle", [58, 72, 58, 75, 80], 45, 142,
-		[[1, "scratch"], [1, "growl"], [7, "ember"], [13, "leer"], [19, "flame_dash"], [28, "heat_wave"]],
+		[[1, "scratch"], [1, "growl"], [7, "ember"], [13, "leer"], [16, "headbutt"], [19, "flame_dash"], [28, "heat_wave"]],
 		"Its horns glow white-hot when it battles a worthy foe."],
 	"aquapup": ["AQUAPUP", "water", "soak_up", [44, 48, 65, 50, 43], 45, 63,
-		[[1, "tackle"], [1, "growl"], [7, "water_gun"], [13, "harden"], [19, "bubblebeam"]],
+		[[1, "tackle"], [1, "growl"], [7, "water_gun"], [13, "harden"], [19, "bubblebeam"], [22, "take_down"]],
 		"Splashes through puddles for hours and never seems to get cold."],
 	"tidehound": ["TIDEHOUND", "water", "soak_up", [62, 66, 82, 68, 60], 45, 143,
-		[[1, "tackle"], [1, "growl"], [7, "water_gun"], [13, "harden"], [19, "bubblebeam"], [28, "aqua_blast"]],
+		[[1, "tackle"], [1, "growl"], [7, "water_gun"], [13, "harden"], [19, "bubblebeam"], [22, "take_down"], [28, "aqua_blast"]],
 		"Rides the waves along the coast, its fin crest cutting the spray."],
 	"sproutle": ["SPROUTLE", "grass", "sunsoak", [45, 49, 49, 65, 45], 190, 50,
-		[[1, "tackle"], [3, "growl"], [7, "vine_whip"], [10, "poison_dust"], [15, "razor_leaf"], [20, "sleep_dust"]],
+		[[1, "tackle"], [3, "growl"], [5, "absorb"], [7, "vine_whip"], [10, "poison_dust"], [15, "razor_leaf"], [20, "sleep_dust"], [23, "synthesis"]],
 		"Naps in sunny patches of tall grass, soaking up light through its leaves."],
 	"grovetle": ["GROVETLE", "grass", "sunsoak", [62, 64, 72, 82, 55], 45, 141,
-		[[1, "tackle"], [3, "growl"], [7, "vine_whip"], [10, "poison_dust"], [15, "razor_leaf"], [20, "sleep_dust"], [30, "leaf_storm"]],
+		[[1, "tackle"], [3, "growl"], [5, "absorb"], [7, "vine_whip"], [10, "poison_dust"], [15, "razor_leaf"], [20, "sleep_dust"], [23, "synthesis"], [26, "giga_drain"], [30, "leaf_storm"]],
 		"A small tree takes root on its back. Birds nest in its branches."],
 	"pebblet": ["PEBBLET", "rock", "sturdy_shell", [40, 80, 100, 30, 20], 190, 60,
-		[[1, "tackle"], [1, "harden"], [8, "rock_throw"], [16, "scary_face"]],
+		[[1, "tackle"], [1, "harden"], [8, "rock_throw"], [12, "headbutt"], [16, "scary_face"], [20, "take_down"]],
 		"Often mistaken for an ordinary rock, until it rolls away."],
 	"bouldron": ["BOULDRON", "rock", "sturdy_shell", [60, 100, 125, 45, 35], 45, 137,
-		[[1, "tackle"], [1, "harden"], [8, "rock_throw"], [16, "scary_face"], [24, "rock_slide"]],
+		[[1, "tackle"], [1, "harden"], [8, "rock_throw"], [12, "headbutt"], [16, "scary_face"], [20, "take_down"], [24, "rock_slide"]],
 		"Crystals grow from its shoulders. It can sleep standing up for years."],
 	"zapkit": ["ZAPKIT", "electric", "jolt", [35, 55, 30, 50, 90], 190, 56,
 		[[1, "quick_hit"], [1, "growl"], [6, "spark"], [10, "volt_wave"], [14, "volt_dash"]],
@@ -108,16 +118,16 @@ const SPECIES := {
 		[[1, "quick_hit"], [1, "growl"], [6, "spark"], [10, "volt_wave"], [14, "volt_dash"], [26, "thunder"]],
 		"Its mane crackles with lightning. It can outrun a thunderclap."],
 	"shadeling": ["SHADELING", "ghost", "dread", [30, 35, 30, 100, 80], 120, 62,
-		[[1, "lick"], [1, "scary_face"], [8, "shade_orb"], [12, "hypnosis"], [18, "wisp_fire"]],
+		[[1, "lick"], [1, "scary_face"], [8, "shade_orb"], [12, "hypnosis"], [15, "dizzy_ray"], [18, "wisp_fire"]],
 		"Lurks in the shadows of old houses and giggles at night."],
 	"duskwraith": ["DUSKWRAITH", "ghost", "dread", [55, 60, 50, 125, 105], 45, 160,
-		[[1, "lick"], [1, "scary_face"], [8, "shade_orb"], [12, "hypnosis"], [18, "wisp_fire"], [24, "phantasm"]],
+		[[1, "lick"], [1, "scary_face"], [8, "shade_orb"], [12, "hypnosis"], [15, "dizzy_ray"], [18, "wisp_fire"], [24, "phantasm"]],
 		"Drifts through town at dusk, grinning at anyone still outside."],
 	"pipwing": ["PIPWING", "normal", "gale_force", [40, 45, 40, 35, 56], 255, 50,
-		[[1, "tackle"], [1, "growl"], [5, "quick_hit"], [9, "gust"], [13, "leer"], [17, "wing_slash"]],
+		[[1, "tackle"], [1, "growl"], [5, "quick_hit"], [9, "gust"], [11, "supersonic"], [13, "leer"], [17, "wing_slash"], [21, "roost"]],
 		"Flocks of PIPWING chase the sea breeze, chirping loudly at dawn."],
 	"galehawk": ["GALEHAWK", "normal", "gale_force", [63, 72, 60, 52, 91], 45, 145,
-		[[1, "tackle"], [1, "growl"], [5, "quick_hit"], [9, "gust"], [13, "leer"], [17, "wing_slash"], [28, "aerial_dive"]],
+		[[1, "tackle"], [1, "growl"], [5, "quick_hit"], [9, "gust"], [11, "supersonic"], [13, "leer"], [17, "wing_slash"], [21, "roost"], [28, "aerial_dive"]],
 		"It rides storm winds above the clouds, then dives faster than the eye can follow."],
 }
 
@@ -138,6 +148,9 @@ const BALL := ItemData.Kind.BALL
 const HEAL := ItemData.Kind.HEAL
 const EVOLUTION := ItemData.Kind.EVOLUTION
 const CURE := ItemData.Kind.CURE
+const REVIVE := ItemData.Kind.REVIVE
+const PP := ItemData.Kind.PP
+const REPEL := ItemData.Kind.REPEL
 
 ## id: [name, kind, catch multiplier or heal amount, price (0 = not sold),
 ##      description, optional extra properties]
@@ -167,6 +180,10 @@ const ITEMS := {
 	"para_heal": ["PARA HEAL", CURE, 0, 200, "Cures a paralyzed\nMONSTER.", {"cures": [&"paralysis"]}],
 	"awakening": ["AWAKENING", CURE, 0, 250, "Wakes up a sleeping\nMONSTER.", {"cures": [&"sleep"]}],
 	"full_heal": ["FULL HEAL", CURE, 0, 600, "Cures any status\ncondition.", {"cures": []}],
+	"revive": ["REVIVE", REVIVE, 0, 1500, "Revives a fainted\nMONSTER with half\nits HP.", {"revive_fraction": 0.5}],
+	"max_revive": ["MAX REVIVE", REVIVE, 0, 0, "Revives a fainted\nMONSTER with all\nits HP.", {"revive_fraction": 1.0}],
+	"ether": ["ETHER", PP, 0, 1200, "Restores 10 PP to\none of a MONSTER's\nmoves.", {"pp_amount": 10}],
+	"repel": ["REPEL", REPEL, 0, 350, "Keeps weaker wild\nMONSTERS away for\n100 steps.", {"repel_steps": 100}],
 	"bolt_stone": ["BOLT STONE", EVOLUTION, 0, 2100, "Makes certain MONSTERS\nevolve. It crackles\nwith static."],
 	"dusk_stone": ["DUSK STONE", EVOLUTION, 0, 2100, "Makes certain MONSTERS\nevolve. It's cold to\nthe touch."],
 }
@@ -285,9 +302,13 @@ func _build_move(id: String, row: Array) -> MoveData:
 	move.stat_target = row[8]
 	move.effect_chance = row[9] if not changes.is_empty() else 100
 	move.description = row[10]
-	if row.size() > 11:
-		move.status_effect = StringName(row[11][0])
-		move.status_chance = row[11][1]
+	for extra: Variant in row.slice(11):
+		if extra is Array:
+			move.status_effect = StringName(extra[0])
+			move.status_chance = extra[1]
+		else:
+			for property: String in extra:
+				move.set(property, extra[property])
 	move.animation = StringName(id) # MoveAnimator has a recipe for every built-in move.
 	return move
 

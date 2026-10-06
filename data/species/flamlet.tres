@@ -1,53 +1,59 @@
 [gd_resource type="Resource" script_class="MonsterSpecies" format=3]
 
-[ext_resource type="Resource" path="res://data/abilities/kindle.tres" id="1_0ogma"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/flamlet_back.png" id="2_ig8gy"]
-[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_g0108"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/flamlet.png" id="4_i8r1u"]
-[ext_resource type="Resource" path="res://data/species/blazard.tres" id="4_ig8gy"]
-[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_d0rsk"]
-[ext_resource type="Resource" path="res://data/moves/scratch.tres" id="6_eb42s"]
-[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_33hny"]
-[ext_resource type="Resource" path="res://data/moves/ember.tres" id="8_50eu5"]
-[ext_resource type="Resource" path="res://data/moves/leer.tres" id="9_v7fsn"]
-[ext_resource type="Resource" path="res://data/moves/flame_dash.tres" id="10_4wobf"]
-[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="11_se78l"]
+[ext_resource type="Resource" path="res://data/abilities/kindle.tres" id="1_ig8gy"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/flamlet_back.png" id="2_g0108"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_i8r1u"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/flamlet.png" id="4_d0rsk"]
+[ext_resource type="Resource" path="res://data/species/blazard.tres" id="4_g0108"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_eb42s"]
+[ext_resource type="Resource" path="res://data/moves/scratch.tres" id="6_33hny"]
+[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_50eu5"]
+[ext_resource type="Resource" path="res://data/moves/ember.tres" id="8_v7fsn"]
+[ext_resource type="Resource" path="res://data/moves/leer.tres" id="9_4wobf"]
+[ext_resource type="Resource" path="res://data/moves/headbutt.tres" id="10_se78l"]
+[ext_resource type="Resource" path="res://data/moves/flame_dash.tres" id="11_4ik4h"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="12_vbs4v"]
 
-[sub_resource type="Resource" id="Resource_g0108"]
-script = ExtResource("3_g0108")
-into = ExtResource("4_ig8gy")
+[sub_resource type="Resource" id="Resource_i8r1u"]
+script = ExtResource("3_i8r1u")
+into = ExtResource("4_g0108")
 level = 12
 
-[sub_resource type="Resource" id="Resource_4ik4h"]
-script = ExtResource("5_d0rsk")
-move = ExtResource("6_eb42s")
-
-[sub_resource type="Resource" id="Resource_vbs4v"]
-script = ExtResource("5_d0rsk")
-move = ExtResource("7_33hny")
-
 [sub_resource type="Resource" id="Resource_p5f4t"]
-script = ExtResource("5_d0rsk")
-level = 7
-move = ExtResource("8_50eu5")
+script = ExtResource("5_eb42s")
+move = ExtResource("6_33hny")
 
 [sub_resource type="Resource" id="Resource_28fvr"]
-script = ExtResource("5_d0rsk")
-level = 13
-move = ExtResource("9_v7fsn")
+script = ExtResource("5_eb42s")
+move = ExtResource("7_50eu5")
 
 [sub_resource type="Resource" id="Resource_yun52"]
-script = ExtResource("5_d0rsk")
+script = ExtResource("5_eb42s")
+level = 7
+move = ExtResource("8_v7fsn")
+
+[sub_resource type="Resource" id="Resource_354ne"]
+script = ExtResource("5_eb42s")
+level = 13
+move = ExtResource("9_4wobf")
+
+[sub_resource type="Resource" id="Resource_7qo58"]
+script = ExtResource("5_eb42s")
+level = 16
+move = ExtResource("10_se78l")
+
+[sub_resource type="Resource" id="Resource_kh3og"]
+script = ExtResource("5_eb42s")
 level = 19
-move = ExtResource("10_4wobf")
+move = ExtResource("11_4ik4h")
 
 [resource]
-script = ExtResource("11_se78l")
+script = ExtResource("12_vbs4v")
 display_name = "FLAMLET"
 element = "fire"
-ability = ExtResource("1_0ogma")
-front_texture = ExtResource("4_i8r1u")
-back_texture = ExtResource("2_ig8gy")
+ability = ExtResource("1_ig8gy")
+front_texture = ExtResource("4_d0rsk")
+back_texture = ExtResource("2_g0108")
 base_hp = 39
 base_attack = 52
 base_defense = 43
@@ -55,8 +61,8 @@ base_special = 55
 base_speed = 65
 growth = 2
 exp_yield = 62
-learnset = Array[ExtResource("5_d0rsk")]([SubResource("Resource_4ik4h"), SubResource("Resource_vbs4v"), SubResource("Resource_p5f4t"), SubResource("Resource_28fvr"), SubResource("Resource_yun52")])
-evolutions = Array[ExtResource("3_g0108")]([SubResource("Resource_g0108")])
+learnset = Array[ExtResource("5_eb42s")]([SubResource("Resource_p5f4t"), SubResource("Resource_28fvr"), SubResource("Resource_yun52"), SubResource("Resource_354ne"), SubResource("Resource_7qo58"), SubResource("Resource_kh3og")])
+evolutions = Array[ExtResource("3_i8r1u")]([SubResource("Resource_i8r1u")])
 category = "EMBER LIZARD"
 height = 0.6
 weight = 8.5

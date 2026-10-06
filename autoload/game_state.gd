@@ -31,6 +31,8 @@ const BADGES := {
 var player_name := DEFAULT_NAME
 ## Seconds played, for the trainer card.
 var play_seconds := 0.0
+## Steps left on a REPEL: until 0, wild monsters weaker than the lead stay away.
+var repel_steps := 0
 ## Fly destinations: town map scene path -> display name, in visit order.
 var visited_towns: Dictionary[String, String] = {}
 var current_map_path := ""
@@ -82,6 +84,14 @@ func set_flag(flag: StringName, value := true) -> void:
 
 func mark_town_visited(map_path: String, display_name: String) -> void:
 	visited_towns[map_path] = display_name
+
+
+## The monster that battles first: the first one that hasn't fainted.
+func lead_monster() -> Monster:
+	for monster in party:
+		if not monster.is_fainted():
+			return monster
+	return null
 
 
 func has_healthy_monster() -> bool:
@@ -207,6 +217,7 @@ func save_game(location: Dictionary) -> Error:
 		"storage": storage.map(func(monster: Monster) -> Dictionary: return monster.to_dict()),
 		"bag": bag,
 		"money": money,
+		"repel_steps": repel_steps,
 		"play_seconds": play_seconds,
 		"flags": flags,
 		"visited_towns": visited_towns,
@@ -238,6 +249,7 @@ func load_game() -> Dictionary:
 	for id: String in data.get("bag", {}):
 		bag[StringName(id)] = int(data.bag[id])
 	money = clampi(int(data.get("money", START_MONEY)), 0, MAX_MONEY)
+	repel_steps = maxi(int(data.get("repel_steps", 0)), 0)
 	play_seconds = maxf(float(data.get("play_seconds", 0.0)), 0.0)
 	flags.clear()
 	for flag: String in data.get("flags", {}):

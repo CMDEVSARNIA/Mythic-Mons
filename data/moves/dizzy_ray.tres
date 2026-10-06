@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/move_data.gd" id="1_r7hjk"]
+
+[resource]
+script = ExtResource("1_r7hjk")
+display_name = "DIZZY RAY"
+element = "ghost"
+category = 2
+power = 0
+max_pp = 10
+confuse_chance = 100
+description = "An eerie, swirling light that confuses the foe."
+animation = &"dizzy_ray"

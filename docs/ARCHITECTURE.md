@@ -16,7 +16,8 @@ Mythic-Mons/
 │   ├── events.gd              Events: signal bus (warp_requested, wild_encounter, map_entered)
 │   ├── game_state.gd          GameState: party, BOX, BAG, flags, badges, play time, Fly towns,
 │   │                          respawn, save/load
-│   └── audio.gd               Audio: music + SFX, real files first, chiptune fallback
+│   ├── audio.gd               Audio: music + SFX, real files first, chiptune fallback
+│   └── settings.gd            Settings: the OPTION screen's choices, saved to user://settings.cfg
 ├── scenes/
 │   ├── main/                  Main scene: current map, player, title, start menu, battles, fades
 │   ├── actors/
@@ -36,7 +37,7 @@ Mythic-Mons/
 │   │                          orb effects), BattlerPanel, StatBar, EvolutionScene
 │   └── ui/                    Dialogue box and NameEntry (autoloads), choice box, map banner, party menu,
 │                              monster summary, shop menu, quantity box, MONDEX,
-│                              StorageMenu (the PC's BOX screens), TrainerCard,
+│                              StorageMenu (the PC's BOX screens), TrainerCard, OptionsMenu,
 │                              MoveTutor (learning a move, forgetting one if needed)
 ├── scripts/                   Non-scene code (class_name utilities)
 │   ├── core/                  Grid, PhysicsLayers, Terrain, GameData (id → resource lookups)
@@ -104,12 +105,14 @@ Main (Node)                              main.gd
 ├── UI (CanvasLayer, layer 5)
 │   ├── MapBanner (PanelContainer)       location name that slides in
 │   ├── StartMenuArea (MarginContainer)
-│   │   └── StartMenu (choice_box.tscn)  MONDEX / MONSTERS / BAG / CARD / FLY / SAVE / EXIT
+│   │   └── StartMenu (choice_box.tscn)  MONDEX / MONSTERS / BAG / CARD / FLY / SAVE / OPTION /
+│   │                                    DEBUG (debug builds) / EXIT
 │   ├── HintBox (PanelContainer)         item descriptions while browsing the BAG
 │   ├── PartyMenu (party_menu.tscn)      party list + MonsterSummary
 │   ├── DexMenu (dex_menu.tscn)          the MONDEX
 │   ├── TrainerCard (trainer_card.tscn)  name, money, MONDEX, play time, badges
-│   └── TitleScreen (Control)            CONTINUE / NEW GAME when a save exists
+│   ├── TitleScreen (Control)            CONTINUE / NEW GAME / OPTION when a save exists
+│   └── OptionsMenu (options_menu.tscn)  the OPTION screen (drawn over the title screen)
 ├── BattleLayer (CanvasLayer, layer 8)   a BattleScene (or EvolutionScene) is added here
 └── Transition (CanvasLayer, layer 20)
     └── Fade (ColorRect)                 fades and encounter flashes
@@ -369,6 +372,16 @@ clear it. In `Battle`:
   for sleep or freeze, 1.5× for the rest).
 - `ItemData.Kind.CURE` items call `cure()` in battle. Main uses them from the
   BAG too.
+- Items used on a monster (`ItemData.targets_monster()`: HEAL, CURE, REVIVE,
+  PP) share `can_use_on()` and `use_on()`, which apply the effect and
+  return the text to show, in battle and on the map. In battle,
+  `Battle.use_item(item, target, move)` takes a party index (any member,
+  not only the active one; -1 means the active one) and, for an ETHER, the
+  move. REVIVE sets HP to `revive_fraction` of max (MAX REVIVE 1.0), and
+  ETHER adds `pp_amount`. A REPEL (`Kind.REPEL`, field only) sets
+  `GameState.repel_steps`; Main counts it down each step, skips wild
+  encounters whose level is below `GameState.lead_monster()`'s, and says
+  when it wears off.
 
 BattleScene shows a `status` event as the tag in the HP box
 (`BattlerPanel.show_status()`). It plays `MoveAnimator.status_effect()`
@@ -378,9 +391,36 @@ lose 1 HP, and the poison fades at 1 HP.
 
 Trainer AI: `Battle._enemy_move()` stays random for wild monsters. For
 trainers it scores each move with `move_score()`: power × effectiveness ×
-STAB × accuracy for attacks, a flat score for status and stat moves, and 0
-when a move would fail. It then takes the best 75% of the time and a random
+STAB × accuracy for attacks (a little less with recoil, more for draining
+when hurt), a flat score for status and stat moves, a healing score that
+grows as HP drops, and 0 when a move would fail (confusing a confused foe,
+healing at full HP). It then takes the best 75% of the time and a random
 useful move otherwise.
+
+### Volatile conditions and extra move effects
+
+Confusion and flinching live on the `Battler` (`confused_turns`,
+`flinched`), so they end when a monster leaves the field, as in Gen 3.
+`MoveData` has an "Extra Effects" group:
+
+| Field | Effect | Moves |
+|---|---|---|
+| `confuse_chance` | `confuse()`: 2–5 turns; `_confusion_check()` counts down each turn and, half the time, the monster hits itself with a 40-power typeless attack instead of moving (no PP used) | DIZZY RAY, SUPERSONIC |
+| `flinch_chance` | Sets `flinched` on the target; `_can_act()` stops it if it hasn't moved yet, and `_end_of_turn()` clears it | HEADBUTT, ROCK SLIDE |
+| `drain` | The user heals that % of the damage dealt | ABSORB, GIGA DRAIN |
+| `recoil` | The user loses that % of the damage dealt, and can faint from it | TAKE DOWN |
+| `heal` | A STATUS move (with `stat_target` SELF, so it never misses) restores that % of max HP | SYNTHESIS, ROOST |
+
+`_can_act()` checks sleep and freeze, then flinching, then confusion, then
+paralysis. Confusion plays as an `afflicted` event with status
+`&"confusion"`: stars circling the head. In `tools/build_game_data.gd`, a
+move row takes these as a trailing `{property: value}` dictionary.
+
+**Switching between a trainer's monsters.** When the foe's monster faints and
+the trainer has another, BattleScene's `_offer_shift()` asks "Will KAI change
+MONSTERS?" (Settings `shift_style`, Emerald's SHIFT), if `Battle.can_shift()`.
+`Battle.shift_to()` swaps the player's monster without giving the foe a turn,
+and `next_foe()` names the monster about to come out.
 
 ### Trainers
 
@@ -557,6 +597,20 @@ marks the new species as caught in the MONDEX.
   once you have a starter) lists `GameData.all_species()` by
   `MonsterSpecies.dex_number`. A caught species' page shows its `category`,
   `element`, `height`, `weight` and `dex_entry`.
+- **OPTION.** `Settings` (autoload) holds TEXT SPEED (Dialogue's characters
+  per second, and how long battle text stays up), BATTLE SCENE (BattleScene
+  skips move, stat and status animations when off), BATTLE STYLE (SHIFT
+  or SET) and MUSIC and SOUND volume (0–10, applied to the Music and SFX
+  buses). `OptionsMenu`, from the start menu or the title screen, edits
+  them and `save_settings()` writes `user://settings.cfg`, separate from
+  the save so it applies to every game. Tests call `Settings.reset()` and
+  point `save_path` at their own file.
+- **DEBUG.** In debug builds (`OS.is_debug_build()`: the editor, debug
+  exports), the start menu adds DEBUG (`Main._debug_menu()`): WARP to any
+  map in `scenes/maps/`, heal, 99 of every item, money, every badge, five
+  level-ups for the lead (moves through MoveTutor, then evolution), any
+  species at level 5 to 50, a full MONDEX, and `Main.wild_encounters` on
+  or off. Release exports don't show it.
 - **TRAINER CARD.** CARD in the start menu opens `TrainerCard`: the
   player's name, money, MONDEX (caught) count, play time as H:MM, and the
   badge case, with badges not yet won shown dark. `GameState.play_seconds`

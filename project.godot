@@ -21,6 +21,7 @@ config/icon="res://icon.png"
 Events="*res://autoload/events.gd"
 GameState="*res://autoload/game_state.gd"
 Audio="*res://autoload/audio.gd"
+Settings="*res://autoload/settings.gd"
 Dialogue="*res://scenes/ui/dialogue_box.tscn"
 NameEntry="*res://scenes/ui/name_entry.tscn"
 

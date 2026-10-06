@@ -59,6 +59,10 @@ func _test_box() -> void:
 	_check(not state.can_deposit(0), "...or your last one that can battle")
 	_check(state.deposit(1) and state.party == [lead] and state.storage == [second], "depositing moves a monster into the BOX")
 	_check(state.withdraw(0) and state.party.size() == 2 and state.storage.is_empty(), "withdrawing brings it back")
+	lead.hp = 0
+	second.hp = second.max_hp()
+	_check(state.lead_monster() == second, "the lead is the first monster that can still battle")
+	lead.hp = lead.max_hp()
 	for i in 4:
 		state.add_monster(_monster(&"zapkit", 2))
 	state.storage.append(_monster(&"pebblet", 4))
@@ -134,6 +138,7 @@ func _test_save_and_load() -> void:
 	state.set_flag(&"tide_badge")
 	state.play_seconds = 4321.5
 	state.player_name = "MAY"
+	state.repel_steps = 42
 	var location := {"map": "res://scenes/maps/route_01.tscn", "cell": Vector2i(9, 12), "facing": Vector2i.LEFT, "surfing": true}
 	_check(state.save_game(location) == OK and state.has_save(), "saving writes the save file")
 	state.free()
@@ -151,6 +156,7 @@ func _test_save_and_load() -> void:
 	_check(loaded.has_flag(&"tide_badge") and loaded.can_use_field_move(&"surf"), "badges are restored")
 	_check(is_equal_approx(loaded.play_seconds, 4321.5), "play time is restored")
 	_check(loaded.player_name == "MAY", "the player's name is restored")
+	_check(loaded.repel_steps == 42, "a REPEL's remaining steps are restored")
 	loaded.free()
 
 

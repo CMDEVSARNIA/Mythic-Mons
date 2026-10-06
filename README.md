@@ -113,9 +113,25 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   or at MOM's and the MONSTER CENTER. Fainting clears them. A sleeping or
   frozen monster is twice as easy to catch, and any other status makes it
   1.5× easier.
+- **More move effects**, as in Gen 3:
+
+  | Effect | Moves |
+  |---|---|
+  | Confusion: for 2–5 turns, the monster hurts itself half the time | DIZZY RAY, SUPERSONIC |
+  | Flinching: a faster hit can make the foe lose its move | HEADBUTT, ROCK SLIDE |
+  | Draining: heals half the damage dealt | ABSORB, GIGA DRAIN |
+  | Recoil: the user takes a quarter of the damage | TAKE DOWN |
+  | Healing: restores half of max HP | SYNTHESIS, ROOST |
+
+  Each has its own animation, and confusion shows stars circling the
+  monster's head. Every evolution line learns at least one of them.
+- **Switching between a trainer's monsters.** When a trainer is about to
+  send out its next monster, you're asked whether to switch first, for free
+  (Emerald's SHIFT style; choose SET in OPTION to skip the question).
 - **Smarter trainers.** Trainers skip moves that would do nothing (a status
-  move on a monster that already has one) and usually pick their hardest
-  hitting option. Wild monsters still choose at random.
+  move on a monster that already has one, confusing a confused foe, healing
+  at full HP), heal when they're low, and usually pick their hardest hitting
+  option. Wild monsters still choose at random.
 - **Battle animations.** Your trainer throws your lead monster's orb, which
   pops open in a flash, and the monster grows out of the light. Every move
   has its own animation: flames, water jets, bubbles, whirling leaves,
@@ -144,6 +160,11 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   WITHDRAW from the BOX, DEPOSIT party members (you always keep one that
   can battle), or RELEASE a monster for good. POTIONs heal 20 HP and BIG POTIONs 50.
   You start with 2 POTIONs, and the professor adds 5 MON ORBs.
+- **Items for longer trips.** A REVIVE brings a fainted monster back with
+  half its HP (a MAX REVIVE, found on Route 2, with all of it). An ETHER
+  restores 10 PP to one move. A REPEL keeps wild monsters weaker than your
+  lead away for 100 steps. In battle, items can be used on any party
+  member, not just the one fighting.
 - **Ten orbs, after Gen 3's balls.** MON, SUPER and HYPER ORBs are the
   Poké, Great and Ultra Balls, and a MASTER ORB never fails. The specialty
   orbs work like their Gen 3 counterparts:
@@ -185,8 +206,20 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   pre-evolution's curve.
 - **Start menu (Enter):** MONDEX, MONSTERS (party list, a two-page summary, and
   SWITCH to change your lead), BAG (use POTIONs on any party member; every
-  item has an icon, and long lists scroll), FLY and SAVE. With a save, the
-  game opens on a title screen with CONTINUE / NEW GAME.
+  item has an icon, and long lists scroll), CARD, FLY, SAVE and OPTION. With
+  a save, the game opens on a title screen with CONTINUE / NEW GAME /
+  OPTION.
+- **OPTION**, like Emerald's: TEXT SPEED (SLOW, MID, FAST), BATTLE SCENE
+  (OFF skips move animations), BATTLE STYLE (SHIFT or SET), and MUSIC and
+  SOUND volume from 0 to 10. Options are saved apart from your game, in
+  `user://settings.cfg`.
+- **DEBUG menu for testing.** When you run the game from the editor (or a
+  debug export), the start menu also has DEBUG: WARP to any map, HEAL the
+  party, 99 of every item, +$100000, every badge, LEVEL +5 for the lead
+  (with its new moves and evolution), any MONSTER at level 5 to 50, a full
+  MONDEX, and wild encounters on or off. Release exports leave it out.
+
+  ![The OPTION screen and the DEBUG menu](docs/images/options.png)
 - **A hand-drawn cast** of nine 16 × 16 characters (above) that mix and
   match heads and bodies, so adding a new trainer is a few lines of data,
   plus the player seen from behind in battle, with throwing frames.

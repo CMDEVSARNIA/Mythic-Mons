@@ -1,75 +1,78 @@
 [gd_scene format=4]
 
-[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_d8uhf"]
-[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_ni1es"]
-[ext_resource type="PackedScene" path="res://scenes/actors/npc/clerk.tscn" id="3_jargx"]
-[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="4_oqbq1"]
-[ext_resource type="Resource" path="res://data/items/mon_orb.tres" id="5_3c40f"]
-[ext_resource type="Resource" path="res://data/items/super_orb.tres" id="6_ahjqx"]
-[ext_resource type="Resource" path="res://data/items/hyper_orb.tres" id="7_28gg3"]
-[ext_resource type="Resource" path="res://data/items/potion.tres" id="8_8pq56"]
-[ext_resource type="Resource" path="res://data/items/big_potion.tres" id="9_f2uhg"]
-[ext_resource type="Resource" path="res://data/items/antidote.tres" id="10_fcu2n"]
-[ext_resource type="Resource" path="res://data/items/para_heal.tres" id="11_l86kc"]
-[ext_resource type="Resource" path="res://data/items/awakening.tres" id="12_8x31i"]
-[ext_resource type="Resource" path="res://data/items/burn_heal.tres" id="13_btwxv"]
-[ext_resource type="Resource" path="res://data/items/full_heal.tres" id="14_w4sbi"]
-[ext_resource type="Resource" path="res://data/items/timer_orb.tres" id="15_mw2ol"]
-[ext_resource type="Resource" path="res://data/items/repeat_orb.tres" id="16_khbdg"]
-[ext_resource type="Resource" path="res://data/items/nest_orb.tres" id="17_07cji"]
-[ext_resource type="Resource" path="res://data/items/bolt_stone.tres" id="18_kbs6x"]
-[ext_resource type="Resource" path="res://data/items/dusk_stone.tres" id="19_3pwyo"]
-[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="20_0jkmr"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_elder.png" id="21_c217p"]
-[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="22_wcx73"]
-[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="23_y1nml"]
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_oqbq1"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_3c40f"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/clerk.tscn" id="3_ahjqx"]
+[ext_resource type="Script" path="res://scripts/items/item_data.gd" id="4_28gg3"]
+[ext_resource type="Resource" path="res://data/items/mon_orb.tres" id="5_8pq56"]
+[ext_resource type="Resource" path="res://data/items/super_orb.tres" id="6_f2uhg"]
+[ext_resource type="Resource" path="res://data/items/hyper_orb.tres" id="7_fcu2n"]
+[ext_resource type="Resource" path="res://data/items/potion.tres" id="8_l86kc"]
+[ext_resource type="Resource" path="res://data/items/big_potion.tres" id="9_8x31i"]
+[ext_resource type="Resource" path="res://data/items/antidote.tres" id="10_btwxv"]
+[ext_resource type="Resource" path="res://data/items/para_heal.tres" id="11_w4sbi"]
+[ext_resource type="Resource" path="res://data/items/awakening.tres" id="12_mw2ol"]
+[ext_resource type="Resource" path="res://data/items/burn_heal.tres" id="13_khbdg"]
+[ext_resource type="Resource" path="res://data/items/full_heal.tres" id="14_07cji"]
+[ext_resource type="Resource" path="res://data/items/repel.tres" id="15_kbs6x"]
+[ext_resource type="Resource" path="res://data/items/revive.tres" id="16_3pwyo"]
+[ext_resource type="Resource" path="res://data/items/timer_orb.tres" id="17_0jkmr"]
+[ext_resource type="Resource" path="res://data/items/repeat_orb.tres" id="18_c217p"]
+[ext_resource type="Resource" path="res://data/items/nest_orb.tres" id="19_wcx73"]
+[ext_resource type="Resource" path="res://data/items/bolt_stone.tres" id="20_y1nml"]
+[ext_resource type="Resource" path="res://data/items/dusk_stone.tres" id="21_028aq"]
+[ext_resource type="Resource" path="res://data/items/ether.tres" id="22_w5jyy"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="23_pw1ks"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_elder.png" id="24_0ij06"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="25_olcov"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="26_aewi7"]
 
-[node name="MartCopperdale" type="Node2D" unique_id=475641631]
-script = ExtResource("1_d8uhf")
+[node name="MartCopperdale" type="Node2D" unique_id=570691447]
+script = ExtResource("1_oqbq1")
 display_name = "COPPERDALE MART"
 allow_fly = false
 
-[node name="Ground" type="TileMapLayer" parent="." unique_id=282427265]
+[node name="Ground" type="TileMapLayer" parent="." unique_id=127340946]
 tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAABAAYAAAADAAAAAAABAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAAAAEAAAAAAAYAAAABAAEAAAAAAAYAAAACAAEAAAAGAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAAAAYAAAAJAAEAAAAIAAYAAAAAAAIAAAAAAAYAAAABAAIAAAAAAAYAAAACAAIAAAAGAAYAAAADAAIAAAAAAAYAAAAEAAIAAAAAAAYAAAAFAAIAAAAHAAYAAAAGAAIAAAAHAAYAAAAHAAIAAAAAAAYAAAAIAAIAAAAAAAYAAAAJAAIAAAAAAAYAAAAAAAMAAAAGAAYAAAABAAMAAAAGAAYAAAACAAMAAAAGAAYAAAADAAMAAAAAAAYAAAAEAAMAAAAAAAYAAAAFAAMAAAAHAAYAAAAGAAMAAAAHAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAAAAYAAAAJAAMAAAAAAAYAAAAAAAQAAAAAAAYAAAABAAQAAAAAAAYAAAACAAQAAAAAAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAJAAYAAAAAAAUAAAAAAAYAAAABAAUAAAAAAAYAAAACAAUAAAAAAAYAAAADAAUAAAAAAAYAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAAAAYAAAAJAAUAAAAAAAYAAAAAAAYAAAAAAAYAAAABAAYAAAAAAAYAAAACAAYAAAAAAAYAAAADAAYAAAAAAAYAAAAEAAYAAAAFAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAAAAYAAAAJAAYAAAAAAAYAAAA=")
-tile_set = ExtResource("2_ni1es")
+tile_set = ExtResource("2_3c40f")
 
-[node name="Entities" type="Node2D" parent="." unique_id=354929034]
+[node name="Entities" type="Node2D" parent="." unique_id=370721912]
 y_sort_enabled = true
 
-[node name="NPC_Clerk1" parent="Entities" unique_id=1472263496 instance=ExtResource("3_jargx")]
+[node name="NPC_Clerk1" parent="Entities" unique_id=326840731 instance=ExtResource("3_ahjqx")]
 position = Vector2(24, 40)
-stock = Array[ExtResource("4_oqbq1")]([ExtResource("5_3c40f"), ExtResource("6_ahjqx"), ExtResource("7_28gg3"), ExtResource("8_8pq56"), ExtResource("9_f2uhg"), ExtResource("10_fcu2n"), ExtResource("11_l86kc"), ExtResource("12_8x31i"), ExtResource("13_btwxv"), ExtResource("14_w4sbi")])
+stock = Array[ExtResource("4_28gg3")]([ExtResource("5_8pq56"), ExtResource("6_f2uhg"), ExtResource("7_fcu2n"), ExtResource("8_l86kc"), ExtResource("9_8x31i"), ExtResource("10_btwxv"), ExtResource("11_w4sbi"), ExtResource("12_mw2ol"), ExtResource("13_khbdg"), ExtResource("14_07cji"), ExtResource("15_kbs6x"), ExtResource("16_3pwyo")])
 lines = PackedStringArray("Hello there!")
 start_facing = 3
 
-[node name="NPC_Clerk2" parent="Entities" unique_id=563756244 instance=ExtResource("3_jargx")]
+[node name="NPC_Clerk2" parent="Entities" unique_id=1419480331 instance=ExtResource("3_ahjqx")]
 position = Vector2(24, 24)
-stock = Array[ExtResource("4_oqbq1")]([ExtResource("15_mw2ol"), ExtResource("16_khbdg"), ExtResource("17_07cji"), ExtResource("18_kbs6x"), ExtResource("19_3pwyo")])
+stock = Array[ExtResource("4_28gg3")]([ExtResource("17_0jkmr"), ExtResource("18_c217p"), ExtResource("19_wcx73"), ExtResource("20_y1nml"), ExtResource("21_028aq"), ExtResource("22_w5jyy")])
 lines = PackedStringArray("Hello there!")
 start_facing = 3
 
-[node name="NPC_Elder3" parent="Entities" unique_id=1166080967 instance=ExtResource("20_0jkmr")]
+[node name="NPC_Elder3" parent="Entities" unique_id=1261629134 instance=ExtResource("23_pw1ks")]
 position = Vector2(120, 72)
-sprite_sheet = ExtResource("21_c217p")
+sprite_sheet = ExtResource("24_0ij06")
 lines = PackedStringArray("PARA HEALs are a must\nin this town.", "The GYM\'s MONSTERS love\nto paralyze!")
 wander_radius = 1
 
-[node name="Warps" type="Node2D" parent="." unique_id=668739511]
+[node name="Warps" type="Node2D" parent="." unique_id=454948114]
 
-[node name="Warp1" parent="Warps" unique_id=519856702 instance=ExtResource("22_wcx73")]
+[node name="Warp1" parent="Warps" unique_id=1076655770 instance=ExtResource("25_olcov")]
 position = Vector2(72, 104)
 target_map = "res://scenes/maps/town_copperdale.tscn"
 target_spawn = &"from_mart"
 blocked_lines = PackedStringArray()
 
-[node name="Spawns" type="Node2D" parent="." unique_id=73549795]
+[node name="Spawns" type="Node2D" parent="." unique_id=169296106]
 
-[node name="default" type="Marker2D" parent="Spawns" unique_id=710332378]
+[node name="default" type="Marker2D" parent="Spawns" unique_id=1802808907]
 position = Vector2(72, 88)
-script = ExtResource("23_y1nml")
+script = ExtResource("26_aewi7")
 facing = 1
 
-[node name="entrance" type="Marker2D" parent="Spawns" unique_id=1688537122]
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=1032610096]
 position = Vector2(72, 88)
-script = ExtResource("23_y1nml")
+script = ExtResource("26_aewi7")
 facing = 1

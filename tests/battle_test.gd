@@ -23,6 +23,9 @@ func _initialize() -> void:
 	_test_status_conditions()
 	_test_trainer_ai()
 	_test_items()
+	_test_move_effects()
+	_test_confusion_and_flinch()
+	_test_shift()
 	print("\nBATTLE TEST %s (%d failed)" % ["PASSED" if _failures == 0 else "FAILED", _failures])
 	quit(1 if _failures > 0 else 0)
 
@@ -393,6 +396,145 @@ func _test_items() -> void:
 	var events := battle.take_turn(Battle.use_item(GameData.item(&"potion")))
 	_check(battle.player.monster.hp == battle.player.monster.max_hp(), "POTION heals up to its amount")
 	_check(_has_text(events, "restored by 10 points"), "POTION reports how much it healed")
+
+	var team: Array[Monster] = [_monster(&"flamlet", 10), _monster(&"aquapup", 10)]
+	battle = _battle(team, _monster(&"sproutle", 3))
+	_only_move(battle.enemy.monster, &"growl")
+	var bench := team[1]
+	bench.hp -= 10
+	events = battle.take_turn(Battle.use_item(GameData.item(&"potion"), 1))
+	_check(bench.hp == bench.max_hp() and _has_text(events, "AQUAPUP's HP"), "items can be used on a monster that isn't battling")
+	bench.hp = 0
+	events = battle.take_turn(Battle.use_item(GameData.item(&"revive"), 1))
+	_check(bench.hp == floori(bench.max_hp() / 2.0) and _has_text(events, "back on"), "REVIVE brings a fainted monster back with half its HP")
+	events = battle.take_turn(Battle.use_item(GameData.item(&"revive"), 1))
+	_check(_has_text(events, "no effect"), "...and does nothing for one that hasn't fainted")
+	var lead := team[0]
+	lead.pp[0] = 0
+	events = battle.take_turn(Battle.use_item(GameData.item(&"ether"), 0, 0))
+	_check(lead.pp[0] == mini(10, lead.moves[0].max_pp) and _has_text(events, "PP"), "ETHER restores 10 PP to the chosen move")
+	var max_revive := GameData.item(&"max_revive")
+	bench.hp = 0
+	_check(max_revive.can_use_on(bench) and not max_revive.can_use_on(lead), "MAX REVIVE only works on fainted monsters")
+	max_revive.use_on(bench)
+	_check(bench.hp == bench.max_hp(), "...and restores all of their HP")
+	_check(not GameData.item(&"repel").targets_monster() and GameData.item(&"repel").repel_steps == 100, "a REPEL lasts 100 steps and isn't used on a monster")
+
+
+func _test_move_effects() -> void:
+	var drainer := _monster(&"zapkit", 26) # Not SPROUTLE: its SUNSOAK would heal it too.
+	_only_move(drainer, &"giga_drain")
+	drainer.hp -= 30
+	var battle := _battle([drainer], _monster(&"aquapup", 20))
+	_only_move(battle.enemy.monster, &"growl")
+	var hp_before := drainer.hp
+	var foe_before := battle.enemy.monster.hp
+	var events := battle.take_turn(Battle.fight(0))
+	var dealt := foe_before - battle.enemy.monster.hp
+	_check(drainer.hp == mini(hp_before + maxi(1, floori(dealt / 2.0)), drainer.max_hp()) and _has_text(events, "energy drained"), "GIGA DRAIN heals half the damage it deals")
+
+	var charger := _monster(&"pebblet", 30)
+	_only_move(charger, &"take_down")
+	battle = _battle([charger], _monster(&"bouldron", 40))
+	_only_move(battle.enemy.monster, &"harden")
+	for i in 10: # TAKE DOWN is 85% accurate.
+		foe_before = battle.enemy.monster.hp
+		hp_before = charger.hp
+		events = battle.take_turn(Battle.fight(0))
+		if _has_text(events, "recoil"):
+			break
+	dealt = foe_before - battle.enemy.monster.hp
+	_check(charger.hp == hp_before - maxi(1, floori(dealt / 4.0)), "TAKE DOWN costs the user a quarter of the damage")
+	charger.hp = 1
+	charger.pp[0] = 20
+	for i in 10:
+		events = battle.take_turn(Battle.fight(0))
+		if battle.outcome != Battle.Outcome.ONGOING:
+			break
+	_check(charger.is_fainted() and battle.outcome == Battle.Outcome.LOST, "recoil can make the user faint")
+
+	var healer := _monster(&"zapkit", 25)
+	_only_move(healer, &"synthesis")
+	battle = _battle([healer], _monster(&"pebblet", 5))
+	_only_move(battle.enemy.monster, &"harden")
+	healer.hp = 10
+	battle.take_turn(Battle.fight(0))
+	_check(healer.hp == mini(10 + ceili(healer.max_hp() / 2.0), healer.max_hp()), "SYNTHESIS restores half of max HP")
+	healer.hp = healer.max_hp()
+	events = battle.take_turn(Battle.fight(0))
+	_check(_has_text(events, "HP is full"), "...and fails at full HP")
+	_check(battle.move_score(battle.player, battle.enemy, GameData.move(&"synthesis")) == 0.0, "trainer AI doesn't heal at full HP")
+	healer.hp = 5
+	_check(battle.move_score(battle.player, battle.enemy, GameData.move(&"synthesis")) > 90.0, "...but wants to when nearly out of HP")
+	_check(GameData.move(&"rock_slide").flinch_chance == 30 and GameData.move(&"headbutt").flinch_chance == 30, "ROCK SLIDE and HEADBUTT may make the foe flinch")
+
+
+func _test_confusion_and_flinch() -> void:
+	var confuser := _monster(&"shadeling", 20)
+	_only_move(confuser, &"dizzy_ray")
+	var battle := _battle([confuser], _monster(&"pebblet", 20))
+	_only_move(battle.enemy.monster, &"harden")
+	var events := battle.take_turn(Battle.fight(0))
+	_check(battle.enemy.confused_turns >= 1 and battle.enemy.confused_turns <= 5 and _has_text(events, "became\nconfused"), "DIZZY RAY confuses the foe")
+	battle.enemy.confused_turns = 5
+	events = battle.take_turn(Battle.fight(0))
+	_check(_has_text(events, "already confused"), "...but not twice")
+	var self_hits := 0
+	var lost_turn := true
+	for i in 40:
+		battle.enemy.confused_turns = 5
+		battle.enemy.monster.hp = battle.enemy.monster.max_hp()
+		events = battle.take_turn(Battle.fight(0))
+		if _has_text(events, "hurt itself"):
+			self_hits += 1
+			lost_turn = lost_turn and not _used_move(events, "Wild PEBBLET")
+	_check(self_hits > 8 and self_hits < 32, "a confused monster hurts itself about half the time (%d of 40)" % self_hits)
+	_check(lost_turn, "...and loses its move when it does")
+	battle.enemy.confused_turns = 1
+	events = battle.take_turn(Battle.fight(0))
+	_check(_has_text(events, "snapped") and _used_move(events, "Wild PEBBLET") and battle.enemy.confused_turns == 0, "confusion wears off and the monster acts again")
+
+	var butter := _monster(&"zapkit", 30)
+	var always_flinch: MoveData = GameData.move(&"headbutt").duplicate()
+	always_flinch.flinch_chance = 100
+	butter.moves.assign([always_flinch, GameData.move(&"growl")])
+	butter.pp = [15, 40]
+	battle = _battle([butter], _monster(&"bouldron", 30))
+	_only_move(battle.enemy.monster, &"harden")
+	events = battle.take_turn(Battle.fight(0))
+	_check(_has_text(events, "flinched") and not _used_move(events, "Wild BOULDRON"), "a faster hit can make the foe flinch and lose its move")
+	events = battle.take_turn(Battle.fight(1))
+	_check(_used_move(events, "Wild BOULDRON") and not battle.enemy.flinched, "...for that turn only")
+	var slowpoke := _monster(&"pebblet", 5)
+	slowpoke.moves.assign([always_flinch])
+	slowpoke.pp = [15]
+	battle = _battle([slowpoke], _monster(&"zapkit", 30))
+	_only_move(battle.enemy.monster, &"growl")
+	battle.take_turn(Battle.fight(0))
+	events = battle.take_turn(Battle.fight(0))
+	_check(not _has_text(events, "flinched"), "a slower monster's hit can't cause a flinch")
+	_check(battle.move_score(battle.enemy, battle.player, GameData.move(&"supersonic")) > 0.0, "trainer AI likes confusing a foe...")
+	battle.player.confused_turns = 3
+	_check(battle.move_score(battle.enemy, battle.player, GameData.move(&"supersonic")) == 0.0, "...unless it's already confused")
+
+
+func _test_shift() -> void:
+	var lass: TrainerData = load("res://data/trainers/lass_mia.tres")
+	var team: Array[Monster] = [_monster(&"blazard", 40), _monster(&"tidehound", 40)]
+	var foes: Array[Monster] = [_monster(&"sproutle", 3), _monster(&"zapkit", 3)]
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 2
+	var battle := Battle.against_trainer(team, lass, foes, rng)
+	_only_move(team[0], &"ember")
+	battle.take_turn(Battle.fight(0))
+	_check(battle.foe_must_switch() and battle.next_foe() == foes[1] and battle.can_shift(), "before the next foe comes out, you may switch")
+	var events := battle.shift_to(1)
+	_check(battle.player.monster == team[1] and _count(events, &"withdraw") == 1 and _count(events, &"send_out") == 1, "...which swaps your monster in")
+	_check(not _has_text(events, "used"), "...without the foe getting a free hit")
+	events = battle.send_next_foe()
+	_check(battle.enemy.monster == foes[1], "then the trainer sends out the next one")
+	team[0].hp = 0
+	_check(not battle.can_shift(), "no switch is offered when nobody else can fight")
 
 
 # --- Helpers -------------------------------------------------------------------

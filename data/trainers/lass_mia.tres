@@ -24,3 +24,4 @@ party = Array[ExtResource("2_4jny0")]([SubResource("Resource_txgtt"), SubResourc
 intro = PackedStringArray("Oh! Did you just get\nyour first MONSTER?", "Mine are super cute.\nLet\'s battle!")
 defeat = PackedStringArray("Aww... You won fair\nand square.")
 after = PackedStringArray("GRASS types like my\nSPROUTLE soak up the\nsun on this route.")
+badge_lines = PackedStringArray()

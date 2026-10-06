@@ -3,7 +3,8 @@ extends Node
 ##
 ## Owns the active map (instanced under World), the persistent Player (moved
 ## into each map's Entities node), battles, the title screen, the start menu
-## (MONDEX, party, BAG, TRAINER CARD, Fly, save) and the screen fade. Maps never load each other:
+## (MONDEX, party, BAG, TRAINER CARD, Fly, save, OPTION, and DEBUG in debug
+## builds) and the screen fade. Maps never load each other:
 ## anything that wants a map change emits Events.warp_requested and this
 ## script does the rest. It also plays a new game's intro and keeps the
 ## play-time clock running.
@@ -13,6 +14,7 @@ const BATTLE_SCENE := preload("res://scenes/battle/battle_scene.tscn")
 const EVOLUTION_SCENE := preload("res://scenes/battle/evolution_scene.tscn")
 ## Overworld poison hurts every this many steps.
 const POISON_STEPS := 4
+const MAPS_DIR := "res://scenes/maps/"
 
 @export_file("*.tscn") var start_map := "res://scenes/maps/town_emberfall.tscn"
 @export var start_spawn: StringName = &"default"
@@ -20,6 +22,8 @@ const POISON_STEPS := 4
 var current_map: WorldMap
 var _steps := 0
 var _playing := false # Play time counts from the moment the map shows.
+## Off makes tall grass and water safe (the DEBUG menu's ENCOUNTERS toggle).
+var wild_encounters := true
 
 @onready var world: Node2D = $World
 @onready var player: Player = $Player
@@ -29,6 +33,7 @@ var _playing := false # Play time counts from the moment the map shows.
 @onready var party_menu: PartyMenu = $UI/PartyMenu
 @onready var dex_menu: DexMenu = $UI/DexMenu
 @onready var trainer_card: TrainerCard = $UI/TrainerCard
+@onready var options_menu: OptionsMenu = $UI/OptionsMenu
 @onready var hint_box: Control = $UI/HintBox
 @onready var hint_label: Label = $UI/HintBox/Label
 @onready var hint_icon: TextureRect = $UI/HintBox/Icon
@@ -160,8 +165,10 @@ func _title_screen() -> Dictionary:
 	Audio.play_music(&"title")
 	title_screen.show()
 	var choice := -1
-	while choice < 0:
-		choice = await title_menu.choose(["CONTINUE", "NEW GAME"])
+	while choice < 0 or choice == 2:
+		choice = await title_menu.choose(["CONTINUE", "NEW GAME", "OPTION"])
+		if choice == 2:
+			await options_menu.open()
 	title_screen.hide()
 	if choice != 0:
 		return {}
@@ -181,7 +188,10 @@ func _open_start_menu() -> void:
 			actions.append(&"MONDEX")
 		if not GameState.party.is_empty():
 			actions.append(&"MONSTERS")
-		actions.append_array([&"BAG", &"CARD", &"FLY", &"SAVE", &"EXIT"])
+		actions.append_array([&"BAG", &"CARD", &"FLY", &"SAVE", &"OPTION"])
+		if OS.is_debug_build():
+			actions.append(&"DEBUG")
+		actions.append(&"EXIT")
 		var choice: int = await start_menu.choose(PackedStringArray(actions), mini(last, actions.size() - 1))
 		if choice < 0 or actions[choice] == &"EXIT":
 			break
@@ -197,6 +207,11 @@ func _open_start_menu() -> void:
 				await trainer_card.show_card()
 			&"SAVE":
 				await _save()
+			&"OPTION":
+				await options_menu.open()
+			&"DEBUG":
+				if await _debug_menu():
+					return # It warped; change_map() handles the lock.
 			&"FLY":
 				var destination: String = await _choose_fly_destination()
 				if not destination.is_empty():
@@ -205,6 +220,93 @@ func _open_start_menu() -> void:
 					change_map(destination, &"fly")
 					return
 	player.unlock()
+
+
+## Testing shortcuts, only in debug builds (running from the editor, or a
+## debug export). Returns true if it started a warp.
+func _debug_menu() -> bool:
+	var last := 0
+	while true:
+		var options := PackedStringArray(["WARP", "HEAL", "ITEMS x99", "MONEY", "BADGES", "LEVEL +5", "MONSTER",
+			"MONDEX", "WILD: %s" % ("ON" if wild_encounters else "OFF"), "BACK"])
+		var choice: int = await start_menu.choose(options, last)
+		if choice < 0 or choice == options.size() - 1:
+			return false
+		last = choice
+		match choice:
+			0:
+				var maps := Array(ResourceLoader.list_directory(MAPS_DIR)).filter(func(f: String) -> bool: return f.ends_with(".tscn"))
+				var names := PackedStringArray(maps.map(func(f: String) -> String: return f.get_basename().to_upper()))
+				names.append("CANCEL")
+				var pick: int = await start_menu.choose(names)
+				if pick >= 0 and pick < maps.size():
+					player.unlock()
+					change_map(MAPS_DIR + maps[pick], &"default")
+					return true
+			1:
+				GameState.heal_party()
+				Audio.play_sfx(&"heal")
+				await Dialogue.say(["DEBUG: Party healed."])
+			2:
+				for file in ResourceLoader.list_directory(GameData.ITEMS_DIR):
+					if file.ends_with(".tres"):
+						GameState.add_item(StringName(file.get_basename()), GameState.MAX_ITEM_COUNT)
+				await Dialogue.say(["DEBUG: 99 of every item."])
+			3:
+				GameState.add_money(100000)
+				await Dialogue.say(["DEBUG: +$100000."])
+			4:
+				for badge: StringName in GameState.BADGES:
+					GameState.set_flag(badge)
+				await Dialogue.say(["DEBUG: Every badge."])
+			5:
+				await _debug_level_up()
+			6:
+				await _debug_give_monster()
+			7:
+				for species in GameData.all_species():
+					GameState.mark_seen(GameData.id_of(species))
+					GameState.caught[GameData.id_of(species)] = true
+				await Dialogue.say(["DEBUG: MONDEX filled."])
+			8:
+				wild_encounters = not wild_encounters
+	return false
+
+
+## Five level-ups for the lead, teaching moves and evolving as a battle would.
+func _debug_level_up() -> void:
+	if GameState.party.is_empty():
+		return
+	var monster := GameState.party[0]
+	for i in 5:
+		if monster.level >= Monster.MAX_LEVEL:
+			break
+		monster.experience = monster.exp_for_level(monster.level + 1)
+		for move in monster.level_up():
+			await MoveTutor.teach(monster, move)
+	Audio.play_sfx(&"level_up")
+	await Dialogue.say(["%s grew to\nLv. %d!" % [monster.get_display_name(), monster.level]])
+	var into := monster.evolution_by_level()
+	if into:
+		await _fade_to(1.0)
+		await _evolve(monster, into, true)
+		await _fade_to(0.0)
+
+
+func _debug_give_monster() -> void:
+	var all := GameData.all_species()
+	var names := PackedStringArray(all.map(func(s: MonsterSpecies) -> String: return s.display_name))
+	names.append("CANCEL")
+	var pick: int = await start_menu.choose(names)
+	if pick < 0 or pick >= all.size():
+		return
+	var levels := [5, 10, 20, 30, 50]
+	var level_pick: int = await start_menu.choose(PackedStringArray(levels.map(func(l: int) -> String: return "Lv. %d" % l)))
+	if level_pick < 0:
+		return
+	var monster := Monster.create(all[pick], levels[level_pick])
+	var where := "party" if GameState.add_monster(monster) else "BOX"
+	await Dialogue.say(["DEBUG: %s Lv. %d\njoined the %s." % [monster.get_display_name(), monster.level, where]])
 
 
 ## The BAG outside battle: POTIONs can be used on any party member.
@@ -240,10 +342,14 @@ func _open_bag() -> void:
 
 
 func _use_item(id: StringName, item: ItemData) -> void:
-	if item.kind == ItemData.Kind.EVOLUTION:
-		await _use_evolution_item(id)
-		return
-	if item.kind != ItemData.Kind.HEAL and item.kind != ItemData.Kind.CURE:
+	match item.kind:
+		ItemData.Kind.EVOLUTION:
+			await _use_evolution_item(id)
+			return
+		ItemData.Kind.REPEL:
+			await _use_repel(id, item)
+			return
+	if not item.targets_monster():
 		await Dialogue.say(["There's a time and place\nfor that... This isn't it."])
 		return
 	if GameState.party.is_empty():
@@ -253,24 +359,33 @@ func _use_item(id: StringName, item: ItemData) -> void:
 	if target < 0:
 		return
 	var monster := GameState.party[target]
-	if item.kind == ItemData.Kind.CURE:
-		if not item.cures_status(monster.status):
-			await Dialogue.say(["It won't have any effect."])
+	var move := -1
+	if item.kind == ItemData.Kind.PP:
+		var names := PackedStringArray()
+		for i in monster.moves.size():
+			names.append("%-10s %2d/%2d" % [monster.moves[i].display_name, monster.pp[i], monster.moves[i].max_pp])
+		names.append("CANCEL")
+		move = await Dialogue.choose("Restore which move?", names)
+		if move < 0 or move >= monster.moves.size():
 			return
-		var was: StringName = monster.status
-		monster.cure()
-		GameState.remove_item(id)
-		Audio.play_sfx(&"heal")
-		await Dialogue.say([Battle.CURED_TEXT[was] % monster.get_display_name()])
-		return
-	if monster.is_fainted() or monster.hp >= monster.max_hp():
+	if not item.can_use_on(monster, move):
 		await Dialogue.say(["It won't have any effect."])
 		return
-	var healed := mini(item.heal_amount, monster.max_hp() - monster.hp)
-	monster.hp += healed
+	var text := item.use_on(monster, move)
 	GameState.remove_item(id)
 	Audio.play_sfx(&"heal")
-	await Dialogue.say(["%s's HP was\nrestored by %d points." % [monster.get_display_name(), healed]])
+	await Dialogue.say([text])
+
+
+## A REPEL lasts `repel_steps` steps; a second one can't stack.
+func _use_repel(id: StringName, item: ItemData) -> void:
+	if GameState.repel_steps > 0:
+		await Dialogue.say(["The last REPEL is still\nworking."])
+		return
+	GameState.remove_item(id)
+	GameState.repel_steps = item.repel_steps
+	Audio.play_sfx(&"heal")
+	await Dialogue.say(["%s used the\n%s." % [GameState.player_name, item.display_name], "Weaker wild MONSTERS\nwill stay away."])
 
 
 ## Evolution stones: pick a party member; the stone is used up if it works.
@@ -339,14 +454,17 @@ func _choose_fly_destination() -> String:
 
 func _on_wild_encounter(species_id: StringName) -> void:
 	var species := GameData.species(species_id)
-	if species == null or not GameState.has_healthy_monster():
+	if species == null or not GameState.has_healthy_monster() or not wild_encounters:
 		return
+	var levels := current_map.wild_levels
+	var level := randi_range(levels.x, mini(levels.y, Monster.MAX_LEVEL))
+	if GameState.repel_steps > 0 and level < GameState.lead_monster().level:
+		return # A REPEL keeps weaker wild monsters away, as in Gen 3.
 	GameState.mark_seen(species_id)
 	player.lock()
 	Audio.play_music(&"battle")
 	await _encounter_flash()
-	var levels := current_map.wild_levels
-	var wild := Monster.create(species, randi_range(levels.x, mini(levels.y, Monster.MAX_LEVEL)))
+	var wild := Monster.create(species, level)
 	var outcome: Battle.Outcome = await _run_battle(wild, player.is_surfing)
 	if outcome == Battle.Outcome.LOST:
 		await _white_out()
@@ -394,6 +512,12 @@ func _award_badge(trainer: TrainerData) -> void:
 func _on_player_step(_cell: Vector2i) -> void:
 	if player.is_locked():
 		return # A warp, encounter or trainer is taking over.
+	if GameState.repel_steps > 0:
+		GameState.repel_steps -= 1
+		if GameState.repel_steps == 0:
+			player.lock()
+			await Dialogue.say(["REPEL's effect wore off..."])
+			player.unlock()
 	_steps += 1
 	if _steps % POISON_STEPS != 0:
 		return

@@ -1,58 +1,70 @@
 [gd_resource type="Resource" script_class="MonsterSpecies" format=3]
 
-[ext_resource type="Resource" path="res://data/abilities/gale_force.tres" id="1_ppdvl"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/pipwing_back.png" id="2_vn5vu"]
-[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_6r8qm"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/pipwing.png" id="4_7p3rq"]
-[ext_resource type="Resource" path="res://data/species/galehawk.tres" id="4_vn5vu"]
-[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_8ucnf"]
-[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="6_5ouk8"]
-[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_mxxmu"]
-[ext_resource type="Resource" path="res://data/moves/quick_hit.tres" id="8_w0k7v"]
-[ext_resource type="Resource" path="res://data/moves/gust.tres" id="9_s3jf5"]
-[ext_resource type="Resource" path="res://data/moves/leer.tres" id="10_6gy6i"]
-[ext_resource type="Resource" path="res://data/moves/wing_slash.tres" id="11_mu8om"]
-[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="12_ib6iv"]
+[ext_resource type="Resource" path="res://data/abilities/gale_force.tres" id="1_6r8qm"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/pipwing_back.png" id="2_7p3rq"]
+[ext_resource type="Script" path="res://scripts/monsters/evolution.gd" id="3_8ucnf"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/monsters/pipwing.png" id="4_5ouk8"]
+[ext_resource type="Resource" path="res://data/species/galehawk.tres" id="4_7p3rq"]
+[ext_resource type="Script" path="res://scripts/monsters/level_move.gd" id="5_mxxmu"]
+[ext_resource type="Resource" path="res://data/moves/tackle.tres" id="6_w0k7v"]
+[ext_resource type="Resource" path="res://data/moves/growl.tres" id="7_s3jf5"]
+[ext_resource type="Resource" path="res://data/moves/quick_hit.tres" id="8_6gy6i"]
+[ext_resource type="Resource" path="res://data/moves/gust.tres" id="9_mu8om"]
+[ext_resource type="Resource" path="res://data/moves/supersonic.tres" id="10_ib6iv"]
+[ext_resource type="Resource" path="res://data/moves/leer.tres" id="11_hmrdk"]
+[ext_resource type="Resource" path="res://data/moves/wing_slash.tres" id="12_3m5vf"]
+[ext_resource type="Resource" path="res://data/moves/roost.tres" id="13_i3pj4"]
+[ext_resource type="Script" path="res://scripts/monsters/monster_species.gd" id="14_bdklj"]
 
-[sub_resource type="Resource" id="Resource_6r8qm"]
-script = ExtResource("3_6r8qm")
-into = ExtResource("4_vn5vu")
+[sub_resource type="Resource" id="Resource_8ucnf"]
+script = ExtResource("3_8ucnf")
+into = ExtResource("4_7p3rq")
 level = 18
 
-[sub_resource type="Resource" id="Resource_hmrdk"]
-script = ExtResource("5_8ucnf")
-move = ExtResource("6_5ouk8")
-
-[sub_resource type="Resource" id="Resource_3m5vf"]
-script = ExtResource("5_8ucnf")
-move = ExtResource("7_mxxmu")
-
-[sub_resource type="Resource" id="Resource_i3pj4"]
-script = ExtResource("5_8ucnf")
-level = 5
-move = ExtResource("8_w0k7v")
-
-[sub_resource type="Resource" id="Resource_bdklj"]
-script = ExtResource("5_8ucnf")
-level = 9
-move = ExtResource("9_s3jf5")
-
 [sub_resource type="Resource" id="Resource_pugs8"]
-script = ExtResource("5_8ucnf")
-level = 13
-move = ExtResource("10_6gy6i")
+script = ExtResource("5_mxxmu")
+move = ExtResource("6_w0k7v")
 
 [sub_resource type="Resource" id="Resource_r7xrx"]
-script = ExtResource("5_8ucnf")
+script = ExtResource("5_mxxmu")
+move = ExtResource("7_s3jf5")
+
+[sub_resource type="Resource" id="Resource_ewo6d"]
+script = ExtResource("5_mxxmu")
+level = 5
+move = ExtResource("8_6gy6i")
+
+[sub_resource type="Resource" id="Resource_n1jca"]
+script = ExtResource("5_mxxmu")
+level = 9
+move = ExtResource("9_mu8om")
+
+[sub_resource type="Resource" id="Resource_kplot"]
+script = ExtResource("5_mxxmu")
+level = 11
+move = ExtResource("10_ib6iv")
+
+[sub_resource type="Resource" id="Resource_kuk5b"]
+script = ExtResource("5_mxxmu")
+level = 13
+move = ExtResource("11_hmrdk")
+
+[sub_resource type="Resource" id="Resource_wbd3m"]
+script = ExtResource("5_mxxmu")
 level = 17
-move = ExtResource("11_mu8om")
+move = ExtResource("12_3m5vf")
+
+[sub_resource type="Resource" id="Resource_p113f"]
+script = ExtResource("5_mxxmu")
+level = 21
+move = ExtResource("13_i3pj4")
 
 [resource]
-script = ExtResource("12_ib6iv")
+script = ExtResource("14_bdklj")
 display_name = "PIPWING"
-ability = ExtResource("1_ppdvl")
-front_texture = ExtResource("4_7p3rq")
-back_texture = ExtResource("2_vn5vu")
+ability = ExtResource("1_6r8qm")
+front_texture = ExtResource("4_5ouk8")
+back_texture = ExtResource("2_7p3rq")
 base_hp = 40
 base_defense = 40
 base_special = 35
@@ -60,8 +72,8 @@ base_speed = 56
 growth = 2
 catch_rate = 255
 exp_yield = 50
-learnset = Array[ExtResource("5_8ucnf")]([SubResource("Resource_hmrdk"), SubResource("Resource_3m5vf"), SubResource("Resource_i3pj4"), SubResource("Resource_bdklj"), SubResource("Resource_pugs8"), SubResource("Resource_r7xrx")])
-evolutions = Array[ExtResource("3_6r8qm")]([SubResource("Resource_6r8qm")])
+learnset = Array[ExtResource("5_mxxmu")]([SubResource("Resource_pugs8"), SubResource("Resource_r7xrx"), SubResource("Resource_ewo6d"), SubResource("Resource_n1jca"), SubResource("Resource_kplot"), SubResource("Resource_kuk5b"), SubResource("Resource_wbd3m"), SubResource("Resource_p113f")])
+evolutions = Array[ExtResource("3_8ucnf")]([SubResource("Resource_8ucnf")])
 dex_number = 13
 category = "TINY BIRD"
 height = 0.3

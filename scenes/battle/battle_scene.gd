@@ -8,7 +8,6 @@ extends Control
 ##     var outcome: Battle.Outcome = await battle_scene.run_trainer(GameState.party, trainer, foes)
 
 ## How long routine battle text stays up before advancing on its own.
-const MESSAGE_SECONDS := 1.0
 const ENEMY_HOME := Vector2(176, 36)
 const PLAYER_HOME := Vector2(64, 86)
 ## Orb positions are its base (the Ball sprite pivots there to wobble).
@@ -32,7 +31,8 @@ const RED_LIGHT := Color(3, 1.3, 1.3)
 ## On-screen height of a monster: 32x32 sprites are doubled, 64x64 sprites
 ## (the size most monster packs use) are drawn as they are.
 const SPRITE_HEIGHT := 64.0
-const STATUS_SOUNDS := {&"poison": &"poison", &"burn": &"burn", &"paralysis": &"zap", &"sleep": &"sleep", &"freeze": &"glint"}
+const STATUS_SOUNDS := {&"poison": &"poison", &"burn": &"burn", &"paralysis": &"zap", &"sleep": &"sleep",
+	&"freeze": &"glint", &"confusion": &"glint"}
 ## _choose_move() result when the player backs out of the move list.
 const CANCELLED := -2
 
@@ -96,6 +96,7 @@ func _fight() -> Battle.Outcome:
 	while battle.outcome == Battle.Outcome.ONGOING:
 		if battle.foe_must_switch():
 			await _gain_exp()
+			await _offer_shift()
 			await _play(battle.send_next_foe())
 		elif battle.player_must_switch():
 			var index: int = await _choose_party_member(true)
@@ -130,10 +131,10 @@ func _choose_action() -> Dictionary:
 				if move != CANCELLED:
 					action = Battle.fight(move)
 			1:
-				var item_id: StringName = await _choose_item()
-				if not item_id.is_empty():
-					GameState.remove_item(item_id)
-					action = Battle.use_item(GameData.item(item_id))
+				var use: Dictionary = await _choose_item()
+				if not use.is_empty():
+					GameState.remove_item(use.id)
+					action = Battle.use_item(GameData.item(use.id), use.target, use.move)
 			2:
 				var index: int = await _choose_party_member(false)
 				if index >= 0:
@@ -176,53 +177,105 @@ func _on_move_cursor_moved(index: int) -> void:
 		_move_info_label.text = "PP %2d/%2d\n%s" % [monster.pp[index], move.max_pp, move.element.to_upper()]
 
 
-## Lists the BAG with each item's description. Returns the chosen item id,
-## or &"" if the player backs out.
-func _choose_item() -> StringName:
+## Lists the BAG with each item's description, then asks which monster (and
+## for an ETHER, which move) it's for. Returns {id, target, move}, or {} if
+## the player backs out.
+func _choose_item() -> Dictionary:
 	var ids: Array[StringName] = []
 	var items: Array[ItemData] = []
 	var options := PackedStringArray()
 	for id: StringName in GameState.bag:
 		var item := GameData.item(id)
-		# Evolution stones are for the field, not battle.
-		if item and GameState.bag[id] > 0 and item.kind != ItemData.Kind.EVOLUTION:
+		# Evolution stones and REPELs are for the field, not battle.
+		if item and GameState.bag[id] > 0 and not item.kind in [ItemData.Kind.EVOLUTION, ItemData.Kind.REPEL]:
 			ids.append(id)
 			items.append(item)
 			options.append("%-10s x%2d" % [item.display_name, GameState.bag[id]])
 	if ids.is_empty():
 		await _say(["Your BAG is empty!"])
-		return &""
+		return {}
 	options.append("CANCEL")
 	var describe := func(index: int) -> void:
 		_prompt.text = items[index].description if index < items.size() else ""
 		_item_icon.texture = items[index].icon if index < items.size() else null
-	_list_menu.cursor_moved.connect(describe)
-	_item_icon.show()
-	var picked: StringName = &""
+	var last := 0
 	while true:
-		var index: int = await _list_menu.choose(options)
+		_list_menu.cursor_moved.connect(describe)
+		_item_icon.show()
+		var index: int = await _list_menu.choose(options, last)
+		_list_menu.cursor_moved.disconnect(describe)
+		_item_icon.hide()
+		_prompt.text = ""
 		if index < 0 or index >= ids.size():
-			break
-		var monster := battle.player.monster
-		var useless := (items[index].kind == ItemData.Kind.HEAL and monster.hp >= monster.max_hp()) \
-			or (items[index].kind == ItemData.Kind.CURE and not items[index].cures_status(monster.status))
-		if useless:
+			return {}
+		last = index
+		var item := items[index]
+		if not item.targets_monster():
+			return {"id": ids[index], "target": -1, "move": -1}
+		var target: int = await _choose_item_target()
+		if target < 0:
+			continue
+		var monster := battle.party[target]
+		var move := -1
+		if item.kind == ItemData.Kind.PP:
+			move = await _choose_pp_move(monster)
+			if move < 0:
+				continue
+		if not item.can_use_on(monster, move):
 			await _say(["It won't have any effect."])
 			continue
-		picked = ids[index]
-		break
-	_list_menu.cursor_moved.disconnect(describe)
-	_item_icon.hide()
+		return {"id": ids[index], "target": target, "move": move}
+	return {}
+
+
+## Which party member an item is for. Returns its index, or -1.
+func _choose_item_target() -> int:
+	var options := _party_options()
+	options.append("CANCEL")
+	_prompt.text = "Use on which\nMONSTER?"
+	var index: int = await _list_menu.choose(options)
 	_prompt.text = ""
-	return picked
+	return index if index >= 0 and index < battle.party.size() else -1
 
 
-## Returns a party index, or -1 if the player cancels (only when not `forced`).
-func _choose_party_member(forced: bool) -> int:
+## Which of `monster`'s moves an ETHER restores. Returns its index, or -1.
+func _choose_pp_move(monster: Monster) -> int:
+	var options := PackedStringArray()
+	for i in monster.moves.size():
+		options.append("%-10s %2d/%2d" % [monster.moves[i].display_name, monster.pp[i], monster.moves[i].max_pp])
+	options.append("CANCEL")
+	_prompt.text = "Restore which\nmove?"
+	var index: int = await _list_menu.choose(options)
+	_prompt.text = ""
+	return index if index >= 0 and index < monster.moves.size() else -1
+
+
+## One line per party member: name, level (or status) and HP.
+func _party_options() -> PackedStringArray:
 	var options := PackedStringArray()
 	for monster in battle.party:
 		var tag := monster.status_tag()
 		options.append("%-9s %-5s%3d/%3d" % [monster.get_display_name(), tag if not tag.is_empty() else "Lv%d" % monster.level, monster.hp, monster.max_hp()])
+	return options
+
+
+## Gen 3's SHIFT style (Settings.shift_style): before a trainer sends out its
+## next monster, the player may switch for free.
+func _offer_shift() -> void:
+	var next := battle.next_foe()
+	if next == null or not Settings.shift_style or not battle.can_shift():
+		return
+	await _say(["%s is\nabout to use %s." % [battle.trainer.title(), next.get_display_name()]])
+	if await Dialogue.ask("Will %s change\nMONSTERS?" % GameState.player_name) != 0:
+		return
+	var index: int = await _choose_party_member(false)
+	if index >= 0:
+		await _play(battle.shift_to(index))
+
+
+## Returns a party index, or -1 if the player cancels (only when not `forced`).
+func _choose_party_member(forced: bool) -> int:
+	var options := _party_options()
 	if not forced:
 		options.append("CANCEL")
 	while true:
@@ -250,7 +303,7 @@ func _play(events: Array[Dictionary]) -> void:
 		var side: StringName = event.get("side", &"")
 		match event.type:
 			&"message":
-				await _say([event.text], 0.0 if event.wait else MESSAGE_SECONDS)
+				await _say([event.text], 0.0 if event.wait else Settings.message_seconds())
 			&"attack":
 				await _attack(side, event.get("move"))
 			&"hit":
@@ -306,11 +359,11 @@ func _trainer_intro() -> void:
 	_show_marks(battle.party, PLAYER_MARKS_AT)
 	await _say(["%s\nwould like to battle!" % trainer.title()])
 	_clear_marks()
-	_say(["%s sent\nout %s!" % [trainer.title(), battle.enemy.monster.get_display_name()]], MESSAGE_SECONDS)
+	_say(["%s sent\nout %s!" % [trainer.title(), battle.enemy.monster.get_display_name()]], Settings.message_seconds())
 	await _foe_send_out(true)
 	while Dialogue.is_open:
 		await get_tree().process_frame
-	_say(["Go! %s!" % battle.player.monster.get_display_name()], MESSAGE_SECONDS)
+	_say(["Go! %s!" % battle.player.monster.get_display_name()], Settings.message_seconds())
 	await _send_out(true)
 	while Dialogue.is_open:
 		await get_tree().process_frame
@@ -354,7 +407,7 @@ func _intro() -> void:
 	_enemy_panel.show()
 	await _say(["Wild %s appeared!" % wild.get_display_name()])
 	# The throw plays while "Go!" is on screen.
-	_say(["Go! %s!" % battle.player.monster.get_display_name()], MESSAGE_SECONDS)
+	_say(["Go! %s!" % battle.player.monster.get_display_name()], Settings.message_seconds())
 	await _send_out(true)
 	while Dialogue.is_open:
 		await get_tree().process_frame
@@ -434,9 +487,11 @@ func _add_caught_monster() -> void:
 
 # --- Animation ---------------------------------------------------------------
 
+## With BATTLE SCENE off (Settings), moves, stat changes and statuses skip
+## their animations; hits, HP bars and sounds still play.
 func _attack(side: StringName, move: MoveData) -> void:
 	var foe := Battle.ENEMY if side == Battle.PLAYER else Battle.PLAYER
-	if move:
+	if move and Settings.battle_scene:
 		await _effects.play_move(move, _sprite(side), _sprite(foe))
 
 
@@ -457,6 +512,8 @@ func _hit(side: StringName, effectiveness: float) -> void:
 
 func _stat_change(side: StringName, stages: int) -> void:
 	Audio.play_sfx(&"stat_up" if stages > 0 else &"stat_down")
+	if not Settings.battle_scene:
+		return
 	var sprite := _sprite(side)
 	_effects.stat_arrows(sprite, stages > 0)
 	var tint := Color(1.6, 1.6, 1.6) if stages > 0 else Color(0.5, 0.5, 0.9)
@@ -497,7 +554,8 @@ func _status(side: StringName, status: StringName) -> void:
 ## A status shows its effect: bubbles for poison, Zs for sleep...
 func _afflicted(side: StringName, status: StringName) -> void:
 	Audio.play_sfx(STATUS_SOUNDS.get(status, &"select"))
-	await _effects.status_effect(_sprite(side), status)
+	if Settings.battle_scene:
+		await _effects.status_effect(_sprite(side), status)
 
 
 func _restore(side: StringName) -> void:
