@@ -4,7 +4,7 @@ extends SceneTree
 ## battle backdrop all share one style:
 ##
 ##   world_tiles.png        every map tile, laid out as in WorldTiles
-##   signpost.png, cut_tree.png, smash_rock.png
+##   signpost.png, cut_tree.png, smash_rock.png, pc.png
 ##   battle_background.png  240x160, platforms where BattleScene expects them
 ##
 ##   godot --headless --path . --script res://tools/import_world_art.gd
@@ -241,6 +241,25 @@ const CUT_TREE := [
 	".....OOOOOO.....",
 	"................",
 ]
+# The MONSTER CENTER's PC: a monitor with a blue screen, on its stand, with a keyboard.
+const PC := [
+	"................",
+	"..KKKKKKKKKKKK..",
+	"..KWwwwwwwwwwK..",
+	"..KwKKKKKKKKwK..",
+	"..KwKCCBBBBKwK..",
+	"..KwKCBBBBBKwK..",
+	"..KwKBBBBBbKwK..",
+	"..KwKBBBbbbKwK..",
+	"..KwKKKKKKKKwK..",
+	"..KwwwwwwwGwwK..",
+	"..KKKKKKKKKKKK..",
+	".....KwwwwK.....",
+	".KKKKKKKKKKKKKK.",
+	".KWcWcWcWcWcWcK.",
+	".KKKKKKKKKKKKKK.",
+	"................",
+]
 const SMASH_ROCK := [
 	"................",
 	"................",
@@ -281,6 +300,7 @@ func _initialize() -> void:
 	_save(_tile(SIGNPOST), OUT_DIR + "signpost.png")
 	_save(_draw(_empty(), CUT_TREE, GREENS), OUT_DIR + "cut_tree.png")
 	_save(_draw(_empty(), SMASH_ROCK, COLORS), OUT_DIR + "smash_rock.png")
+	_save(_draw(_empty(), PC, COLORS), OUT_DIR + "pc.png")
 	_save(_battle_background(), OUT_DIR + "battle_background.png")
 	quit()
 

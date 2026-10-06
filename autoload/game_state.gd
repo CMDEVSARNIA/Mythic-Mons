@@ -81,6 +81,39 @@ func add_monster(monster: Monster) -> bool:
 	return false
 
 
+## Moves BOX monster `box_index` into the party. False if the party is full.
+func withdraw(box_index: int) -> bool:
+	if party.size() >= MAX_PARTY or box_index < 0 or box_index >= storage.size():
+		return false
+	party.append(storage.pop_at(box_index))
+	return true
+
+
+## True if party member `party_index` may go in the BOX: the party must keep
+## another monster that can still battle.
+func can_deposit(party_index: int) -> bool:
+	if party_index < 0 or party_index >= party.size():
+		return false
+	for i in party.size():
+		if i != party_index and not party[i].is_fainted():
+			return true
+	return false
+
+
+func deposit(party_index: int) -> bool:
+	if not can_deposit(party_index):
+		return false
+	storage.append(party.pop_at(party_index))
+	return true
+
+
+## Lets BOX monster `box_index` go for good, and returns it.
+func release(box_index: int) -> Monster:
+	if box_index < 0 or box_index >= storage.size():
+		return null
+	return storage.pop_at(box_index)
+
+
 func item_count(id: StringName) -> int:
 	return bag.get(id, 0)
 

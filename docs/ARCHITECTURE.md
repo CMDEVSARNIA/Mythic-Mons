@@ -26,11 +26,13 @@ Mythic-Mons/
 │   │   ├── world_map.gd       Root script of every map (terrain lookups, spawns, encounters)
 │   │   └── *.tscn             Emberfall (home, lab, REN's house), Route 1, Tidewater
 │   │                          (MART, MONSTER CENTER, seaside house)
-│   ├── objects/               Warp, SpawnPoint, Signpost, CUT tree, ROCK SMASH boulder
+│   ├── objects/               Warp, SpawnPoint, Signpost, CUT tree, ROCK SMASH boulder,
+│   │                          StoragePC (the MONSTER CENTER's PC)
 │   ├── battle/                BattleScene (menus + animation), MoveAnimator (move and
 │   │                          orb effects), BattlerPanel, StatBar, EvolutionScene
 │   └── ui/                    Dialogue box (autoload), choice box, map banner, party menu,
 │                              monster summary, shop menu, quantity box, MONDEX,
+│                              StorageMenu (the PC's BOX screens),
 │                              MoveTutor (learning a move, forgetting one if needed)
 ├── scripts/                   Non-scene code (class_name utilities)
 │   ├── core/                  Grid, PhysicsLayers, Terrain, GameData (id → resource lookups)
@@ -470,6 +472,13 @@ marks the new species as caught in the MONDEX.
   big picture of the highlighted monster, and SUMMARY (two pages: info and
   ability, then stats and moves) or SWITCH to reorder; the first healthy one
   leads in battle. BAG uses `PartyMenu.pick()` to choose who gets a POTION.
+- **The PC and the BOX.** `GameState.storage` is the BOX. `withdraw()`,
+  `deposit()` and `release()` move monsters in and out. `deposit()` refuses
+  to leave the party without a monster that can battle (`can_deposit()`). A
+  `StoragePC` (`scenes/objects/storage_pc.tscn`, placed as a `"pc"` obstacle
+  in `tools/build_world.gd`) opens a `StorageMenu`. It offers WITHDRAW,
+  DEPOSIT, RELEASE (after a YES/NO) and SEE YA!. Each option lists monsters
+  with a picture, level, element, HP and status of the highlighted one.
 - **Shops.** A `ShopClerk` (an NPC subclass, `clerk.tscn`) stands behind a
   counter tile; `Player._interact()` looks past counters, so the player talks
   across them. Talking adds a `ShopMenu` and awaits `run(stock)`: BUY / SELL
@@ -547,10 +556,11 @@ marks the new species as caught in the MONDEX.
   nature turning up, nature effects on stats, level and stone evolution
   (what's kept and what changes), and that evolutions share their
   pre-evolution's curve (20 checks).
-- `tests/game_state_test.gd` covers the party, BOX, BAG limits, money, the
+- `tests/game_state_test.gd` covers the party, BOX (withdraw, deposit,
+  release and their limits), BAG limits, money, the
   MONDEX, flags, monster serialization (natures, orbs and statuses included,
   and older saves without them), a full save/load round trip, and corrupt or
-  newer-version saves (37 checks). It uses its own save file.
+  newer-version saves (44 checks). It uses its own save file.
 - `tests/smoke_test.gd` plays the real game by injecting input: movement,
   signs, NPCs, CUT, doors, the starter gate and PROF. ASTER's starter,
   ledges, ROCK SMASH, a won battle whose level-up evolution is stopped with
@@ -564,8 +574,9 @@ marks the new species as caught in the MONDEX.
   battle at sea (SPROUTLE evolves into GROVETLE afterwards), buying 10 MON
   ORBs (and the free GALA ORB), selling, a DIVE ORB from the specialty
   counter, a BOLT STONE from the BAG (on the wrong monster, then on ZAPKIT),
-  healing at the MONSTER CENTER, entering and leaving every building, and
-  FLY (99 checks).
+  healing at the MONSTER CENTER, depositing a monster at the PC and
+  withdrawing it again, entering and leaving every building, and FLY
+  (103 checks).
   It uses its own save file.
 - `tests/npc_test.gd` visits every map and talks to every NPC and sign,
   standing where a player could (a reachable neighboring cell, counting CUT,

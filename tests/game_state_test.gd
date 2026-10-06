@@ -12,6 +12,7 @@ var _failures := 0
 
 func _initialize() -> void:
 	_test_party_and_bag()
+	_test_box()
 	_test_mondex()
 	_test_monster_round_trip()
 	_test_save_and_load()
@@ -43,6 +44,27 @@ func _test_party_and_bag() -> void:
 	_check(state.money == state.MAX_MONEY, "money is capped at $%d" % state.MAX_MONEY)
 	state.set_flag(&"met_rival")
 	_check(state.has_flag(&"met_rival") and not state.has_flag(&"unknown"), "story flags default to off")
+	state.free()
+
+
+func _test_box() -> void:
+	var state := _new_state()
+	var lead := _monster(&"flamlet", 5)
+	state.add_monster(lead)
+	_check(not state.can_deposit(0) and not state.deposit(0) and state.party.size() == 1, "you can't deposit your only monster")
+	var second := _monster(&"sproutle", 3)
+	state.add_monster(second)
+	second.hp = 0
+	_check(not state.can_deposit(0), "...or your last one that can battle")
+	_check(state.deposit(1) and state.party == [lead] and state.storage == [second], "depositing moves a monster into the BOX")
+	_check(state.withdraw(0) and state.party.size() == 2 and state.storage.is_empty(), "withdrawing brings it back")
+	for i in 4:
+		state.add_monster(_monster(&"zapkit", 2))
+	state.storage.append(_monster(&"pebblet", 4))
+	_check(not state.withdraw(0) and state.storage.size() == 1, "a full party can't withdraw")
+	var freed: Monster = state.release(0)
+	_check(freed != null and freed.species.display_name == "PEBBLET" and state.storage.is_empty(), "releasing removes it from the BOX for good")
+	_check(state.release(0) == null, "...and there's nothing to release in an empty BOX")
 	state.free()
 
 

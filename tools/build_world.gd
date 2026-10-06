@@ -28,6 +28,7 @@ const SCENES := {
 	"warp": "res://scenes/objects/warp.tscn",
 	"cut_tree": "res://scenes/objects/cut_tree.tscn",
 	"smash_rock": "res://scenes/objects/smash_rock.tscn",
+	"pc": "res://scenes/objects/storage_pc.tscn",
 }
 
 ## Tile name -> [physics layer index (-1 none, 0 world, 1 water), terrain tag].
@@ -401,7 +402,10 @@ const MAPS := [
 		],
 		"npcs": [
 			[Vector2i(5, 1), "nurse", 0, ["Welcome to the MONSTER\nCENTER!", "We'll restore your\nMONSTERS to full health."], {"heals_party": true}],
-			[Vector2i(9, 4), "lass", 1, ["MONSTER CENTERs heal\nyour team for free.", "Come here whenever your\nMONSTERS are tired!"]],
+			[Vector2i(9, 4), "lass", 1, ["MONSTER CENTERs heal\nyour team for free.", "The PC in the corner\nstores MONSTERS your\nparty can't hold."]],
+		],
+		"obstacles": [
+			[Vector2i(11, 3), "pc"],
 		],
 	},
 	{

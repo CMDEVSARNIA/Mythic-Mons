@@ -47,7 +47,8 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   MIA, YOUNGSTER TIM, and your rival REN guarding the way north.
 - **Tidewater City.** A beach and an island you reach with **SURF**, a
   seaside house, the **MONSTER CENTER** (red roof), where the nurse heals
-  your team for free, and the **TIDEWATER MART** (blue roof). Like a
+  your team for free and the PC in the corner manages the BOX, and the
+  **TIDEWATER MART** (blue roof). Like a
   department store, it has two counters: talk to a clerk across one to BUY
   or SELL. The lower clerk sells MON, SUPER and HYPER ORBs, potions and
   status cures ($100 to $1200). The upper one sells the specialty orbs ($1000) and evolution
@@ -104,7 +105,9 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   pulls the monster in as red light, drops, and wobbles up to three times,
   and a catch clicks shut with a burst of stars. Caught monsters join your
   party, or the BOX once you have six, and are sent out of the orb they were
-  caught in (the summary shows it). POTIONs heal 20 HP and BIG POTIONs 50.
+  caught in (the summary shows it). At the MONSTER CENTER's PC you can
+  WITHDRAW from the BOX, DEPOSIT party members (you always keep one that
+  can battle), or RELEASE a monster for good. POTIONs heal 20 HP and BIG POTIONs 50.
   You start with 2 POTIONs, and the professor adds 5 MON ORBs.
 - **Ten orbs, after Gen 3's balls.** MON, SUPER and HYPER ORBs are the
   Poké, Great and Ultra Balls, and a MASTER ORB never fails. The specialty
@@ -207,9 +210,9 @@ from their CC0 sheets in `assets/`.
 godot --headless --path . --script res://tests/battle_test.gd
 # EXP curves, IVs, natures and evolution (20 checks)
 godot --headless --path . --script res://tests/monster_test.gd
-# Party, BOX, BAG, money, MONDEX, flags and save/load round trips (37 checks)
+# Party, BOX (withdraw, deposit, release), BAG, money, MONDEX, flags and save/load round trips (44 checks)
 godot --headless --path . --script res://tests/game_state_test.gd
-# Plays the whole game by injecting input: starter, battles, trainers, status, evolutions, MONDEX, buildings, shops (99 checks)
+# Plays the whole game by injecting input: starter, battles, trainers, status, evolutions, MONDEX, buildings, shops, the PC (103 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
 # Talks to every NPC and reads every sign on every map, from where a player can stand (32 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/npc_test.gd
@@ -231,10 +234,11 @@ your real save.
    summary, BAG outside battle, MOM healing, save/load with a title screen.
 5. **Field-move gating.** Unlock CUT/SURF/FLY through party moves and badges
    instead of the prototype's all-unlocked default.
-6. **Content.** A PC for the BOX, nicknames, a GYM and badges, more routes,
-   towns and trainers, and more real art from the sources in ASSETS.md.
-   ~~A mart~~, ~~a Monster Center~~, ~~enterable buildings~~ and ~~trainers
-   with line-of-sight battles~~ are done.
+6. **Content.** Nicknames, a GYM and badges, more routes, towns and
+   trainers, and more real art from the sources in ASSETS.md. ~~A mart~~,
+   ~~a Monster Center~~, ~~enterable buildings~~, ~~trainers with
+   line-of-sight battles~~, ~~status conditions~~ and ~~a PC for the BOX~~
+   are done.
 7. **Stat depth.** Split SPECIAL into SP. ATK and SP. DEF, and add EVs
    (effort points from each defeated monster), as in Gen 3.
 

@@ -526,6 +526,29 @@ func _run() -> void:
 	await _tap(&"confirm")
 	await _close_dialogue()
 	_check(_game_state.party[0].hp == _game_state.party[0].max_hp(), "the nurse heals your MONSTERS across the counter")
+	var pc_choices: Control = _dialogue.get_node(^"ChoiceArea/Choices")
+	var stored: Resource = _game_state.party[2]
+	await _place(Vector2i(10, 3), Vector2i.RIGHT)
+	await _tap(&"confirm") # The PC in the corner.
+	await _until_choices(pc_choices)
+	_check(pc_choices.visible, "the PC opens the MONSTER Storage System")
+	await _tap(&"move_down")
+	await _tap(&"confirm") # DEPOSIT
+	await _tap(&"move_down")
+	await _tap(&"move_down")
+	_shot("29_pc")
+	await _tap(&"confirm") # The third party member.
+	await _until_choices(pc_choices)
+	_check(_game_state.party.size() == 2 and _game_state.storage.has(stored), "DEPOSIT moves a monster into the BOX")
+	await _tap(&"confirm") # WITHDRAW
+	await _tap(&"confirm") # The only one in the BOX.
+	await _until_choices(pc_choices)
+	_check(_game_state.party.size() == 3 and _game_state.party[2] == stored and _game_state.storage.is_empty(), "WITHDRAW brings it back")
+	for i in 3:
+		await _tap(&"move_down")
+	await _tap(&"confirm") # SEE YA!
+	await _close_dialogue()
+	_check(not _player.is_locked(), "logging off returns control")
 	await _place(Vector2i(5, 6), Vector2i.DOWN)
 	await _tap(&"move_down")
 	await _wait(1.0)
@@ -668,6 +691,14 @@ func _send(action: StringName, pressed: bool) -> void:
 	event.action = action
 	event.pressed = pressed
 	Input.parse_input_event(event)
+
+
+## Presses A through text until a Dialogue.choose() list shows.
+func _until_choices(choices: Control) -> void:
+	for i in 12:
+		if choices.visible:
+			return
+		await _tap(&"confirm")
 
 
 func _close_dialogue() -> void:

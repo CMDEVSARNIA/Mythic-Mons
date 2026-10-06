@@ -1,54 +1,58 @@
 [gd_scene format=4]
 
-[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_xx3ii"]
-[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_27i2h"]
-[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="3_17r6u"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_nurse.png" id="4_yax75"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_lass.png" id="5_mo4gy"]
-[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="6_8jo7j"]
-[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="7_8n8my"]
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_27i2h"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_17r6u"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="3_yax75"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_nurse.png" id="4_mo4gy"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_lass.png" id="5_8jo7j"]
+[ext_resource type="PackedScene" path="res://scenes/objects/storage_pc.tscn" id="6_8n8my"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="7_ik575"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="8_i1dtp"]
 
-[node name="CenterTidewater" type="Node2D" unique_id=1414743582]
-script = ExtResource("1_xx3ii")
+[node name="CenterTidewater" type="Node2D" unique_id=1858806520]
+script = ExtResource("1_27i2h")
 display_name = "MONSTER CENTER"
 allow_fly = false
 
-[node name="Ground" type="TileMapLayer" parent="." unique_id=213528898]
+[node name="Ground" type="TileMapLayer" parent="." unique_id=1543486563]
 tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAABAAYAAAADAAAAAAABAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAKAAAAAAABAAYAAAALAAAAAAABAAYAAAAAAAEAAAAAAAYAAAABAAEAAAAAAAYAAAACAAEAAAAAAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAAAAYAAAAJAAEAAAAAAAYAAAAKAAEAAAAAAAYAAAALAAEAAAAAAAYAAAAAAAIAAAACAAYAAAABAAIAAAACAAYAAAACAAIAAAAGAAYAAAADAAIAAAAGAAYAAAAEAAIAAAAGAAYAAAAFAAIAAAAGAAYAAAAGAAIAAAAGAAYAAAAHAAIAAAAGAAYAAAAIAAIAAAAGAAYAAAAJAAIAAAAGAAYAAAAKAAIAAAACAAYAAAALAAIAAAACAAYAAAAAAAMAAAAAAAYAAAABAAMAAAAAAAYAAAACAAMAAAAAAAYAAAADAAMAAAAAAAYAAAAEAAMAAAAAAAYAAAAFAAMAAAAAAAYAAAAGAAMAAAAAAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAAAAYAAAAJAAMAAAAAAAYAAAAKAAMAAAAAAAYAAAALAAMAAAAAAAYAAAAAAAQAAAAIAAYAAAABAAQAAAAAAAYAAAACAAQAAAAAAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAAAAYAAAAKAAQAAAAAAAYAAAALAAQAAAAIAAYAAAAAAAUAAAAAAAYAAAABAAUAAAADAAYAAAACAAUAAAAAAAYAAAADAAUAAAAAAAYAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAAAAYAAAAJAAUAAAAAAAYAAAAKAAUAAAADAAYAAAALAAUAAAAAAAYAAAAAAAYAAAAAAAYAAAABAAYAAAAAAAYAAAACAAYAAAAAAAYAAAADAAYAAAAAAAYAAAAEAAYAAAAAAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAAAAYAAAAJAAYAAAAAAAYAAAAKAAYAAAAAAAYAAAALAAYAAAAAAAYAAAAAAAcAAAAAAAYAAAABAAcAAAAAAAYAAAACAAcAAAAAAAYAAAADAAcAAAAAAAYAAAAEAAcAAAAAAAYAAAAFAAcAAAAFAAYAAAAGAAcAAAAAAAYAAAAHAAcAAAAAAAYAAAAIAAcAAAAAAAYAAAAJAAcAAAAAAAYAAAAKAAcAAAAAAAYAAAALAAcAAAAAAAYAAAA=")
-tile_set = ExtResource("2_27i2h")
+tile_set = ExtResource("2_17r6u")
 
-[node name="Entities" type="Node2D" parent="." unique_id=1031457925]
+[node name="Entities" type="Node2D" parent="." unique_id=1179191914]
 y_sort_enabled = true
 
-[node name="NPC_Nurse1" parent="Entities" unique_id=1735433693 instance=ExtResource("3_17r6u")]
+[node name="NPC_Nurse1" parent="Entities" unique_id=1368195685 instance=ExtResource("3_yax75")]
 position = Vector2(88, 24)
-sprite_sheet = ExtResource("4_yax75")
+sprite_sheet = ExtResource("4_mo4gy")
 lines = PackedStringArray("Welcome to the MONSTER\nCENTER!", "We\'ll restore your\nMONSTERS to full health.")
 wander_radius = 0
 heals_party = true
 
-[node name="NPC_Lass2" parent="Entities" unique_id=1601642468 instance=ExtResource("3_17r6u")]
+[node name="NPC_Lass2" parent="Entities" unique_id=436735632 instance=ExtResource("3_yax75")]
 position = Vector2(152, 72)
-sprite_sheet = ExtResource("5_mo4gy")
-lines = PackedStringArray("MONSTER CENTERs heal\nyour team for free.", "Come here whenever your\nMONSTERS are tired!")
+sprite_sheet = ExtResource("5_8jo7j")
+lines = PackedStringArray("MONSTER CENTERs heal\nyour team for free.", "The PC in the corner\nstores MONSTERS your\nparty can\'t hold.")
 wander_radius = 1
 
-[node name="Warps" type="Node2D" parent="." unique_id=717290978]
+[node name="Pc1" parent="Entities" unique_id=1929849054 instance=ExtResource("6_8n8my")]
+position = Vector2(184, 56)
 
-[node name="Warp1" parent="Warps" unique_id=1271638888 instance=ExtResource("6_8jo7j")]
+[node name="Warps" type="Node2D" parent="." unique_id=1928513243]
+
+[node name="Warp1" parent="Warps" unique_id=120837566 instance=ExtResource("7_ik575")]
 position = Vector2(88, 120)
 target_map = "res://scenes/maps/town_tidewater.tscn"
 target_spawn = &"from_center"
 blocked_lines = PackedStringArray()
 
-[node name="Spawns" type="Node2D" parent="." unique_id=1609941859]
+[node name="Spawns" type="Node2D" parent="." unique_id=1856340047]
 
-[node name="default" type="Marker2D" parent="Spawns" unique_id=560009213]
+[node name="default" type="Marker2D" parent="Spawns" unique_id=1560953494]
 position = Vector2(88, 104)
-script = ExtResource("7_8n8my")
+script = ExtResource("8_i1dtp")
 facing = 1
 
-[node name="entrance" type="Marker2D" parent="Spawns" unique_id=1160846437]
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=948024933]
 position = Vector2(88, 104)
-script = ExtResource("7_8n8my")
+script = ExtResource("8_i1dtp")
 facing = 1

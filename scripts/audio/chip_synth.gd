@@ -186,6 +186,10 @@ static func sfx(id: StringName) -> AudioStreamWAV:
 			samples = sequence(drips)
 		&"sleep":
 			samples = sequence([tone(Wave.TRIANGLE, 660.0, 440.0, 0.25, 0.35, 0.2), tone(Wave.TRIANGLE, 520.0, 330.0, 0.3, 0.3)])
+		&"pc_on":
+			samples = sequence([tone(Wave.PULSE_25, 523.25, 523.25, 0.05, 0.2, 0.15), tone(Wave.PULSE_25, 783.99, 783.99, 0.05, 0.2, 0.15), tone(Wave.PULSE_25, 1046.5, 1046.5, 0.1, 0.2)])
+		&"pc_off":
+			samples = sequence([tone(Wave.PULSE_25, 1046.5, 1046.5, 0.05, 0.2, 0.15), tone(Wave.PULSE_25, 659.25, 659.25, 0.05, 0.2, 0.15), tone(Wave.PULSE_25, 392.0, 392.0, 0.1, 0.2)])
 		&"exclaim":
 			samples = sequence([tone(Wave.PULSE_25, 1318.5, 1318.5, 0.05, 0.25, 0.2), tone(Wave.PULSE_25, 1975.5, 1975.5, 0.12, 0.25)])
 		&"orb_open":
