@@ -1,0 +1,36 @@
+[gd_resource type="Resource" script_class="TrainerData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/trainers/rival.png" id="1_kwhl2"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_monster.gd" id="2_38raa"]
+[ext_resource type="Resource" path="res://data/species/flamlet.tres" id="3_o8pt2"]
+[ext_resource type="Resource" path="res://data/species/pipwing.tres" id="4_gliuu"]
+[ext_resource type="Resource" path="res://data/species/zapkit.tres" id="5_a3od6"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_data.gd" id="6_qlp8t"]
+
+[sub_resource type="Resource" id="Resource_2i2dl"]
+script = ExtResource("2_38raa")
+species = ExtResource("3_o8pt2")
+level = 18
+
+[sub_resource type="Resource" id="Resource_wi4x2"]
+script = ExtResource("2_38raa")
+species = ExtResource("4_gliuu")
+level = 15
+
+[sub_resource type="Resource" id="Resource_oh2ig"]
+script = ExtResource("2_38raa")
+species = ExtResource("5_a3od6")
+level = 16
+
+[resource]
+script = ExtResource("6_qlp8t")
+trainer_class = "RIVAL"
+trainer_name = "REN"
+battle_sprite = ExtResource("1_kwhl2")
+party = Array[ExtResource("2_38raa")]([SubResource("Resource_2i2dl"), SubResource("Resource_wi4x2"), SubResource("Resource_oh2ig")])
+counters_starter = true
+payout = 60
+intro = PackedStringArray("REN: {PLAYER}! I heard you\nbeat MARINA!", "I\'ve been training too.\nLet\'s see who\'s better\nnow!")
+defeat = PackedStringArray("Ugh... Again?!")
+after = PackedStringArray("REN: CORA\'s GYM is just\nahead. Her ELECTRIC\nMONSTERS hit hard.", "Next time, I\'m winning\nfor sure!")
+badge_lines = PackedStringArray()

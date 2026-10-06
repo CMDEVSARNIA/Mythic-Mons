@@ -442,7 +442,7 @@ func _run() -> void:
 		await _tap(&"move_down")
 	await _tap(&"confirm")
 	await _wait(0.3)
-	_check(_dialogue.is_open and "TIDE BADGE" in _dialogue.get_node(^"Box/Text").text, "...or FLY")
+	_check(_dialogue.is_open and "SPARK BADGE" in _dialogue.get_node(^"Box/Text").text, "...or FLY without the SPARK BADGE")
 	await _close_dialogue()
 	await _tap(&"move_up")
 	await _tap(&"confirm") # CARD
@@ -641,6 +641,7 @@ func _run() -> void:
 	await _tap(&"confirm")
 	await _close_dialogue()
 	_check(_game_state.party[0].hp == _game_state.party[0].max_hp(), "the nurse heals your MONSTERS across the counter")
+	_check(_game_state.respawn_map.ends_with("center_tidewater.tscn"), "...and you'll wake up here if you white out")
 	var pc_choices: Control = _dialogue.get_node(^"ChoiceArea/Choices")
 	var stored: Resource = _game_state.party[2]
 	await _place(Vector2i(10, 3), Vector2i.RIGHT)
@@ -695,8 +696,117 @@ func _run() -> void:
 	await _wait(1.0)
 	_check(_map_name() == "TIDEWATER CITY" and _player.get_cell() == Vector2i(18, 20), "the seaside house mat leads back outside")
 
+	# --- ROUTE 2, COPPERDALE and the second GYM ---------------------------------
+	# A stronger champion this time; HIKER DALE and YOUNGSTER JOEY sit this one out.
+	team = _game_state.party.duplicate()
+	_game_state.party.assign([load("res://scripts/monsters/monster.gd").create(load("res://data/species/blazard.tres"), 60)])
+	_game_state.set_flag(&"beat_hiker_dale")
+	_game_state.set_flag(&"beat_youngster_joey")
+	await _place(Vector2i(22, 13), Vector2i.RIGHT)
+	await _tap(&"move_right")
+	await _wait(1.0)
+	_check(_map_name() == "ROUTE 2" and _player.get_cell() == Vector2i(1, 7), "Tidewater's east exit leads to Route 2")
+	var route_two: Node2D = _main.current_map
+	route_two.encounter_rate = 0.0
+	route_two.water_encounter_rate = 0.0
+	_shot("34_route2")
+	var orbs_before: int = _game_state.item_count(&"super_orb")
+	await _place(Vector2i(6, 10), Vector2i.LEFT)
+	await _tap(&"confirm")
+	await _wait(1.2)
+	await _tap(&"confirm") # CUT the tree in front of the nook,
+	await _wait(1.0)
+	await _place(Vector2i(2, 10), Vector2i.LEFT)
+	await _tap(&"confirm") # ...and pick up the orb behind it.
+	await _wait(0.3)
+	_check(_dialogue.is_open and "found" in _dialogue.get_node(^"Box/Text").text, "an item ball on the ground can be picked up")
+	await _close_dialogue()
+	_check(_game_state.item_count(&"super_orb") == orbs_before + 3 and route_two.entities.get_node_or_null(^"ItemBall2") == null, "...and it goes into the BAG and off the map")
+	_check(_game_state.has_flag(&"item_route_02_1_10"), "...for good")
+
+	await _place(Vector2i(12, 7), Vector2i.RIGHT)
+	await _tap(&"confirm")
+	await _wait(1.6)
+	await _tap(&"confirm") # SURF across the river...
+	await _until_dialogue() # ...where SWIMMER RIO swims over.
+	_check(route_two.entities.get_node(^"NPC_Swimmer3").get_cell() == Vector2i(13, 6), "a SWIMMER swims over to battle you")
+	await _close_dialogue()
+	await _wait(2.0)
+	await _press_through_battle()
+	_check(_game_state.has_flag(&"beat_swimmer_rio") and _player.is_surfing, "SWIMMER RIO is beaten in the river")
+	for i in 5: # Turn back east, then paddle over to the far bank.
+		await _tap(&"move_right")
+	await _wait(0.4)
+	_check(not _player.is_surfing and _player.get_cell() == Vector2i(17, 7), "the far bank is reached")
+	await _place(Vector2i(26, 7), Vector2i.RIGHT)
+	await _tap(&"move_right") # REN waits by the exit.
+	await _until_dialogue()
+	await _close_dialogue()
+	await _wait(2.0)
+	await _until_action_menu()
+	_check(_battle_scene().battle.enemy.monster.species.display_name == "TIDEHOUND", "REN's counter-pick has evolved by now")
+	await _press_through_battle()
+	_check(_game_state.has_flag(&"beat_rival_ren_2"), "...and REN is beaten again")
+	await _place(Vector2i(28, 7), Vector2i.RIGHT)
+	await _tap(&"move_right")
+	await _wait(1.0)
+	_check(_map_name() == "COPPERDALE TOWN" and _player.get_cell() == Vector2i(1, 8), "Route 2 leads to COPPERDALE TOWN")
+	_shot("35_copperdale")
+
+	await _place(Vector2i(17, 16), Vector2i.UP)
+	await _tap(&"move_up")
+	await _wait(1.0)
+	orbs_before = _game_state.item_count(&"super_orb")
+	await _place(Vector2i(6, 3), Vector2i.UP)
+	await _tap(&"confirm")
+	await _close_dialogue()
+	_check(_map_name() == "ENGINEER'S HOUSE" and _game_state.item_count(&"super_orb") == orbs_before + 3, "CORA's dad hands out SUPER ORBs")
+	await _tap(&"confirm")
+	await _close_dialogue()
+	_check(_game_state.item_count(&"super_orb") == orbs_before + 3, "...only once")
+	await _place(Vector2i(4, 5), Vector2i.DOWN)
+	await _tap(&"move_down")
+	await _wait(1.0)
+
+	await _place(Vector2i(17, 7), Vector2i.UP)
+	await _tap(&"move_up")
+	await _wait(1.0)
+	_check(_map_name() == "COPPERDALE GYM" and _player.get_cell() == Vector2i(5, 9), "the COPPERDALE GYM door leads inside")
+	_shot("36_gym2")
+	await _tap(&"move_up")
+	await _tap(&"move_up") # ENGINEER IDA...
+	await _until_dialogue()
+	await _close_dialogue()
+	await _wait(2.0)
+	await _press_through_battle()
+	for i in 4: # ...and ENGINEER ROY.
+		await _tap(&"move_up")
+	await _until_dialogue()
+	await _close_dialogue()
+	await _wait(2.0)
+	await _press_through_battle()
+	_check(_game_state.has_flag(&"beat_engineer_ida") and _game_state.has_flag(&"beat_engineer_roy"), "both ENGINEERs are beaten")
+	money_before_leader = _game_state.money
+	for i in 3:
+		await _tap(&"move_up")
+	await _until_dialogue()
+	await _close_dialogue()
+	await _wait(2.0)
+	await _until_action_menu()
+	_shot("37_gym2_battle")
+	await _press_through_battle()
+	_check(_game_state.has_flag(&"beat_leader_cora") and _game_state.money == money_before_leader + 2100, "beating CORA pays $2100 (payout 100 x level 21)")
+	_check(_dialogue.is_open and "SPARK BADGE" in _dialogue.get_node(^"Box/Text").text, "...and she hands over the SPARK BADGE")
+	await _close_dialogue()
+	_check(_game_state.has_flag(&"spark_badge") and _game_state.badge_count() == 2, "two badges now")
+	_game_state.party.assign(team)
+	await _place(Vector2i(5, 9), Vector2i.DOWN)
+	await _tap(&"move_down")
+	await _wait(1.0)
+	_check(_map_name() == "COPPERDALE TOWN" and _player.get_cell() == Vector2i(17, 7), "the GYM mat leads back outside")
+
 	# --- FLY -----------------------------------------------------------------
-	await _place(Vector2i(11, 15), Vector2i.DOWN)
+	await _place(Vector2i(11, 9), Vector2i.DOWN)
 	await _tap(&"menu")
 	_check(_main.start_menu.visible, "ENTER opens the start menu")
 	for i in 4: # MONDEX, MONSTERS, BAG, CARD, FLY

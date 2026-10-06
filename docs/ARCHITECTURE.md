@@ -23,13 +23,14 @@ Mythic-Mons/
 │   │   ├── player/            Player scene + input, interaction, surfing, ledges
 │   │   └── npc/               Wandering NPC (can heal), StarterGiver + professor.tscn,
 │   │                          ShopClerk + clerk.tscn, Trainer + trainer.tscn,
-│   │                          NameRater + name_rater.tscn
+│   │                          NameRater + name_rater.tscn, GiftGiver + gift_giver.tscn
 │   ├── maps/
 │   │   ├── world_map.gd       Root script of every map (terrain lookups, spawns, encounters)
 │   │   └── *.tscn             Emberfall (home, lab, REN's house), Route 1, Tidewater
-│   │                          (MART, MONSTER CENTER, GYM, seaside house)
+│   │                          (MART, MONSTER CENTER, GYM, seaside house), Route 2,
+│   │                          Copperdale (MONSTER CENTER, MART, GYM, house)
 │   ├── objects/               Warp, SpawnPoint, Signpost, CUT tree, ROCK SMASH boulder,
-│   │                          StoragePC (the MONSTER CENTER's PC)
+│   │                          StoragePC (the MONSTER CENTER's PC), ItemBall
 │   ├── battle/                BattleScene (menus + animation), MoveAnimator (move and
 │   │                          orb effects), BattlerPanel, StatBar, EvolutionScene
 │   └── ui/                    Dialogue box and NameEntry (autoloads), choice box, map banner, party menu,
@@ -51,12 +52,14 @@ Mythic-Mons/
 │   │                          world_tiles.gd (WorldTiles: the map atlas layout)
 │   └── audio/                 ChipSynth (SFX), Chiptune (sequencer), Songs (music data)
 ├── data/                      Game data as .tres, file name = id
-│   ├── species/               flamlet, blazard, aquapup, tidehound, ... (12, in dex order)
+│   ├── species/               flamlet, blazard, aquapup, tidehound, ... (14, in dex order)
 │   ├── moves/                 tackle, ember, water_gun, ...
-│   ├── abilities/             kindle, soak_up, sunsoak, sturdy_shell, jolt, dread
+│   ├── abilities/             kindle, soak_up, sunsoak, sturdy_shell, jolt, dread, gale_force
 │   ├── items/                 ten orbs (mon_orb ... gala_orb), potion, big_potion, stones
 │   └── trainers/              lass_mia, youngster_tim, rival_ren, swimmer_luca,
-│                              swimmer_nia, leader_marina
+│                              swimmer_nia, leader_marina, hiker_dale, youngster_joey,
+│                              swimmer_rio, rival_ren_2, engineer_roy, engineer_ida,
+│                              leader_cora
 ├── assets/
 │   ├── placeholder/           Generated PNGs: characters, objects, monsters, items,
 │   │                          effects, trainers (battle sprites)
@@ -219,9 +222,21 @@ next to them, so they don't walk off just as you press A.
 `GameState.can_use_field_move()` decides availability through badges, as in
 Emerald: `GameState.BADGES` maps each badge id to its name and the field moves
 it unlocks, and a badge is owned when its flag is set. CUT and ROCK SMASH are
-in no badge's list, so they work from the start; SURF and FLY need the TIDE
-BADGE. Without it, SURF only shows "The water is dyed a deep blue..." and FLY
-names the missing badge (`badge_for()`).
+in no badge's list, so they work from the start; SURF needs the TIDE BADGE
+and FLY the SPARK BADGE. Without them, SURF only shows "The water is dyed a
+deep blue..." and FLY names the missing badge (`badge_for()`). The river on
+Route 2 makes SURF the way on to Copperdale.
+
+## Items on the map
+
+An `ItemBall` (`scenes/objects/item_ball.tscn`, a StaticBody2D on
+`obstacles`) holds `count` of an `item`. Pressing A adds it to the BAG, sets
+its `flag` and frees it; a ball whose flag is already set frees itself when
+the map loads, so it never comes back. A `GiftGiver` NPC works the same way
+for an item handed over in conversation. `tools/build_world.gd` names both
+flags after the map and cell (`item_route_02_1_10`), so place them with
+`["item_ball", {"item": &"potion"}]` in a map's `obstacles` or
+`{"scene": "gift", "gift": ..., "count": ..., "offer": [...]}` on an NPC.
 
 ## Monsters & battles
 
@@ -375,12 +390,16 @@ of lines: `intro` (on the map), `defeat` (in battle) and `after` (on the map
 once beaten). `build_party()` makes fresh monsters with a fixed seed, so a
 rematch after a loss is the same fight. With `counters_starter` (the rival),
 the first monster becomes the starter that beats the player's, which
-StarterGiver records as a `starter_<id>` flag.
+StarterGiver records as a `starter_<id>` flag, evolved if its level is past
+the evolution level (REN's second team leads with TIDEHOUND, GROVETLE or
+BLAZARD).
 
 On the map, a `Trainer` (an NPC subclass, `trainer.tscn`) points at its data
 and watches `sight` tiles straight ahead. After every step, the player asks
 each node in the `trainers` group `can_see()`: unbeaten, in a straight line,
-nothing in between. Trainers are checked before the wild-encounter roll. A
+nothing in between. A trainer that `swims` drops the water bit from its
+collision mask, so SWIMMERs in a river swim over to you. Trainers are
+checked before the wild-encounter roll. A
 hit emits `Events.trainer_spotted`, and Main plays the `spotted` music. The
 trainer's `notice()` shows the "!" bubble and walks up, then `interact()`
 says the intro and emits `Events.trainer_battle(data)`. Talking to an
@@ -394,7 +413,9 @@ the first win: Main sets the badge's flag, plays the `badge` fanfare, says
 "KAI received the TIDE BADGE from MARINA!" and then the trainer's
 `badge_lines`. The TIDEWATER GYM (`gym_tidewater.tscn`) is a pool crossed by
 one walkway; each SWIMMER watches a crossing with `sight` 5, so the player
-can't sneak past, and LEADER MARINA has `sight` 1 at the far end.
+can't sneak past, and LEADER MARINA has `sight` 1 at the far end. The
+COPPERDALE GYM has the same plan with stacks of generators (crates) for the
+pool, ENGINEERs for the SWIMMERs and LEADER CORA, who gives the SPARK BADGE.
 
 In battle, `Battle.against_trainer()` adds the rules: the enemy is "Foe X";
 `foe_must_switch()` / `send_next_foe()` bring out the next monster (award EXP
@@ -496,8 +517,11 @@ marks the new species as caught in the MONDEX.
   the highlighted one. It then gives the monster plus a gift item and sets
   the flag. New games start with an empty party.
 - **Healing.** Any NPC with `heals_party` restores the party after talking
-  (MOM, and the nurse in the MONSTER CENTER, across the counter). Whiting out also heals and respawns at
-  `GameState.respawn_map`.
+  (MOM, and the nurse in the MONSTER CENTER, across the counter) and makes
+  that map the respawn point (`GameState.respawn_map`, its `entrance`
+  spawn). Whiting out heals the party and wakes the player there: with MOM
+  at home (`GameState.HOME_MAP`, where a new game starts) or in front of the
+  last nurse.
 - **Start menu.** MONSTERS opens `PartyMenu.browse()`: a list with HP bars, a
   big picture of the highlighted monster, and SUMMARY (two pages: info and
   ability, then stats and moves) or SWITCH to reorder; the first healthy one
@@ -586,16 +610,17 @@ marks the new species as caught in the MONDEX.
   level-ups, catch odds, every special orb's bonus, trainer battles (teams,
   the rival's counter-pick, no running, blocked orbs, sending out the next
   monster, 1.5× EXP and prize money), every status condition and cure, the
-  trainer AI, orbs and POTIONs (97 checks).
+  trainer AI, orbs and POTIONs, and the rival's evolved counter-pick (98
+  checks).
 - `tests/monster_test.gd` covers the four EXP curves, IV ranges, every
   nature turning up, nature effects on stats, level and stone evolution
   (what's kept and what changes), and that evolutions share their
   pre-evolution's curve (20 checks).
 - `tests/game_state_test.gd` covers the party, BOX (withdraw, deposit,
   release and their limits), BAG limits, money, the
-  MONDEX, badges and the field moves they unlock, the card's time format, flags, monster serialization (natures, orbs and statuses included,
+  MONDEX (all 14 species), badges and the field moves they unlock, the card's time format, flags, monster serialization (natures, orbs and statuses included,
   and older saves without them), a full save/load round trip, and corrupt or
-  newer-version saves (54 checks). It uses its own save file.
+  newer-version saves (55 checks). It uses its own save file.
 - `tests/smoke_test.gd` plays the real game by injecting input: typing the
   player's name in the intro, movement, signs, NPCs, CUT, doors, the starter
   gate and PROF. ASTER's starter (declining a nickname),
@@ -615,12 +640,15 @@ marks the new species as caught in the MONDEX.
   counter, a BOLT STONE from the BAG (on the wrong monster, then on ZAPKIT),
   healing at the MONSTER CENTER, depositing a monster at the PC and
   withdrawing it again, the NAME RATER clearing a nickname, entering and
-  leaving every building, and FLY (126 checks).
+  leaving every building, then Route 2 (an item ball behind a CUT tree,
+  SURF across the river where a SWIMMER swims over, REN's evolved
+  counter-pick), Copperdale (a one-time gift, the second GYM, the $2100
+  prize and the SPARK BADGE), and FLY (145 checks).
   It uses its own save file.
 - `tests/npc_test.gd` visits every map and talks to every NPC and sign,
   standing where a player could (a reachable neighboring cell, counting CUT,
   ROCK SMASH and SURF, or across a counter), then examines a bookshelf.
-  Trainers count as beaten, so they chat (38 checks).
+  Trainers count as beaten, so they chat (63 checks).
 
 ```sh
 godot --headless --path . --script res://tests/battle_test.gd

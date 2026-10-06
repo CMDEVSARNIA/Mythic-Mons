@@ -1,0 +1,79 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_a4nq8"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_bvh14"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/trainer.tscn" id="3_fkw5t"]
+[ext_resource type="Resource" path="res://data/trainers/leader_cora.tres" id="4_14kvf"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_cora.png" id="5_4g368"]
+[ext_resource type="Resource" path="res://data/trainers/engineer_roy.tres" id="6_602r3"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_engineer.png" id="7_5x81o"]
+[ext_resource type="Resource" path="res://data/trainers/engineer_ida.tres" id="8_hp35n"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="9_5a2xv"]
+[ext_resource type="Texture2D" path="res://assets/characters/townsfolk/fighter.png" id="10_e63s3"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="11_qwgbd"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="12_8ybv2"]
+
+[node name="GymCopperdale" type="Node2D" unique_id=1244696314]
+script = ExtResource("1_a4nq8")
+display_name = "COPPERDALE GYM"
+allow_fly = false
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=530277504]
+tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAABAAYAAAADAAAAAAABAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAKAAAAAAABAAYAAAALAAAAAAABAAYAAAAAAAEAAAAIAAYAAAABAAEAAAAAAAYAAAACAAEAAAAAAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAAAAYAAAAJAAEAAAAAAAYAAAAKAAEAAAAAAAYAAAALAAEAAAAIAAYAAAAAAAIAAAAJAAYAAAABAAIAAAAJAAYAAAACAAIAAAAJAAYAAAADAAIAAAAJAAYAAAAEAAIAAAAAAAYAAAAFAAIAAAAAAAYAAAAGAAIAAAAAAAYAAAAHAAIAAAAAAAYAAAAIAAIAAAAJAAYAAAAJAAIAAAAJAAYAAAAKAAIAAAAJAAYAAAALAAIAAAAJAAYAAAAAAAMAAAAJAAYAAAABAAMAAAAJAAYAAAACAAMAAAAJAAYAAAADAAMAAAAJAAYAAAAEAAMAAAAAAAYAAAAFAAMAAAAAAAYAAAAGAAMAAAAAAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAJAAYAAAAJAAMAAAAJAAYAAAAKAAMAAAAJAAYAAAALAAMAAAAJAAYAAAAAAAQAAAAJAAYAAAABAAQAAAAJAAYAAAACAAQAAAAAAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAAAAYAAAAKAAQAAAAJAAYAAAALAAQAAAAJAAYAAAAAAAUAAAAJAAYAAAABAAUAAAAJAAYAAAACAAUAAAAJAAYAAAADAAUAAAAJAAYAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAJAAYAAAAJAAUAAAAJAAYAAAAKAAUAAAAJAAYAAAALAAUAAAAJAAYAAAAAAAYAAAAJAAYAAAABAAYAAAAJAAYAAAACAAYAAAAJAAYAAAADAAYAAAAJAAYAAAAEAAYAAAAAAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAJAAYAAAAJAAYAAAAJAAYAAAAKAAYAAAAJAAYAAAALAAYAAAAJAAYAAAAAAAcAAAAJAAYAAAABAAcAAAAJAAYAAAACAAcAAAAAAAYAAAADAAcAAAAAAAYAAAAEAAcAAAAAAAYAAAAFAAcAAAAAAAYAAAAGAAcAAAAAAAYAAAAHAAcAAAAAAAYAAAAIAAcAAAAAAAYAAAAJAAcAAAAAAAYAAAAKAAcAAAAJAAYAAAALAAcAAAAJAAYAAAAAAAgAAAAJAAYAAAABAAgAAAAJAAYAAAACAAgAAAAJAAYAAAADAAgAAAAJAAYAAAAEAAgAAAAAAAYAAAAFAAgAAAAAAAYAAAAGAAgAAAAAAAYAAAAHAAgAAAAAAAYAAAAIAAgAAAAJAAYAAAAJAAgAAAAJAAYAAAAKAAgAAAAJAAYAAAALAAgAAAAJAAYAAAAAAAkAAAAIAAYAAAABAAkAAAAAAAYAAAACAAkAAAAAAAYAAAADAAkAAAAAAAYAAAAEAAkAAAAAAAYAAAAFAAkAAAAAAAYAAAAGAAkAAAAAAAYAAAAHAAkAAAAAAAYAAAAIAAkAAAAAAAYAAAAJAAkAAAAAAAYAAAAKAAkAAAAAAAYAAAALAAkAAAAIAAYAAAAAAAoAAAAAAAYAAAABAAoAAAAAAAYAAAACAAoAAAAAAAYAAAADAAoAAAAAAAYAAAAEAAoAAAAAAAYAAAAFAAoAAAAFAAYAAAAGAAoAAAAAAAYAAAAHAAoAAAAAAAYAAAAIAAoAAAAAAAYAAAAJAAoAAAAAAAYAAAAKAAoAAAAAAAYAAAALAAoAAAAAAAYAAAA=")
+tile_set = ExtResource("2_bvh14")
+
+[node name="Entities" type="Node2D" parent="." unique_id=258283642]
+y_sort_enabled = true
+
+[node name="NPC_Cora1" parent="Entities" unique_id=314118646 instance=ExtResource("3_fkw5t")]
+position = Vector2(88, 24)
+data = ExtResource("4_14kvf")
+sight = 1
+swims = false
+sprite_sheet = ExtResource("5_4g368")
+lines = PackedStringArray("Hello there!")
+
+[node name="NPC_Engineer2" parent="Entities" unique_id=538045705 instance=ExtResource("3_fkw5t")]
+position = Vector2(40, 72)
+data = ExtResource("6_602r3")
+sight = 5
+swims = false
+sprite_sheet = ExtResource("7_5x81o")
+lines = PackedStringArray("Hello there!")
+start_facing = 3
+
+[node name="NPC_Engineer3" parent="Entities" unique_id=826603782 instance=ExtResource("3_fkw5t")]
+position = Vector2(152, 120)
+data = ExtResource("8_hp35n")
+sight = 5
+swims = false
+sprite_sheet = ExtResource("7_5x81o")
+lines = PackedStringArray("Hello there!")
+start_facing = 2
+
+[node name="NPC_Fighter4" parent="Entities" unique_id=238727793 instance=ExtResource("9_5a2xv")]
+position = Vector2(136, 152)
+sprite_sheet = ExtResource("10_e63s3")
+lines = PackedStringArray("Yo, challenger! CORA\nuses ELECTRIC-type\nMONSTERS.", "GRASS and ROCK types\nshrug off her shocks.\nGood luck!")
+wander_radius = 0
+start_facing = 2
+
+[node name="Warps" type="Node2D" parent="." unique_id=1565724990]
+
+[node name="Warp1" parent="Warps" unique_id=1776753108 instance=ExtResource("11_qwgbd")]
+position = Vector2(88, 168)
+target_map = "res://scenes/maps/town_copperdale.tscn"
+target_spawn = &"from_gym"
+blocked_lines = PackedStringArray()
+
+[node name="Spawns" type="Node2D" parent="." unique_id=2024892132]
+
+[node name="default" type="Marker2D" parent="Spawns" unique_id=1860232965]
+position = Vector2(88, 152)
+script = ExtResource("12_8ybv2")
+facing = 1
+
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=222956014]
+position = Vector2(88, 152)
+script = ExtResource("12_8ybv2")
+facing = 1

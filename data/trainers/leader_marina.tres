@@ -33,5 +33,5 @@ music = &"gym_battle"
 badge = &"tide_badge"
 intro = PackedStringArray("MARINA: Welcome to the\nTIDEWATER GYM!", "The sea is calm one\nmoment and wild the\nnext. So am I.", "Show me your strength!")
 defeat = PackedStringArray("The tide has turned...\nYou win!")
-after = PackedStringArray("MARINA: Use SURF to\nexplore the sea, and\nFLY to travel fast.", "The next GYM? Keep an\neye on the horizon!")
-badge_lines = PackedStringArray("MARINA: You\'ve earned\nthe TIDE BADGE!", "With it, your MONSTERS\ncan SURF across water\nand FLY between towns.")
+after = PackedStringArray("MARINA: SURF across the\nriver on ROUTE 2 to\nreach COPPERDALE TOWN.", "Its GYM LEADER, CORA,\nis simply electrifying!")
+badge_lines = PackedStringArray("MARINA: You\'ve earned\nthe TIDE BADGE!", "With it, your MONSTERS\ncan SURF across water\noutside of battle.")

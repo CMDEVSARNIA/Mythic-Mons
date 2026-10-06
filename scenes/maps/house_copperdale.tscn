@@ -1,0 +1,49 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_mev7a"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_7ybvr"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/gift_giver.tscn" id="3_4kj3w"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_engineer.png" id="4_sj4ta"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="5_t831m"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="6_3pyl0"]
+
+[node name="HouseCopperdale" type="Node2D" unique_id=557430710]
+script = ExtResource("1_mev7a")
+display_name = "ENGINEER'S HOUSE"
+allow_fly = false
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=1282852262]
+tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAACAAYAAAADAAAAAAACAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAAAAEAAAAIAAYAAAABAAEAAAAAAAYAAAACAAEAAAAAAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAEAAYAAAAJAAEAAAAAAAYAAAAAAAIAAAAAAAYAAAABAAIAAAAAAAYAAAACAAIAAAAAAAYAAAADAAIAAAAAAAYAAAAEAAIAAAAAAAYAAAAFAAIAAAAAAAYAAAAGAAIAAAAAAAYAAAAHAAIAAAAAAAYAAAAIAAIAAAAAAAYAAAAJAAIAAAAAAAYAAAAAAAMAAAAAAAYAAAABAAMAAAAAAAYAAAACAAMAAAADAAYAAAADAAMAAAAAAAYAAAAEAAMAAAAAAAYAAAAFAAMAAAAAAAYAAAAGAAMAAAAAAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAAAAYAAAAJAAMAAAAAAAYAAAAAAAQAAAAAAAYAAAABAAQAAAAAAAYAAAACAAQAAAADAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAJAAYAAAAAAAUAAAAAAAYAAAABAAUAAAAAAAYAAAACAAUAAAAAAAYAAAADAAUAAAAAAAYAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAAAAYAAAAJAAUAAAAAAAYAAAAAAAYAAAAAAAYAAAABAAYAAAAAAAYAAAACAAYAAAAAAAYAAAADAAYAAAAAAAYAAAAEAAYAAAAFAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAAAAYAAAAJAAYAAAAAAAYAAAA=")
+tile_set = ExtResource("2_7ybvr")
+
+[node name="Entities" type="Node2D" parent="." unique_id=380994101]
+y_sort_enabled = true
+
+[node name="NPC_Engineer1" parent="Entities" unique_id=1312971541 instance=ExtResource("3_4kj3w")]
+position = Vector2(104, 40)
+gift = &"super_orb"
+count = 3
+flag = &"gift_house_copperdale_6_2"
+offer = PackedStringArray("You\'re a trainer? Then\ntake these. Every\ntrainer needs ORBs!")
+sprite_sheet = ExtResource("4_sj4ta")
+lines = PackedStringArray("My daughter CORA runs\nthe GYM. She gets her\nspark from me!")
+
+[node name="Warps" type="Node2D" parent="." unique_id=2049770809]
+
+[node name="Warp1" parent="Warps" unique_id=1781593636 instance=ExtResource("5_t831m")]
+position = Vector2(72, 104)
+target_map = "res://scenes/maps/town_copperdale.tscn"
+target_spawn = &"from_house"
+blocked_lines = PackedStringArray()
+
+[node name="Spawns" type="Node2D" parent="." unique_id=567483752]
+
+[node name="default" type="Marker2D" parent="Spawns" unique_id=2027737095]
+position = Vector2(72, 88)
+script = ExtResource("6_3pyl0")
+facing = 1
+
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=1950336062]
+position = Vector2(72, 88)
+script = ExtResource("6_3pyl0")
+facing = 1

@@ -30,6 +30,8 @@ const SCENES := {
 	"smash_rock": "res://scenes/objects/smash_rock.tscn",
 	"pc": "res://scenes/objects/storage_pc.tscn",
 	"name_rater": "res://scenes/actors/npc/name_rater.tscn",
+	"gift": "res://scenes/actors/npc/gift_giver.tscn",
+	"item_ball": "res://scenes/objects/item_ball.tscn",
 }
 
 ## Tile name -> [physics layer index (-1 none, 0 world, 1 water), terrain tag].
@@ -85,6 +87,8 @@ const STARTER_GATE := {
 # Facing values for spawns and NPCs (match Grid.DIRECTIONS).
 const DOWN := 0
 const UP := 1
+const LEFT := 2
+const RIGHT := 3
 
 ## Shared by the small houses' interiors.
 const HOUSE_LAYOUT := [
@@ -101,7 +105,8 @@ const HOUSE_LAYOUT := [
 #   signs:     [cell, pages]
 #   npcs:      [cell, sprite id, wander radius, lines, {scene, property overrides}]
 #   warps:     [cell, map file, spawn, sfx, {property overrides}]
-#   obstacles: [cell, scene]
+#   obstacles: [cell, scene, {property overrides}]; an item ball's flag is
+#              named after the map and cell, like a gift NPC's
 #   houses:    [top-left cell, roof in WorldTiles.HOUSES]; the door is at
 #              WorldTiles.HOUSE_DOOR from the top-left, so put a warp there
 const MAPS := [
@@ -307,7 +312,7 @@ const MAPS := [
 			"#..........::..........#",
 			"#..........::..........#",
 			"#...:......::......:...#",
-			"#...::::::::::::::::...#",
+			"#...::::::::::::::::::::",
 			"#..**......::......**..#",
 			"#..........::..........#",
 			"#..........::..........#",
@@ -331,6 +336,7 @@ const MAPS := [
 			"from_center": [Vector2i(19, 12), DOWN],
 			"from_house": [Vector2i(18, 20), DOWN],
 			"from_gym": [Vector2i(5, 20), DOWN],
+			"from_route2": [Vector2i(22, 13), LEFT],
 		},
 		"warps": [
 			[Vector2i(11, 21), "route_01.tscn", "north", &""],
@@ -339,6 +345,7 @@ const MAPS := [
 			[Vector2i(19, 11), "center_tidewater.tscn", "entrance", &"door"],
 			[Vector2i(18, 19), "house_tidewater.tscn", "entrance", &"door"],
 			[Vector2i(5, 19), "gym_tidewater.tscn", "entrance", &"door"],
+			[Vector2i(23, 13), "route_02.tscn", "west", &""],
 		],
 		"signs": [
 			[Vector2i(9, 14), ["TIDEWATER CITY\nWhere the sea meets\nthe sky."]],
@@ -346,11 +353,12 @@ const MAPS := [
 			[Vector2i(6, 12), ["TIDEWATER MART\nOrbs and medicine for\nevery trainer!"]],
 			[Vector2i(17, 12), ["MONSTER CENTER\nWe heal your MONSTERS\nfor free!"]],
 			[Vector2i(7, 20), ["TIDEWATER CITY\nMONSTER GYM\nLEADER: MARINA", "The tide-turning\nWATER-type trainer!"]],
+			[Vector2i(22, 14), ["ROUTE 2\nEast: COPPERDALE TOWN"]],
 		],
 		"npcs": [
 			[Vector2i(15, 5), "swimmer", 2, ["See that island? You can\nSURF there once you have\nthe TIDE BADGE.", "Beat MARINA at the GYM,\nthen face the water and\npress Z!", "Wild AQUAPUP swim out\nthere. Bring MON ORBs!"]],
 			[Vector2i(10, 19), "officer", 0, ["Welcome to TIDEWATER\nCITY! I keep the\npeace around here.", "Off on a trip? Open\nthe menu and SAVE\nbefore you go!"]],
-			[Vector2i(21, 13), "mystic", 1, ["I see... FIRE burns\nGRASS, GRASS drinks\nWATER...", "...and WATER douses\nFIRE. The spirits\nnever lie."]],
+			[Vector2i(20, 17), "mystic", 1, ["I see... FIRE burns\nGRASS, GRASS drinks\nWATER...", "...and WATER douses\nFIRE. The spirits\nnever lie."]],
 		],
 	},
 	{
@@ -457,10 +465,232 @@ const MAPS := [
 		],
 		"npcs": [
 			[Vector2i(5, 1), "leader", 0, [], {"scene": "trainer", "data": "leader_marina", "sight": 1}],
-			[Vector2i(2, 4), "swimmer", 0, [], {"scene": "trainer", "data": "swimmer_luca", "sight": 5, "start_facing": 3}],
-			[Vector2i(9, 7), "swimmer", 0, [], {"scene": "trainer", "data": "swimmer_nia", "sight": 5, "start_facing": 2}],
+			[Vector2i(2, 4), "swimmer", 0, [], {"scene": "trainer", "data": "swimmer_luca", "sight": 5, "start_facing": RIGHT}],
+			[Vector2i(9, 7), "swimmer", 0, [], {"scene": "trainer", "data": "swimmer_nia", "sight": 5, "start_facing": LEFT}],
 			[Vector2i(8, 9), "fighter", 0, ["Yo, challenger! MARINA\nuses WATER-type\nMONSTERS.", "GRASS and ELECTRIC moves\nwash right over WATER.\nGood luck!"],
 				{"start_facing": 2}],
+		],
+	},
+	{
+		"file": "route_02.tscn",
+		"node": "Route02",
+		"props": {
+			"display_name": "ROUTE 2", "music": &"route", "encounter_rate": 0.12,
+			"wild_monsters": [&"pipwing", &"pipwing", &"zapkit", &"sproutle", &"pebblet"], "wild_levels": Vector2i(9, 13),
+			"water_monsters": [&"aquapup"], "water_encounter_rate": 0.08,
+		},
+		# The river in the middle can only be crossed with SURF (the TIDE BADGE).
+		"layout": [
+			"#############~~~~#############",
+			"#..,,,,,...._~~~~_....,,,,,..#",
+			"#..,,,,,...._~~~~_....,,,,,..#",
+			"#..........._~~~~_...........#",
+			"#..........._~~~~_...........#",
+			"#..........._~~~~_.....,,,,..#",
+			"#..........._~~~~_.....,,,,..#",
+			"::::::::::::_~~~~_::::::::::::",
+			"######......_~~~~_...........#",
+			"#***.#......_~~~~_..,,,,,,...#",
+			"#*.........._~~~~_..,,,,,,...#",
+			"#....#..,,,,_~__~_..,,,,,,...#",
+			"######..,,,,_~~~~_...........#",
+			"#......,,,,._~~~~_....***....#",
+			"#..........._~~~~_...........#",
+			"#############~~~~#############",
+		],
+		"spawns": {
+			"default": [Vector2i(1, 7), RIGHT],
+			"west": [Vector2i(1, 7), RIGHT],
+			"east": [Vector2i(28, 7), LEFT],
+		},
+		"warps": [
+			[Vector2i(0, 7), "town_tidewater.tscn", "from_route2", &""],
+			[Vector2i(29, 7), "town_copperdale.tscn", "from_route", &""],
+		],
+		"signs": [
+			[Vector2i(2, 6), ["ROUTE 2\nWest: TIDEWATER CITY\nEast: COPPERDALE TOWN"]],
+		],
+		"npcs": [
+			[Vector2i(9, 3), "hiker", 1, ["I always carry an\nAWAKENING. SLEEP DUST\nis no joke!"]],
+			[Vector2i(5, 4), "hiker", 0, [], {"scene": "trainer", "data": "hiker_dale", "sight": 3}],
+			[Vector2i(13, 3), "swimmer", 0, [], {"scene": "trainer", "data": "swimmer_rio", "sight": 4, "swims": true}],
+			[Vector2i(21, 4), "youngster", 0, [], {"scene": "trainer", "data": "youngster_joey", "sight": 3}],
+			[Vector2i(27, 8), "rival", 0, [], {"scene": "trainer", "data": "rival_ren_2", "sight": 1, "start_facing": UP}],
+		],
+		"obstacles": [
+			[Vector2i(5, 10), "cut_tree"],
+			[Vector2i(1, 10), "item_ball", {"item": &"super_orb", "count": 3}],
+			[Vector2i(15, 11), "item_ball", {"item": &"full_heal"}],
+			[Vector2i(28, 13), "item_ball", {"item": &"big_potion"}],
+		],
+	},
+	{
+		"file": "town_copperdale.tscn",
+		"node": "TownCopperdale",
+		"props": {"display_name": "COPPERDALE TOWN", "is_town": true, "music": &"town"},
+		"layout": [
+			"########################",
+			"#......................#",
+			"#......................#",
+			"#......................#",
+			"#.*..................*.#",
+			"#......................#",
+			"#......................#",
+			"#....:...........:.....#",
+			"::::::::::::::::::::::::",
+			"#..........:...........#",
+			"#..........:...........#",
+			"#..........:...........#",
+			"#.*........:........*..#",
+			"#..........:...........#",
+			"#..........:...........#",
+			"#..........:...........#",
+			"#.::::::::::::::::::::.#",
+			"#..***............***..#",
+			"########################",
+		],
+		"houses": [
+			[Vector2i(3, 2), &"red"],
+			[Vector2i(15, 2), &"teal"],
+			[Vector2i(3, 11), &"blue"],
+			[Vector2i(15, 11), &"wood"],
+		],
+		"spawns": {
+			"default": [Vector2i(5, 7), DOWN],
+			"fly": [Vector2i(5, 7), DOWN],
+			"from_route": [Vector2i(1, 8), RIGHT],
+			"from_center": [Vector2i(5, 7), DOWN],
+			"from_gym": [Vector2i(17, 7), DOWN],
+			"from_mart": [Vector2i(5, 16), DOWN],
+			"from_house": [Vector2i(17, 16), DOWN],
+		},
+		"warps": [
+			[Vector2i(0, 8), "route_02.tscn", "east", &""],
+			[Vector2i(5, 6), "center_copperdale.tscn", "entrance", &"door"],
+			[Vector2i(17, 6), "gym_copperdale.tscn", "entrance", &"door"],
+			[Vector2i(5, 15), "mart_copperdale.tscn", "entrance", &"door"],
+			[Vector2i(17, 15), "house_copperdale.tscn", "entrance", &"door"],
+		],
+		"signs": [
+			[Vector2i(9, 9), ["COPPERDALE TOWN\nThe town that hums\nwith power."]],
+			[Vector2i(7, 7), ["MONSTER CENTER\nWe heal your MONSTERS\nfor free!"]],
+			[Vector2i(19, 7), ["COPPERDALE TOWN\nMONSTER GYM\nLEADER: CORA", "The electrifying\nELECTRIC-type trainer!"]],
+			[Vector2i(8, 15), ["COPPERDALE MART\nOrbs and medicine for\nevery trainer!"]],
+		],
+		"npcs": [
+			[Vector2i(23, 8), "officer", 0, ["Sorry! ROUTE 3 is\nclosed while we fix\nthe power lines.", "Come back in a future\nupdate!"], {"start_facing": LEFT}],
+			[Vector2i(9, 4), "youngster", 2, ["CORA's GYM is full of\nENGINEERs.", "Bring GRASS or ROCK\nMONSTERS. They shrug\noff ELECTRIC moves!"]],
+			[Vector2i(20, 13), "gardener", 1, ["The power plant here\nlights up the whole\nregion!", "Even my flowers grow\nfaster. Maybe."]],
+			[Vector2i(13, 17), "lass", 1, ["Have you seen a\nGALEHAWK? PIPWING turn\ninto them at level 18!"]],
+		],
+	},
+	{
+		"file": "center_copperdale.tscn",
+		"node": "CenterCopperdale",
+		"props": {"display_name": "MONSTER CENTER", "allow_fly": false, "music": &"town"},
+		"layout": [
+			"wwwwwwwwwwww",
+			"bbbbbbbbbbbb",
+			"kkcccccccckk",
+			"bbbbbbbbbbbb",
+			"pbbbbbbbbbbp",
+			"btbbbbbbbbtb",
+			"bbbbbbbbbbbb",
+			"bbbbbmbbbbbb",
+		],
+		"spawns": {
+			"default": [Vector2i(5, 6), UP],
+			"entrance": [Vector2i(5, 6), UP],
+		},
+		"warps": [
+			[Vector2i(5, 7), "town_copperdale.tscn", "from_center", &"door"],
+		],
+		"npcs": [
+			[Vector2i(5, 1), "nurse", 0, ["Welcome to the MONSTER\nCENTER!", "We'll restore your\nMONSTERS to full health."], {"heals_party": true}],
+			[Vector2i(2, 5), "hiker", 1, ["If your team faints,\nyou wake up at the last\nMONSTER CENTER you used."]],
+		],
+		"obstacles": [
+			[Vector2i(11, 3), "pc"],
+		],
+	},
+	{
+		"file": "mart_copperdale.tscn",
+		"node": "MartCopperdale",
+		"props": {"display_name": "COPPERDALE MART", "allow_fly": false, "music": &"town"},
+		"layout": [
+			"wwwwwwwwww",
+			"bbcbbbbbbp",
+			"bbcbbssbbb",
+			"cccbbssbbb",
+			"bbbbbbbbbr",
+			"bbbbbbbbbb",
+			"bbbbmbbbbb",
+		],
+		"spawns": {
+			"default": [Vector2i(4, 5), UP],
+			"entrance": [Vector2i(4, 5), UP],
+		},
+		"warps": [
+			[Vector2i(4, 6), "town_copperdale.tscn", "from_mart", &"door"],
+		],
+		"npcs": [
+			[Vector2i(1, 2), "clerk", 0, [], {"scene": "clerk", "start_facing": RIGHT,
+				"stock": ["mon_orb", "super_orb", "hyper_orb", "potion", "big_potion",
+					"antidote", "para_heal", "awakening", "burn_heal", "full_heal"]}],
+			[Vector2i(1, 1), "clerk", 0, [], {"scene": "clerk", "start_facing": RIGHT,
+				"stock": ["timer_orb", "repeat_orb", "nest_orb", "bolt_stone", "dusk_stone"]}],
+			[Vector2i(7, 4), "elder", 1, ["PARA HEALs are a must\nin this town.", "The GYM's MONSTERS love\nto paralyze!"]],
+		],
+	},
+	{
+		"file": "house_copperdale.tscn",
+		"node": "HouseCopperdale",
+		"props": {"display_name": "ENGINEER'S HOUSE", "allow_fly": false, "music": &"town"},
+		"layout": HOUSE_LAYOUT,
+		"spawns": {
+			"default": [Vector2i(4, 5), UP],
+			"entrance": [Vector2i(4, 5), UP],
+		},
+		"warps": [
+			[Vector2i(4, 6), "town_copperdale.tscn", "from_house", &"door"],
+		],
+		"npcs": [
+			[Vector2i(6, 2), "engineer", 0, ["My daughter CORA runs\nthe GYM. She gets her\nspark from me!"],
+				{"scene": "gift", "gift": &"super_orb", "count": 3,
+				"offer": ["You're a trainer? Then\ntake these. Every\ntrainer needs ORBs!"]}],
+		],
+	},
+	{
+		"file": "gym_copperdale.tscn",
+		"node": "GymCopperdale",
+		"props": {"display_name": "COPPERDALE GYM", "allow_fly": false, "music": &"town"},
+		# Stacks of generators line one walkway; each ENGINEER watches a crossing.
+		"layout": [
+			"wwwwwwwwwwww",
+			"pbbbbbbbbbbp",
+			"rrrrbbbbrrrr",
+			"rrrrbbbbrrrr",
+			"rrbbbbbbbbrr",
+			"rrrrbbbbrrrr",
+			"rrrrbbbbrrrr",
+			"rrbbbbbbbbrr",
+			"rrrrbbbbrrrr",
+			"pbbbbbbbbbbp",
+			"bbbbbmbbbbbb",
+		],
+		"spawns": {
+			"default": [Vector2i(5, 9), UP],
+			"entrance": [Vector2i(5, 9), UP],
+		},
+		"warps": [
+			[Vector2i(5, 10), "town_copperdale.tscn", "from_gym", &"door"],
+		],
+		"npcs": [
+			[Vector2i(5, 1), "cora", 0, [], {"scene": "trainer", "data": "leader_cora", "sight": 1}],
+			[Vector2i(2, 4), "engineer", 0, [], {"scene": "trainer", "data": "engineer_roy", "sight": 5, "start_facing": RIGHT}],
+			[Vector2i(9, 7), "engineer", 0, [], {"scene": "trainer", "data": "engineer_ida", "sight": 5, "start_facing": LEFT}],
+			[Vector2i(8, 9), "fighter", 0, ["Yo, challenger! CORA\nuses ELECTRIC-type\nMONSTERS.", "GRASS and ROCK types\nshrug off her shocks.\nGood luck!"],
+				{"start_facing": LEFT}],
 		],
 	},
 ]
@@ -579,9 +809,14 @@ func _build_map(map: Dictionary, tile_set: TileSet) -> Node2D:
 		if not def[3].is_empty():
 			npc.set(&"lines", PackedStringArray(def[3]))
 		_apply(npc, props)
+		if props.get("scene") == "gift":
+			npc.set(&"flag", _flag("gift", map, def[0]))
 	for i in map.get("obstacles", []).size():
 		var def: Array = map.obstacles[i]
-		_instance(def[1], def[0], entities, root, "%s%d" % [def[1].to_pascal_case(), i + 1])
+		var obstacle := _instance(def[1], def[0], entities, root, "%s%d" % [def[1].to_pascal_case(), i + 1])
+		_apply(obstacle, def[2] if def.size() > 2 else {})
+		if def[1] == "item_ball":
+			obstacle.set(&"flag", _flag("item", map, def[0]))
 
 	var warps := _add(root, root, Node2D.new(), "Warps")
 	for i in map.get("warps", []).size():
@@ -622,6 +857,11 @@ func _is_shore(layout: Array, cell: Vector2i) -> bool:
 	if cell.y < 0 or cell.y >= layout.size():
 		return false
 	return not LEGEND[layout[cell.y][cell.x]] in [&"water", &"tree"]
+
+
+## A story flag unique to one thing on one map, e.g. item_route_02_5_10.
+func _flag(kind: String, map: Dictionary, cell: Vector2i) -> StringName:
+	return StringName("%s_%s_%d_%d" % [kind, map.file.get_basename(), cell.x, cell.y])
 
 
 func _sprite_path(id: String) -> String:

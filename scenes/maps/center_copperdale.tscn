@@ -1,0 +1,58 @@
+[gd_scene format=4]
+
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_hr2cu"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_sxr18"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="3_ricdk"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_nurse.png" id="4_bpbfd"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_hiker.png" id="5_6rc0f"]
+[ext_resource type="PackedScene" path="res://scenes/objects/storage_pc.tscn" id="6_lbjrl"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="7_vs34x"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="8_b0v43"]
+
+[node name="CenterCopperdale" type="Node2D" unique_id=759042169]
+script = ExtResource("1_hr2cu")
+display_name = "MONSTER CENTER"
+allow_fly = false
+
+[node name="Ground" type="TileMapLayer" parent="." unique_id=1770678763]
+tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAABAAYAAAADAAAAAAABAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAKAAAAAAABAAYAAAALAAAAAAABAAYAAAAAAAEAAAAAAAYAAAABAAEAAAAAAAYAAAACAAEAAAAAAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAAAAYAAAAJAAEAAAAAAAYAAAAKAAEAAAAAAAYAAAALAAEAAAAAAAYAAAAAAAIAAAACAAYAAAABAAIAAAACAAYAAAACAAIAAAAGAAYAAAADAAIAAAAGAAYAAAAEAAIAAAAGAAYAAAAFAAIAAAAGAAYAAAAGAAIAAAAGAAYAAAAHAAIAAAAGAAYAAAAIAAIAAAAGAAYAAAAJAAIAAAAGAAYAAAAKAAIAAAACAAYAAAALAAIAAAACAAYAAAAAAAMAAAAAAAYAAAABAAMAAAAAAAYAAAACAAMAAAAAAAYAAAADAAMAAAAAAAYAAAAEAAMAAAAAAAYAAAAFAAMAAAAAAAYAAAAGAAMAAAAAAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAAAAYAAAAJAAMAAAAAAAYAAAAKAAMAAAAAAAYAAAALAAMAAAAAAAYAAAAAAAQAAAAIAAYAAAABAAQAAAAAAAYAAAACAAQAAAAAAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAAAAYAAAAKAAQAAAAAAAYAAAALAAQAAAAIAAYAAAAAAAUAAAAAAAYAAAABAAUAAAADAAYAAAACAAUAAAAAAAYAAAADAAUAAAAAAAYAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAAAAYAAAAJAAUAAAAAAAYAAAAKAAUAAAADAAYAAAALAAUAAAAAAAYAAAAAAAYAAAAAAAYAAAABAAYAAAAAAAYAAAACAAYAAAAAAAYAAAADAAYAAAAAAAYAAAAEAAYAAAAAAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAAAAYAAAAJAAYAAAAAAAYAAAAKAAYAAAAAAAYAAAALAAYAAAAAAAYAAAAAAAcAAAAAAAYAAAABAAcAAAAAAAYAAAACAAcAAAAAAAYAAAADAAcAAAAAAAYAAAAEAAcAAAAAAAYAAAAFAAcAAAAFAAYAAAAGAAcAAAAAAAYAAAAHAAcAAAAAAAYAAAAIAAcAAAAAAAYAAAAJAAcAAAAAAAYAAAAKAAcAAAAAAAYAAAALAAcAAAAAAAYAAAA=")
+tile_set = ExtResource("2_sxr18")
+
+[node name="Entities" type="Node2D" parent="." unique_id=258417792]
+y_sort_enabled = true
+
+[node name="NPC_Nurse1" parent="Entities" unique_id=878748913 instance=ExtResource("3_ricdk")]
+position = Vector2(88, 24)
+sprite_sheet = ExtResource("4_bpbfd")
+lines = PackedStringArray("Welcome to the MONSTER\nCENTER!", "We\'ll restore your\nMONSTERS to full health.")
+wander_radius = 0
+heals_party = true
+
+[node name="NPC_Hiker2" parent="Entities" unique_id=817926042 instance=ExtResource("3_ricdk")]
+position = Vector2(40, 88)
+sprite_sheet = ExtResource("5_6rc0f")
+lines = PackedStringArray("If your team faints,\nyou wake up at the last\nMONSTER CENTER you used.")
+wander_radius = 1
+
+[node name="Pc1" parent="Entities" unique_id=1008252156 instance=ExtResource("6_lbjrl")]
+position = Vector2(184, 56)
+
+[node name="Warps" type="Node2D" parent="." unique_id=1432404440]
+
+[node name="Warp1" parent="Warps" unique_id=1405538093 instance=ExtResource("7_vs34x")]
+position = Vector2(88, 120)
+target_map = "res://scenes/maps/town_copperdale.tscn"
+target_spawn = &"from_center"
+blocked_lines = PackedStringArray()
+
+[node name="Spawns" type="Node2D" parent="." unique_id=99852046]
+
+[node name="default" type="Marker2D" parent="Spawns" unique_id=1460216315]
+position = Vector2(88, 104)
+script = ExtResource("8_b0v43")
+facing = 1
+
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=1523365698]
+position = Vector2(88, 104)
+script = ExtResource("8_b0v43")
+facing = 1

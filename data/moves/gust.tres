@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MoveData" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/move_data.gd" id="1_v0rc3"]
+
+[resource]
+script = ExtResource("1_v0rc3")
+display_name = "GUST"
+category = 1
+description = "Whips up a strong gust of wind."
+animation = &"gust"

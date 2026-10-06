@@ -32,6 +32,7 @@ const RECIPES := {
 	&"growl": &"_growl", &"leer": &"_leer", &"scary_face": &"_scary_face", &"harden": &"_harden",
 	&"poison_dust": &"_poison_dust", &"sleep_dust": &"_sleep_dust", &"volt_wave": &"_volt_wave",
 	&"hypnosis": &"_hypnosis", &"wisp_fire": &"_wisp_fire",
+	&"gust": &"_gust", &"wing_slash": &"_wing_slash", &"aerial_dive": &"_aerial_dive",
 }
 ## Recipes for moves without their own, by element.
 const PHYSICAL_FALLBACK := {&"fire": &"flame_dash", &"water": &"water_gun", &"grass": &"vine_whip",
@@ -40,9 +41,12 @@ const SPECIAL_FALLBACK := {&"fire": &"ember", &"water": &"water_gun", &"grass": 
 	&"rock": &"rock_throw", &"electric": &"spark", &"ghost": &"shade_orb"}
 
 
-## A sound-wave arc for GROWL (white) and HYPNOSIS (pink).
+## A sound-wave arc for GROWL (white) and HYPNOSIS (pink), and the wind of GUST.
 class SoundArc extends Node2D:
-	var facing := 0.0
+	var facing := 0.0:
+		set(value):
+			facing = value
+			queue_redraw()
 	var color := PixelArt.WHITE
 	var radius := 4.0:
 		set(value):
@@ -205,6 +209,44 @@ func _lick() -> void:
 		_pop(&"shadow", _target.position + Vector2(-8.0 + 8.0 * i, -8.0 + 6.0 * i), 0.3, 1.0, 2.2)
 		await _wait(0.1)
 	await _shake(_target)
+
+
+func _wing_slash() -> void:
+	Audio.play_sfx(&"slash")
+	await _lunge(18.0, func() -> void:
+		for side: float in [-1.0, 1.0]: # Two wings: an X across the target.
+			var slash := _spawn(&"slash", _target.position + Vector2(8.0 * side, -8.0))
+			slash.flip_h = side < 0.0
+			var tween := create_tween()
+			tween.tween_property(slash, "position", _target.position + Vector2(-4.0 * side, 4.0), 0.12)
+			tween.tween_property(slash, "modulate:a", 0.0, 0.18)
+			tween.tween_callback(slash.queue_free)
+		_impact())
+	await _wait(0.25)
+
+
+## The user soars off the top of the screen, then drops onto the target.
+func _aerial_dive() -> void:
+	Audio.play_sfx(&"swish")
+	var home := _user.position
+	var rise := create_tween().set_parallel()
+	rise.tween_property(_user, "position", home + Vector2(0.0, -90.0), 0.25).set_ease(Tween.EASE_IN)
+	rise.tween_property(_user, "modulate:a", 0.0, 0.25)
+	await rise.finished
+	await _wait(0.3)
+	_user.position = _target.position + Vector2(0.0, -80.0)
+	_user.modulate.a = 1.0
+	Audio.play_sfx(&"swish")
+	var dive := create_tween()
+	dive.tween_property(_user, "position", _target.position + Vector2(0.0, -6.0), 0.14).set_ease(Tween.EASE_IN)
+	await dive.finished
+	_impact()
+	_shake(_target, 4.0)
+	var back := create_tween()
+	back.tween_property(_user, "modulate:a", 0.0, 0.1)
+	back.tween_callback(func() -> void: _user.position = home)
+	back.tween_property(_user, "modulate:a", 1.0, 0.2)
+	await back.finished
 
 
 func _flame_dash() -> void:
@@ -406,6 +448,25 @@ func _phantasm() -> void:
 
 
 # --- Status --------------------------------------------------------------------
+
+## Spinning gusts of wind blow from the user across the target.
+func _gust() -> void:
+	Audio.play_sfx(&"swish")
+	for i in 3:
+		var arc := SoundArc.new()
+		arc.radius = 6.0
+		arc.position = _user.position
+		add_child(arc)
+		var tween := create_tween().set_parallel()
+		tween.tween_property(arc, "position", _target.position + Vector2(0.0, -6.0 + 6.0 * i), 0.4)
+		tween.tween_property(arc, "facing", TAU * 2.0, 0.4)
+		tween.tween_property(arc, "radius", 14.0, 0.4)
+		tween.chain().tween_property(arc, "modulate:a", 0.0, 0.15)
+		tween.chain().tween_callback(arc.queue_free)
+		await _wait(0.1)
+	await _wait(0.3)
+	await _shake(_target, 3.0)
+
 
 func _growl() -> void:
 	Audio.play_sfx(&"growl")

@@ -7,9 +7,10 @@ built with **Godot 4.7** and GDScript.
 
 So far: tile-locked movement, a multi-town world, dialogue, field moves,
 a starter from the local professor, animated turn-based battles against
-wild monsters and trainers (including your rival), the first GYM and its
-badge, unique abilities, EXP and level-ups, evolution, catching with ten
-kinds of orb, a MONDEX, a MART, a party screen, a TRAINER CARD, and saving.
+wild monsters and trainers (including your rival), two GYMs and their
+badges, unique abilities, EXP and level-ups, evolution, catching with ten
+kinds of orb, items to find, a MONDEX, a MART, a party screen, nicknames, a
+TRAINER CARD, and saving.
 The world (towns, routes, interiors, signs and the battle backdrop) is built
 from ArMM1998's CC0 overworld tileset, with matching pieces drawn for this
 project in its colors. The characters, monsters, items, battle effects,
@@ -34,7 +35,7 @@ Real assets slot in later without code changes.
 
 ![Emberfall Town (left) and Tidewater City (right)](docs/images/towns.png)
 
-Two towns and one route so far. Every building can be entered, and every
+Three towns and two routes so far. Every building can be entered, and every
 NPC and sign can be talked to (`tests/npc_test.gd` checks each one). Press A
 on bookshelves, beds, plants, crates and MART shelves to examine them.
 
@@ -59,9 +60,25 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
   with AQUAPUP, PEBBLET and TIDEHOUND (levels 11 to 14) and her own battle
   music. A guide by the door has a type tip. Beat her for the **TIDE BADGE**
   and $1400.
+- **Route 2** runs east from Tidewater, across a river you can only cross
+  with SURF. HIKER DALE and YOUNGSTER JOEY guard the west bank, SWIMMER RIO
+  swims out to meet you in the river, and REN waits by the far exit with a
+  stronger team (its starter has evolved). Wild PIPWING nest in the grass.
+  Orbs lying on the ground hold items: one sits behind a CUT tree, one on a
+  sandbar in the river.
+- **Copperdale Town** has a MONSTER CENTER, a MART, a GYM, and CORA's dad,
+  who hands out SUPER ORBs. ROUTE 3 is closed for now.
+- **The COPPERDALE GYM.** Stacks of generators line one walkway, where
+  ENGINEERs ROY and IDA each watch a crossing. LEADER CORA uses ZAPKIT,
+  BOULDRON and VOLTVIX (levels 18 to 21). Beat her for the **SPARK BADGE**
+  and $2100.
+
+  ![Route 2, Copperdale Town, the COPPERDALE GYM and LEADER CORA's battle](docs/images/copperdale.png)
 - **Badges unlock field moves**, as in Emerald. CUT and ROCK SMASH work from
-  the start; SURF and FLY need the TIDE BADGE. Until then, the water is just
-  "dyed a deep blue...".
+  the start, SURF needs the TIDE BADGE and FLY the SPARK BADGE. Until then,
+  the water is just "dyed a deep blue...".
+- **MONSTER CENTERs** are where you wake up after whiting out, once the
+  nurse has healed you there (until then, it's home).
 - **FLY** from the start menu (Enter) to any town you've visited.
 - **TRAINER CARD** (CARD in the start menu): your name, money, MONDEX count,
   play time and badge case.
@@ -141,14 +158,16 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
 - **MONDEX.** PROF. ASTER gives it to you with your starter. It lists every
   species by number: unseen ones as dashes, ones you've battled by name, and
   caught ones with an orb. Caught entries open a page with the picture,
-  category, element, height, weight and a description. The six base forms
-  can be caught, and evolving them fills in the other six:
+  category, element, height, weight and a description. The seven base forms
+  can be caught, and evolving them fills in the other seven:
 
   | Where | Monsters |
   |---|---|
   | Route 1 tall grass | SPROUTLE, PEBBLET, ZAPKIT, FLAMLET |
   | Tidewater sea (while surfing) | AQUAPUP |
   | Emberfall's secret garden (behind the CUT tree) | SHADELING |
+  | Route 2 tall grass | PIPWING, ZAPKIT, SPROUTLE, PEBBLET |
+  | Route 2 river (while surfing) | AQUAPUP |
 - **Evolution.** Like Emerald, a monster that reaches its evolution level in
   a battle evolves once the battle is over. Hold B during the flashing to
   stop it, and it tries again at its next level-up. ZAPKIT and SHADELING
@@ -173,13 +192,14 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
 - **Townsfolk** with tips: a GARDENER in Emberfall, a YOUNGSTER and a
   FIGHTER on Route 1, an OFFICER and a MYSTIC in Tidewater. They're
   converted from a downloaded sprite sheet into the game's palette.
-- **Twelve hand-drawn monsters in six evolution lines.** Each line has a
+- **Fourteen hand-drawn monsters in seven evolution lines.** Each line has a
   unique ability: FLAMLET → BLAZARD (KINDLE), AQUAPUP → TIDEHOUND (SOAK UP),
   SPROUTLE → GROVETLE (SUNSOAK), PEBBLET → BOULDRON (STURDY SHELL), ZAPKIT →
-  VOLTVIX (JOLT), SHADELING → DUSKWRAITH (DREAD). Each evolved form learns a
-  new signature move, such as HEAT WAVE, THUNDER and PHANTASM.
+  VOLTVIX (JOLT), SHADELING → DUSKWRAITH (DREAD), PIPWING → GALEHAWK (GALE
+  FORCE). Each evolved form learns a new signature move, such as HEAT WAVE,
+  THUNDER, PHANTASM and AERIAL DIVE.
 
-  ![The six base monsters (top) and their evolutions (bottom)](docs/images/monsters.png)
+  ![The seven base monsters (top) and their evolutions (bottom)](docs/images/monsters.png)
 
 ## Project layout
 
@@ -223,15 +243,15 @@ from their CC0 sheets in `assets/`.
 ## Tests
 
 ```sh
-# Battle rules: formulas, turn order, abilities, catching, special orbs, trainers, status conditions, trainer AI, items, PP, EXP (97 checks)
+# Battle rules: formulas, turn order, abilities, catching, special orbs, trainers, status conditions, trainer AI, items, PP, EXP (98 checks)
 godot --headless --path . --script res://tests/battle_test.gd
 # EXP curves, IVs, natures and evolution (20 checks)
 godot --headless --path . --script res://tests/monster_test.gd
-# Party, BOX (withdraw, deposit, release), BAG, money, MONDEX, badges and field moves, play time, flags and save/load round trips (54 checks)
+# Party, BOX (withdraw, deposit, release), BAG, money, MONDEX, badges and field moves, play time, flags and save/load round trips (55 checks)
 godot --headless --path . --script res://tests/game_state_test.gd
-# Plays the whole game by injecting input: naming, starter, battles, nicknames, trainers, status, evolutions, MONDEX, buildings, shops, the PC, the GYM and badge, the TRAINER CARD, the NAME RATER (126 checks)
+# Plays the whole game by injecting input: naming, starter, battles, nicknames, trainers, status, evolutions, MONDEX, buildings, shops, the PC, both GYMs and badges, the TRAINER CARD, the NAME RATER, Route 2 and Copperdale (145 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
-# Talks to every NPC and reads every sign on every map, from where a player can stand (38 checks)
+# Talks to every NPC and reads every sign on every map, from where a player can stand (63 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/npc_test.gd
 ```
 
@@ -249,13 +269,14 @@ your real save.
    shake animation, and caught monsters joining the party or BOX.
 4. ~~**Party & starter.**~~ Done: PROF. ASTER's starter, party screen and
    summary, BAG outside battle, MOM healing, save/load with a title screen.
-5. ~~**Field-move gating.**~~ Done: SURF and FLY need the TIDE BADGE.
-   Later badges can unlock more (add them to `GameState.BADGES`).
-6. **Content.** Nicknames, more GYMs and badges, more routes, towns and
-   trainers, and more real art from the sources in ASSETS.md. ~~A mart~~,
-   ~~a Monster Center~~, ~~enterable buildings~~, ~~trainers with
-   line-of-sight battles~~, ~~status conditions~~, ~~a PC for the BOX~~,
-   ~~the first GYM~~ and ~~a TRAINER CARD~~ are done.
+5. ~~**Field-move gating.**~~ Done: SURF needs the TIDE BADGE and FLY the
+   SPARK BADGE. Later badges can unlock more (add them to `GameState.BADGES`).
+6. **Content.** More GYMs and badges, more routes, towns and trainers
+   (ROUTE 3 is next), and more real art from the sources in ASSETS.md.
+   ~~A mart~~, ~~a Monster Center~~, ~~enterable buildings~~, ~~trainers
+   with line-of-sight battles~~, ~~status conditions~~, ~~a PC for the
+   BOX~~, ~~two GYMs~~, ~~a TRAINER CARD~~, ~~nicknames~~ and ~~Route 2 and
+   Copperdale~~ are done.
 7. **Stat depth.** Split SPECIAL into SP. ATK and SP. DEF, and add EVs
    (effort points from each defeated monster), as in Gen 3.
 

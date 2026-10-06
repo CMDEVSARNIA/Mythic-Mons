@@ -13,64 +13,67 @@
 [ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="11_8vqyq"]
 [ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="12_dshcx"]
 
-[node name="GymTidewater" type="Node2D" unique_id=1783723255]
+[node name="GymTidewater" type="Node2D" unique_id=274900939]
 script = ExtResource("1_eobca")
 display_name = "TIDEWATER GYM"
 allow_fly = false
 
-[node name="Ground" type="TileMapLayer" parent="." unique_id=388090203]
+[node name="Ground" type="TileMapLayer" parent="." unique_id=1205981255]
 tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAABAAYAAAADAAAAAAABAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAKAAAAAAABAAYAAAALAAAAAAABAAYAAAAAAAEAAAAIAAYAAAABAAEAAAAAAAYAAAACAAEAAAAAAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAAAAYAAAAJAAEAAAAAAAYAAAAKAAEAAAAAAAYAAAALAAEAAAAIAAYAAAAAAAIAAAAJAAAAAAABAAIAAAAJAAAAAAACAAIAAAAJAAAAAAADAAIAAAAJAAAAAAAEAAIAAAAAAAYAAAAFAAIAAAAAAAYAAAAGAAIAAAAAAAYAAAAHAAIAAAAAAAYAAAAIAAIAAAAJAAAAAAAJAAIAAAAJAAAAAAAKAAIAAAAJAAAAAAALAAIAAAAJAAAAAAAAAAMAAAANAAAAAAABAAMAAAAOAAAAAAACAAMAAAAKAAAAAAADAAMAAAAKAAAAAAAEAAMAAAAAAAYAAAAFAAMAAAAAAAYAAAAGAAMAAAAAAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAKAAAAAAAJAAMAAAAKAAAAAAAKAAMAAAANAAAAAAALAAMAAAAOAAAAAAAAAAQAAAALAAAAAAABAAQAAAAMAAAAAAACAAQAAAAAAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAAAAYAAAAKAAQAAAALAAAAAAALAAQAAAAMAAAAAAAAAAUAAAANAAAAAAABAAUAAAAOAAAAAAACAAUAAAAJAAAAAAADAAUAAAAJAAAAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAJAAAAAAAJAAUAAAAJAAAAAAAKAAUAAAANAAAAAAALAAUAAAAOAAAAAAAAAAYAAAALAAAAAAABAAYAAAAMAAAAAAACAAYAAAAKAAAAAAADAAYAAAAKAAAAAAAEAAYAAAAAAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAKAAAAAAAJAAYAAAAKAAAAAAAKAAYAAAALAAAAAAALAAYAAAAMAAAAAAAAAAcAAAANAAAAAAABAAcAAAAOAAAAAAACAAcAAAAAAAYAAAADAAcAAAAAAAYAAAAEAAcAAAAAAAYAAAAFAAcAAAAAAAYAAAAGAAcAAAAAAAYAAAAHAAcAAAAAAAYAAAAIAAcAAAAAAAYAAAAJAAcAAAAAAAYAAAAKAAcAAAANAAAAAAALAAcAAAAOAAAAAAAAAAgAAAAKAAAAAAABAAgAAAAKAAAAAAACAAgAAAAKAAAAAAADAAgAAAAKAAAAAAAEAAgAAAAAAAYAAAAFAAgAAAAAAAYAAAAGAAgAAAAAAAYAAAAHAAgAAAAAAAYAAAAIAAgAAAAKAAAAAAAJAAgAAAAKAAAAAAAKAAgAAAAKAAAAAAALAAgAAAAKAAAAAAAAAAkAAAAIAAYAAAABAAkAAAAAAAYAAAACAAkAAAAAAAYAAAADAAkAAAAAAAYAAAAEAAkAAAAAAAYAAAAFAAkAAAAAAAYAAAAGAAkAAAAAAAYAAAAHAAkAAAAAAAYAAAAIAAkAAAAAAAYAAAAJAAkAAAAAAAYAAAAKAAkAAAAAAAYAAAALAAkAAAAIAAYAAAAAAAoAAAAAAAYAAAABAAoAAAAAAAYAAAACAAoAAAAAAAYAAAADAAoAAAAAAAYAAAAEAAoAAAAAAAYAAAAFAAoAAAAFAAYAAAAGAAoAAAAAAAYAAAAHAAoAAAAAAAYAAAAIAAoAAAAAAAYAAAAJAAoAAAAAAAYAAAAKAAoAAAAAAAYAAAALAAoAAAAAAAYAAAA=")
 tile_set = ExtResource("2_6m5j6")
 
-[node name="Entities" type="Node2D" parent="." unique_id=1733723270]
+[node name="Entities" type="Node2D" parent="." unique_id=124333926]
 y_sort_enabled = true
 
-[node name="NPC_Leader1" parent="Entities" unique_id=979026161 instance=ExtResource("3_jtsx6")]
+[node name="NPC_Leader1" parent="Entities" unique_id=1835542292 instance=ExtResource("3_jtsx6")]
 position = Vector2(88, 24)
 data = ExtResource("4_hxq5s")
 sight = 1
+swims = false
 sprite_sheet = ExtResource("5_dbtyo")
 lines = PackedStringArray("Hello there!")
 
-[node name="NPC_Swimmer2" parent="Entities" unique_id=920058105 instance=ExtResource("3_jtsx6")]
+[node name="NPC_Swimmer2" parent="Entities" unique_id=497414132 instance=ExtResource("3_jtsx6")]
 position = Vector2(40, 72)
 data = ExtResource("6_2ptoh")
 sight = 5
+swims = false
 sprite_sheet = ExtResource("7_jq8k5")
 lines = PackedStringArray("Hello there!")
 start_facing = 3
 
-[node name="NPC_Swimmer3" parent="Entities" unique_id=857462997 instance=ExtResource("3_jtsx6")]
+[node name="NPC_Swimmer3" parent="Entities" unique_id=801240908 instance=ExtResource("3_jtsx6")]
 position = Vector2(152, 120)
 data = ExtResource("8_kjx2l")
 sight = 5
+swims = false
 sprite_sheet = ExtResource("7_jq8k5")
 lines = PackedStringArray("Hello there!")
 start_facing = 2
 
-[node name="NPC_Fighter4" parent="Entities" unique_id=924838909 instance=ExtResource("9_rikta")]
+[node name="NPC_Fighter4" parent="Entities" unique_id=1650526034 instance=ExtResource("9_rikta")]
 position = Vector2(136, 152)
 sprite_sheet = ExtResource("10_3qqlr")
 lines = PackedStringArray("Yo, challenger! MARINA\nuses WATER-type\nMONSTERS.", "GRASS and ELECTRIC moves\nwash right over WATER.\nGood luck!")
 wander_radius = 0
 start_facing = 2
 
-[node name="Warps" type="Node2D" parent="." unique_id=1525569877]
+[node name="Warps" type="Node2D" parent="." unique_id=2072023548]
 
-[node name="Warp1" parent="Warps" unique_id=587843422 instance=ExtResource("11_8vqyq")]
+[node name="Warp1" parent="Warps" unique_id=2045732747 instance=ExtResource("11_8vqyq")]
 position = Vector2(88, 168)
 target_map = "res://scenes/maps/town_tidewater.tscn"
 target_spawn = &"from_gym"
 blocked_lines = PackedStringArray()
 
-[node name="Spawns" type="Node2D" parent="." unique_id=1467383898]
+[node name="Spawns" type="Node2D" parent="." unique_id=805494537]
 
-[node name="default" type="Marker2D" parent="Spawns" unique_id=155342465]
+[node name="default" type="Marker2D" parent="Spawns" unique_id=227305747]
 position = Vector2(88, 152)
 script = ExtResource("12_dshcx")
 facing = 1
 
-[node name="entrance" type="Marker2D" parent="Spawns" unique_id=1816467995]
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=8089969]
 position = Vector2(88, 152)
 script = ExtResource("12_dshcx")
 facing = 1

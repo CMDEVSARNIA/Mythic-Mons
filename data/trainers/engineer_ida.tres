@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="TrainerData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/trainers/engineer.png" id="1_cg7oy"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_monster.gd" id="2_moj44"]
+[ext_resource type="Resource" path="res://data/species/pipwing.tres" id="3_enwas"]
+[ext_resource type="Resource" path="res://data/species/zapkit.tres" id="4_ktjvb"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_data.gd" id="5_pf3ht"]
+
+[sub_resource type="Resource" id="Resource_trgw8"]
+script = ExtResource("2_moj44")
+species = ExtResource("3_enwas")
+level = 16
+
+[sub_resource type="Resource" id="Resource_bux0y"]
+script = ExtResource("2_moj44")
+species = ExtResource("4_ktjvb")
+level = 17
+
+[resource]
+script = ExtResource("5_pf3ht")
+trainer_class = "ENGINEER"
+trainer_name = "IDA"
+battle_sprite = ExtResource("1_cg7oy")
+party = Array[ExtResource("2_moj44")]([SubResource("Resource_trgw8"), SubResource("Resource_bux0y")])
+payout = 48
+intro = PackedStringArray("Watch your step! These\ncables carry a real\njolt!")
+defeat = PackedStringArray("Blown fuse!")
+after = PackedStringArray("GRASS types shrug off\nELECTRIC moves. CORA\nhates that!")
+badge_lines = PackedStringArray()

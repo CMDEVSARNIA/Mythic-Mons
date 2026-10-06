@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="TrainerData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/trainers/swimmer.png" id="1_qh2po"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_monster.gd" id="2_ffpkt"]
+[ext_resource type="Resource" path="res://data/species/aquapup.tres" id="3_tso03"]
+[ext_resource type="Resource" path="res://data/species/shadeling.tres" id="4_84tw5"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_data.gd" id="5_3ab7l"]
+
+[sub_resource type="Resource" id="Resource_5cml0"]
+script = ExtResource("2_ffpkt")
+species = ExtResource("3_tso03")
+level = 13
+
+[sub_resource type="Resource" id="Resource_0amgm"]
+script = ExtResource("2_ffpkt")
+species = ExtResource("4_84tw5")
+level = 14
+
+[resource]
+script = ExtResource("5_3ab7l")
+trainer_class = "SWIMMER"
+trainer_name = "RIO"
+battle_sprite = ExtResource("1_qh2po")
+party = Array[ExtResource("2_ffpkt")]([SubResource("Resource_5cml0"), SubResource("Resource_0amgm")])
+intro = PackedStringArray("Surfing the river? This\nis my lane! Battle!")
+defeat = PackedStringArray("I got caught in the\ncurrent...")
+after = PackedStringArray("The river\'s calm today.\nPerfect for a swim.")
+badge_lines = PackedStringArray()

@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="TrainerData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/trainers/hiker.png" id="1_ehvbd"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_monster.gd" id="2_s6w51"]
+[ext_resource type="Resource" path="res://data/species/pebblet.tres" id="3_fs4or"]
+[ext_resource type="Resource" path="res://data/species/bouldron.tres" id="4_vxdig"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_data.gd" id="5_6n3qs"]
+
+[sub_resource type="Resource" id="Resource_edbjd"]
+script = ExtResource("2_s6w51")
+species = ExtResource("3_fs4or")
+level = 12
+
+[sub_resource type="Resource" id="Resource_7ao7q"]
+script = ExtResource("2_s6w51")
+species = ExtResource("4_vxdig")
+level = 15
+
+[resource]
+script = ExtResource("5_6n3qs")
+trainer_class = "HIKER"
+trainer_name = "DALE"
+battle_sprite = ExtResource("1_ehvbd")
+party = Array[ExtResource("2_s6w51")]([SubResource("Resource_edbjd"), SubResource("Resource_7ao7q")])
+payout = 36
+intro = PackedStringArray("Hah! I\'ve climbed every\nhill around here!", "Let\'s see if you\'re as\ntough as a mountain!")
+defeat = PackedStringArray("Whoa! You rocked me!")
+after = PackedStringArray("ROCK types laugh off\nELECTRIC moves. Good to\nknow for COPPERDALE!")
+badge_lines = PackedStringArray()

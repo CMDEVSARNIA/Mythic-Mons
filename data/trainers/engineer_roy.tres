@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="TrainerData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/trainers/engineer.png" id="1_c1f4a"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_monster.gd" id="2_3yjke"]
+[ext_resource type="Resource" path="res://data/species/zapkit.tres" id="3_4hj7p"]
+[ext_resource type="Resource" path="res://data/species/pebblet.tres" id="4_xe1aj"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_data.gd" id="5_3t4c8"]
+
+[sub_resource type="Resource" id="Resource_b0467"]
+script = ExtResource("2_3yjke")
+species = ExtResource("3_4hj7p")
+level = 16
+
+[sub_resource type="Resource" id="Resource_bbo2r"]
+script = ExtResource("2_3yjke")
+species = ExtResource("4_xe1aj")
+level = 16
+
+[resource]
+script = ExtResource("5_3t4c8")
+trainer_class = "ENGINEER"
+trainer_name = "ROY"
+battle_sprite = ExtResource("1_c1f4a")
+party = Array[ExtResource("2_3yjke")]([SubResource("Resource_b0467"), SubResource("Resource_bbo2r")])
+payout = 48
+intro = PackedStringArray("Zzzt! The power\'s on!\nAre you charged up?")
+defeat = PackedStringArray("Short circuit...")
+after = PackedStringArray("CORA built half the\nmachines in this town.")
+badge_lines = PackedStringArray()

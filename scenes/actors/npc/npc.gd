@@ -8,7 +8,8 @@ extends GridActor
 @export_range(0, 8) var wander_radius := 2
 ## Random pause between wander decisions, in seconds (min, max).
 @export var wander_interval := Vector2(1.0, 3.0)
-## After talking, restore the player's whole party (e.g. MOM).
+## After talking, restore the player's whole party (MOM, the MONSTER CENTER
+## nurse). Whiting out then brings the player back to this map.
 @export var heals_party := false
 
 var _home := Vector2i.ZERO
@@ -36,6 +37,8 @@ func _talk() -> void:
 	await Dialogue.say(lines)
 	if heals_party and not GameState.party.is_empty():
 		GameState.heal_party()
+		GameState.respawn_map = GameState.current_map_path
+		GameState.respawn_spawn = &"entrance"
 		Audio.play_sfx(&"heal")
 		await Dialogue.say(["Your MONSTERS are\nfully rested!"])
 

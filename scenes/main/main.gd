@@ -469,13 +469,17 @@ func _run_battle(wild: Monster, in_water := false, trainer: TrainerData = null) 
 	return outcome
 
 
-## After losing: heal the party and wake up at the last respawn point.
-## Expects the screen to already be black.
+## After losing: heal the party and wake up at the last place that healed
+## it (home, or a MONSTER CENTER). Expects the screen to already be black.
 func _white_out() -> void:
 	GameState.heal_party()
 	_load_map(GameState.respawn_map, GameState.respawn_spawn)
 	await _fade_to(0.0)
-	await Dialogue.say(["MOM: You're back! Your\nMONSTERS were exhausted.", "Let them rest... There,\nall better! Be careful!"])
+	if GameState.respawn_map == GameState.HOME_MAP:
+		await Dialogue.say(["MOM: You're back! Your\nMONSTERS were exhausted.", "Let them rest... There,\nall better! Be careful!"])
+	else:
+		await Dialogue.say(["%s hurried to the\nMONSTER CENTER with\nthe tired MONSTERS." % GameState.player_name,
+			"NURSE: Your MONSTERS are\nfully rested. Please\ntake care out there!"])
 
 
 func _fade_to(alpha: float) -> void:

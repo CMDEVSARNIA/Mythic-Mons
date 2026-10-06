@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="TrainerData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/trainers/youngster.png" id="1_423g3"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_monster.gd" id="2_b6jeo"]
+[ext_resource type="Resource" path="res://data/species/pipwing.tres" id="3_fwu6g"]
+[ext_resource type="Resource" path="res://data/species/zapkit.tres" id="4_7y51x"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_data.gd" id="5_nqfsq"]
+
+[sub_resource type="Resource" id="Resource_o4t6f"]
+script = ExtResource("2_b6jeo")
+species = ExtResource("3_fwu6g")
+level = 12
+
+[sub_resource type="Resource" id="Resource_7r881"]
+script = ExtResource("2_b6jeo")
+species = ExtResource("4_7y51x")
+level = 13
+
+[resource]
+script = ExtResource("5_nqfsq")
+trainer_name = "JOEY"
+battle_sprite = ExtResource("1_423g3")
+party = Array[ExtResource("2_b6jeo")]([SubResource("Resource_o4t6f"), SubResource("Resource_7r881")])
+intro = PackedStringArray("My PIPWING is in the\ntop percentage of\nPIPWING!")
+defeat = PackedStringArray("Aww, no way!")
+after = PackedStringArray("PIPWING evolves at\nlevel 18. It gets SO\ncool!")
+badge_lines = PackedStringArray()

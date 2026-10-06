@@ -17,12 +17,15 @@ const STARTER_FLAG := &"got_starter"
 ## Set once a new game's intro (PROF. ASTER asking your name) has played.
 const INTRO_FLAG := &"intro_done"
 const DEFAULT_NAME := "KAI"
+## Where a new game respawns after whiting out, until a MONSTER CENTER heals you.
+const HOME_MAP := "res://scenes/maps/house_emberfall.tscn"
 const MAX_NAME_LENGTH := 7
 ## Gym badges, in the order they're won: id -> [name, field moves it lets
 ## monsters use outside battle]. A badge is kept as a flag with its id.
 ## Field moves no badge lists (CUT, ROCK SMASH) work from the start.
 const BADGES := {
-	&"tide_badge": ["TIDE BADGE", [&"surf", &"fly"]],
+	&"tide_badge": ["TIDE BADGE", [&"surf"]],
+	&"spark_badge": ["SPARK BADGE", [&"fly"]],
 }
 
 var player_name := DEFAULT_NAME
@@ -45,7 +48,7 @@ var caught: Dictionary[StringName, bool] = {}
 var bag: Dictionary[StringName, int] = {&"potion": 2}
 var money := START_MONEY
 ## Where the player wakes up after losing a battle (last place they healed).
-var respawn_map := "res://scenes/maps/house_emberfall.tscn"
+var respawn_map := HOME_MAP
 var respawn_spawn: StringName = &"entrance"
 ## Tests point this somewhere else so they never touch a real save.
 var save_path := "user://save.json"

@@ -5,17 +5,21 @@ extends NPC
 ## the player stepping into view is spotted (Player checks after every step),
 ## and Main has the trainer walk over with notice(), then talk. Talking to
 ## them starts the battle too. Once beaten (data.defeat_flag() is set) they
-## just say their `after` lines.
+## just say their `after` lines. A trainer that `swims` (SWIMMERs in a river)
+## crosses water to reach you.
 
 const EXCLAIM := preload("res://assets/placeholder/effects/exclaim.png")
 
 @export var data: TrainerData
 @export_range(1, 8) var sight := 4
+@export var swims := false
 
 
 func _ready() -> void:
 	super()
 	add_to_group(&"trainers")
+	if swims:
+		collision_mask &= ~PhysicsLayers.WATER
 
 
 func is_defeated() -> bool:

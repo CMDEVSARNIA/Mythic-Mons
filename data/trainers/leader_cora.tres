@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="TrainerData" format=3]
+
+[ext_resource type="Texture2D" path="res://assets/placeholder/trainers/cora.png" id="1_ap55m"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_monster.gd" id="2_57hve"]
+[ext_resource type="Resource" path="res://data/species/zapkit.tres" id="3_fipac"]
+[ext_resource type="Resource" path="res://data/species/bouldron.tres" id="4_f0x8w"]
+[ext_resource type="Resource" path="res://data/species/voltvix.tres" id="5_2rtia"]
+[ext_resource type="Script" path="res://scripts/battle/trainer_data.gd" id="6_xiu37"]
+
+[sub_resource type="Resource" id="Resource_cwf5e"]
+script = ExtResource("2_57hve")
+species = ExtResource("3_fipac")
+level = 18
+
+[sub_resource type="Resource" id="Resource_wajyj"]
+script = ExtResource("2_57hve")
+species = ExtResource("4_f0x8w")
+level = 19
+
+[sub_resource type="Resource" id="Resource_afiho"]
+script = ExtResource("2_57hve")
+species = ExtResource("5_2rtia")
+level = 21
+
+[resource]
+script = ExtResource("6_xiu37")
+trainer_class = "LEADER"
+trainer_name = "CORA"
+battle_sprite = ExtResource("1_ap55m")
+party = Array[ExtResource("2_57hve")]([SubResource("Resource_cwf5e"), SubResource("Resource_wajyj"), SubResource("Resource_afiho")])
+payout = 100
+music = &"gym_battle"
+badge = &"spark_badge"
+intro = PackedStringArray("CORA: Welcome to the\nCOPPERDALE GYM!", "My MONSTERS crackle\nwith a million volts.", "Ready to get zapped?")
+defeat = PackedStringArray("Wow! You really\nsparked something!")
+after = PackedStringArray("CORA: With FLY, you can\nhop back to any town\nyou\'ve been to.", "Keep exploring! There\'s\nso much more out\nthere!")
+badge_lines = PackedStringArray("CORA: That\'s the SPARK\nBADGE! You earned it!", "With it, your MONSTERS\ncan FLY between towns\noutside of battle.")

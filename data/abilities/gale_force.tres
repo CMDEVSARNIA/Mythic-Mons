@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="StatOnEnterAbility" format=3]
+
+[ext_resource type="Script" path="res://scripts/monsters/abilities/stat_on_enter_ability.gd" id="1_vypys"]
+
+[resource]
+script = ExtResource("1_vypys")
+stat = "speed"
+display_name = "GALE FORCE"
+description = "Buffets the foe on entering battle, lowering its SPEED."

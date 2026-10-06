@@ -51,6 +51,9 @@ const MOVES := {
 	"rock_slide": ["ROCK SLIDE", "rock", PHYSICAL, 75, 90, 10, 0, {}, FOE, 0, "Buries the foe under boulders."],
 	"thunder": ["THUNDER", "electric", SPECIAL, 110, 70, 10, 0, {}, FOE, 0, "A huge, wild bolt; may paralyze.", ["paralysis", 30]],
 	"phantasm": ["PHANTASM", "ghost", SPECIAL, 85, 100, 10, 0, {&"attack": -1}, FOE, 20, "May lower the foe's ATTACK."],
+	"gust": ["GUST", "normal", SPECIAL, 40, 100, 35, 0, {}, FOE, 0, "Whips up a strong gust of wind."],
+	"wing_slash": ["WING SLASH", "normal", PHYSICAL, 60, 100, 25, 0, {}, FOE, 0, "Strikes with wings spread wide."],
+	"aerial_dive": ["AERIAL DIVE", "normal", PHYSICAL, 90, 90, 10, 0, {}, FOE, 0, "Soars up high, then dives at the foe."],
 	# Status moves: the last entry is [status condition, chance].
 	"poison_dust": ["POISON DUST", "grass", STATUS, 0, 75, 35, 0, {}, FOE, 0, "Scatters a toxic dust that poisons.", ["poison", 100]],
 	"sleep_dust": ["SLEEP DUST", "grass", STATUS, 0, 75, 15, 0, {}, FOE, 0, "Scatters a dust that causes sleep.", ["sleep", 100]],
@@ -68,6 +71,7 @@ const ABILITIES := {
 	"sturdy_shell": ["endure_ability.gd", "STURDY SHELL", "Survives any hit taken at full HP.", {}],
 	"jolt": ["stat_on_hit_ability.gd", "JOLT", "When hit, may lower the attacker's SPEED.", {"chance": 0.3, "stat": "speed", "stages": -1}],
 	"dread": ["stat_on_enter_ability.gd", "DREAD", "Lowers the foe's ATTACK on entering battle.", {"stat": "attack", "stages": -1}],
+	"gale_force": ["stat_on_enter_ability.gd", "GALE FORCE", "Buffets the foe on entering battle, lowering its SPEED.", {"stat": "speed", "stages": -1}],
 }
 
 ## id: [name, element, ability, [hp, attack, defense, special, speed], catch rate, exp yield, learnset, dex entry]
@@ -109,6 +113,12 @@ const SPECIES := {
 	"duskwraith": ["DUSKWRAITH", "ghost", "dread", [55, 60, 50, 125, 105], 45, 160,
 		[[1, "lick"], [1, "scary_face"], [8, "shade_orb"], [12, "hypnosis"], [18, "wisp_fire"], [24, "phantasm"]],
 		"Drifts through town at dusk, grinning at anyone still outside."],
+	"pipwing": ["PIPWING", "normal", "gale_force", [40, 45, 40, 35, 56], 255, 50,
+		[[1, "tackle"], [1, "growl"], [5, "quick_hit"], [9, "gust"], [13, "leer"], [17, "wing_slash"]],
+		"Flocks of PIPWING chase the sea breeze, chirping loudly at dawn."],
+	"galehawk": ["GALEHAWK", "normal", "gale_force", [63, 72, 60, 52, 91], 45, 145,
+		[[1, "tackle"], [1, "growl"], [5, "quick_hit"], [9, "gust"], [13, "leer"], [17, "wing_slash"], [28, "aerial_dive"]],
+		"It rides storm winds above the clouds, then dives faster than the eye can follow."],
 }
 
 const BY_LEVEL := Evolution.Method.LEVEL
@@ -121,6 +131,7 @@ const EVOLUTIONS := {
 	"pebblet": ["bouldron", BY_LEVEL, 14],
 	"zapkit": ["voltvix", BY_ITEM, "bolt_stone"],
 	"shadeling": ["duskwraith", BY_ITEM, "dusk_stone"],
+	"pipwing": ["galehawk", BY_LEVEL, 18],
 }
 
 const BALL := ItemData.Kind.BALL
@@ -190,10 +201,43 @@ const TRAINERS := {
 	"leader_marina": ["LEADER", "MARINA", "leader", 100, [["aquapup", 11], ["pebblet", 12], ["tidehound", 14]],
 		["MARINA: Welcome to the\nTIDEWATER GYM!", "The sea is calm one\nmoment and wild the\nnext. So am I.", "Show me your strength!"],
 		["The tide has turned...\nYou win!"],
-		["MARINA: Use SURF to\nexplore the sea, and\nFLY to travel fast.", "The next GYM? Keep an\neye on the horizon!"],
+		["MARINA: SURF across the\nriver on ROUTE 2 to\nreach COPPERDALE TOWN.", "Its GYM LEADER, CORA,\nis simply electrifying!"],
 		{"music": &"gym_battle", "badge": &"tide_badge", "badge_lines": [
 			"MARINA: You've earned\nthe TIDE BADGE!",
-			"With it, your MONSTERS\ncan SURF across water\nand FLY between towns.",
+			"With it, your MONSTERS\ncan SURF across water\noutside of battle.",
+		]}],
+	"hiker_dale": ["HIKER", "DALE", "hiker", 36, [["pebblet", 12], ["bouldron", 15]],
+		["Hah! I've climbed every\nhill around here!", "Let's see if you're as\ntough as a mountain!"],
+		["Whoa! You rocked me!"],
+		["ROCK types laugh off\nELECTRIC moves. Good to\nknow for COPPERDALE!"]],
+	"youngster_joey": ["YOUNGSTER", "JOEY", "youngster", 16, [["pipwing", 12], ["zapkit", 13]],
+		["My PIPWING is in the\ntop percentage of\nPIPWING!"],
+		["Aww, no way!"],
+		["PIPWING evolves at\nlevel 18. It gets SO\ncool!"]],
+	"swimmer_rio": ["SWIMMER", "RIO", "swimmer", 16, [["aquapup", 13], ["shadeling", 14]],
+		["Surfing the river? This\nis my lane! Battle!"],
+		["I got caught in the\ncurrent..."],
+		["The river's calm today.\nPerfect for a swim."]],
+	"rival_ren_2": ["RIVAL", "REN", "rival", 60, [["flamlet", 18], ["pipwing", 15], ["zapkit", 16]],
+		["REN: {PLAYER}! I heard you\nbeat MARINA!", "I've been training too.\nLet's see who's better\nnow!"],
+		["Ugh... Again?!"],
+		["REN: CORA's GYM is just\nahead. Her ELECTRIC\nMONSTERS hit hard.", "Next time, I'm winning\nfor sure!"],
+		{"counters_starter": true}],
+	"engineer_roy": ["ENGINEER", "ROY", "engineer", 48, [["zapkit", 16], ["pebblet", 16]],
+		["Zzzt! The power's on!\nAre you charged up?"],
+		["Short circuit..."],
+		["CORA built half the\nmachines in this town."]],
+	"engineer_ida": ["ENGINEER", "IDA", "engineer", 48, [["pipwing", 16], ["zapkit", 17]],
+		["Watch your step! These\ncables carry a real\njolt!"],
+		["Blown fuse!"],
+		["GRASS types shrug off\nELECTRIC moves. CORA\nhates that!"]],
+	"leader_cora": ["LEADER", "CORA", "cora", 100, [["zapkit", 18], ["bouldron", 19], ["voltvix", 21]],
+		["CORA: Welcome to the\nCOPPERDALE GYM!", "My MONSTERS crackle\nwith a million volts.", "Ready to get zapped?"],
+		["Wow! You really\nsparked something!"],
+		["CORA: With FLY, you can\nhop back to any town\nyou've been to.", "Keep exploring! There's\nso much more out\nthere!"],
+		{"music": &"gym_battle", "badge": &"spark_badge", "badge_lines": [
+			"CORA: That's the SPARK\nBADGE! You earned it!",
+			"With it, your MONSTERS\ncan FLY between towns\noutside of battle.",
 		]}],
 }
 
@@ -277,6 +321,8 @@ const DEX := {
 	"voltvix": ["STORM FOX", 0.9, 21.0, MEDIUM_FAST],
 	"shadeling": ["WISP", 0.7, 0.1, MEDIUM_SLOW],
 	"duskwraith": ["SHADE", 1.5, 0.3, MEDIUM_SLOW],
+	"pipwing": ["TINY BIRD", 0.3, 1.8, MEDIUM_SLOW],
+	"galehawk": ["STORM HAWK", 1.2, 24.5, MEDIUM_SLOW],
 }
 
 

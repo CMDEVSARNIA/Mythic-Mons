@@ -230,6 +230,8 @@ func _test_trainer_battles() -> void:
 	_check(lass.build_party()[0].ivs == team[0].ivs, "...the same way every time")
 	var rival: TrainerData = load("res://data/trainers/rival_ren.tres")
 	_check(rival.build_party(&"flamlet")[0].species.display_name == "AQUAPUP" and rival.build_party(&"sproutle")[0].species.display_name == "FLAMLET", "the rival picks the starter that beats yours")
+	var rival_again: TrainerData = load("res://data/trainers/rival_ren_2.tres")
+	_check(rival_again.build_party(&"flamlet")[0].species.display_name == "TIDEHOUND" and rival_again.build_party(&"aquapup")[0].species.display_name == "GROVETLE", "...evolved once its level is high enough")
 	_check(lass.defeat_flag() == &"beat_lass_mia" and lass.title() == "LASS MIA", "trainers have a title and a defeat flag")
 
 	var rng := RandomNumberGenerator.new()

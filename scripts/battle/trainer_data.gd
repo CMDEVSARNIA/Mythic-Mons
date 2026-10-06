@@ -16,7 +16,7 @@ const STARTER_COUNTERS := {&"flamlet": &"aquapup", &"aquapup": &"sproutle", &"sp
 ## The team, sent out first to last.
 @export var party: Array[TrainerMonster] = []
 ## The rival's trick: the first monster becomes the starter that beats the
-## player's.
+## player's, evolved if its level is high enough.
 @export var counters_starter := false
 ## Prize money is payout times the level of the last monster, as in Gen 3.
 @export_range(0, 255) var payout := 16
@@ -51,9 +51,17 @@ func build_party(player_starter := &"") -> Array[Monster]:
 	for i in party.size():
 		var species := party[i].species
 		if i == 0 and counters_starter and STARTER_COUNTERS.has(player_starter):
-			species = GameData.species(STARTER_COUNTERS[player_starter])
+			species = _evolved(GameData.species(STARTER_COUNTERS[player_starter]), party[i].level)
 		team.append(Monster.create(species, party[i].level, rng))
 	return team
+
+
+## `species`, evolved as far as `level` allows (by level-up evolutions).
+static func _evolved(species: MonsterSpecies, level: int) -> MonsterSpecies:
+	for evolution in species.evolutions:
+		if evolution.method == Evolution.Method.LEVEL and level >= evolution.level:
+			return _evolved(evolution.into, level)
+	return species
 
 
 ## What the player earns for winning: payout x the last monster's level.
