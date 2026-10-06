@@ -433,6 +433,7 @@ func _run() -> void:
 	_check(_main.title_screen.visible, "with a save, the game opens on the title screen")
 	_shot_once("16_title")
 	await _tap(&"confirm") # PRESS START
+	title_menu = _main.title_screen.get_node(^"MenuArea/Menu") # A new Main, so a new menu.
 	_check("CONTINUE" in title_menu.get_node(^"List").get_child(0).text, "...and CONTINUE comes first")
 	await _tap(&"confirm") # CONTINUE
 	await _wait(0.6)
@@ -900,12 +901,17 @@ func _start_game() -> void:
 	_player = _main.player
 
 
-## A borrowed BLAZARD for quick trainer fights. Its newest move (HEAT WAVE)
-## goes first, since _press_through_battle() always picks the first move.
+## A borrowed BLAZARD for quick trainer fights. FLAME DASH goes first, since
+## _press_through_battle() always picks the first move: strong, and with 20
+## PP it lasts a whole GYM (HEAT WAVE's 10 can run out on misses).
 func _champion(level: int) -> Resource:
 	var champ: Resource = load("res://scripts/monsters/monster.gd").create(load("res://data/species/blazard.tres"), level)
-	champ.moves.reverse()
-	champ.pp.reverse()
+	var dash: int = champ.moves.map(func(move: Resource) -> String: return move.display_name).find("FLAME DASH")
+	var move: Resource = champ.moves[dash]
+	champ.moves.remove_at(dash)
+	champ.moves.insert(0, move)
+	champ.pp.remove_at(dash)
+	champ.pp.insert(0, move.max_pp)
 	return champ
 
 

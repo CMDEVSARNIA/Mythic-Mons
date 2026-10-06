@@ -688,7 +688,8 @@ marks the new species as caught in the MONDEX.
   MONDEX (all 14 species), badges and the field moves they unlock, the card's time format, flags, monster serialization (natures, orbs and statuses included,
   and older saves without them), a full save/load round trip, and corrupt or
   newer-version saves (57 checks). It uses its own save file.
-- `tests/smoke_test.gd` plays the real game by injecting input: typing the
+- `tests/smoke_test.gd` plays the real game by injecting input: the title
+  screen (PRESS START, then NEW GAME or CONTINUE first), typing the
   player's name in the intro, movement, signs, NPCs, CUT, doors, the starter
   gate and PROF. ASTER's starter (declining a nickname),
   ledges, ROCK SMASH, a won battle whose level-up evolution is stopped with
@@ -712,7 +713,7 @@ marks the new species as caught in the MONDEX.
   counter-pick), Copperdale (a one-time gift, the second GYM, the $2100
   prize and the SPARK BADGE), the OPTION screen, the DEBUG menu's HEAL and
   wild-encounter toggle, a REVIVE and a REPEL from the BAG (and the REPEL
-  wearing off), and FLY (157 checks). It uses its own save and settings
+  wearing off), and FLY (160 checks). It uses its own save and settings
   files.
 - `tests/npc_test.gd` visits every map and talks to every NPC and sign,
   standing where a player could (a reachable neighboring cell, counting CUT,

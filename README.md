@@ -313,7 +313,7 @@ godot --headless --path . --script res://tests/battle_test.gd
 godot --headless --path . --script res://tests/monster_test.gd
 # Party, BOX (withdraw, deposit, release), BAG, money, MONDEX, badges and field moves, play time, REPEL steps, flags and save/load round trips (57 checks)
 godot --headless --path . --script res://tests/game_state_test.gd
-# Plays the whole game by injecting input: naming, starter, battles, nicknames, trainers, status, evolutions, MONDEX, buildings, shops, the PC, both GYMs and badges, the TRAINER CARD, the NAME RATER, Route 2 and Copperdale, OPTION, DEBUG, REVIVE and REPEL (157 checks)
+# Plays the whole game by injecting input: the title screen, naming, starter, battles, nicknames, trainers, status, evolutions, MONDEX, buildings, shops, the PC, both GYMs and badges, the TRAINER CARD, the NAME RATER, Route 2 and Copperdale, OPTION, DEBUG, REVIVE and REPEL (160 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
 # Talks to every NPC and reads every sign on every map, from where a player can stand (63 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/npc_test.gd
