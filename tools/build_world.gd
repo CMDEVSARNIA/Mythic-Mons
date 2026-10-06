@@ -29,6 +29,7 @@ const SCENES := {
 	"cut_tree": "res://scenes/objects/cut_tree.tscn",
 	"smash_rock": "res://scenes/objects/smash_rock.tscn",
 	"pc": "res://scenes/objects/storage_pc.tscn",
+	"name_rater": "res://scenes/actors/npc/name_rater.tscn",
 }
 
 ## Tile name -> [physics layer index (-1 none, 0 world, 1 water), terrain tag].
@@ -426,6 +427,7 @@ const MAPS := [
 		],
 		"npcs": [
 			[Vector2i(6, 2), "elder", 1, ["I've fished these waters\nfor fifty years.", "Someday I'll SURF out\nto that island myself!"]],
+			[Vector2i(1, 4), "rater", 0, [], {"scene": "name_rater", "start_facing": 3}],
 		],
 	},
 	{

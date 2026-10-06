@@ -22,7 +22,8 @@ Mythic-Mons/
 │   │   ├── grid_actor.gd      Shared tile-locked movement (player and NPCs)
 │   │   ├── player/            Player scene + input, interaction, surfing, ledges
 │   │   └── npc/               Wandering NPC (can heal), StarterGiver + professor.tscn,
-│   │                          ShopClerk + clerk.tscn, Trainer + trainer.tscn
+│   │                          ShopClerk + clerk.tscn, Trainer + trainer.tscn,
+│   │                          NameRater + name_rater.tscn
 │   ├── maps/
 │   │   ├── world_map.gd       Root script of every map (terrain lookups, spawns, encounters)
 │   │   └── *.tscn             Emberfall (home, lab, REN's house), Route 1, Tidewater
@@ -31,7 +32,7 @@ Mythic-Mons/
 │   │                          StoragePC (the MONSTER CENTER's PC)
 │   ├── battle/                BattleScene (menus + animation), MoveAnimator (move and
 │   │                          orb effects), BattlerPanel, StatBar, EvolutionScene
-│   └── ui/                    Dialogue box (autoload), choice box, map banner, party menu,
+│   └── ui/                    Dialogue box and NameEntry (autoloads), choice box, map banner, party menu,
 │                              monster summary, shop menu, quantity box, MONDEX,
 │                              StorageMenu (the PC's BOX screens), TrainerCard,
 │                              MoveTutor (learning a move, forgetting one if needed)
@@ -476,6 +477,20 @@ marks the new species as caught in the MONDEX.
   `blocked_lines` until the flag is on. That's how Emberfall's north exit
   waits for `got_starter`. Use the same pattern for gyms, roadblocks, and
   so on.
+- **New game.** With no save (or NEW GAME on the title screen), Main plays
+  `_intro()` over the title backdrop: PROF. ASTER's welcome, then the naming
+  screen for `GameState.player_name` (up to 7 letters; empty means
+  `DEFAULT_NAME`). It sets `GameState.INTRO_FLAG`, so tests that start a
+  game directly set that flag to skip it.
+- **Naming.** `NameEntry` (autoload, `scenes/ui/name_entry.tscn`, CanvasLayer
+  12) is Emerald's naming screen: letters, digits and `. , - '` above SPACE /
+  BACK / OK. `await NameEntry.ask(prompt, max_length, picture, start_text)`
+  returns the trimmed text, or "" if empty. `offer_nickname(monster)` asks
+  "Give a nickname to X?" first; `rename(monster)` goes straight to the
+  screen, and an empty name (or the species name) clears the nickname
+  (`Monster.MAX_NICKNAME_LENGTH` is 10). BattleScene offers a nickname after
+  a catch, StarterGiver after the starter, and `NameRater` (an NPC subclass,
+  `name_rater.tscn`, in Tidewater's seaside house) renames party members.
 - **Starter.** `StarterGiver` (an NPC subclass, `professor.tscn`, in the lab) offers
   each species in `starters` through `Dialogue.choose()` with a picture of
   the highlighted one. It then gives the monster plus a gift item and sets
@@ -580,11 +595,12 @@ marks the new species as caught in the MONDEX.
   release and their limits), BAG limits, money, the
   MONDEX, badges and the field moves they unlock, the card's time format, flags, monster serialization (natures, orbs and statuses included,
   and older saves without them), a full save/load round trip, and corrupt or
-  newer-version saves (53 checks). It uses its own save file.
-- `tests/smoke_test.gd` plays the real game by injecting input: movement,
-  signs, NPCs, CUT, doors, the starter gate and PROF. ASTER's starter,
+  newer-version saves (54 checks). It uses its own save file.
+- `tests/smoke_test.gd` plays the real game by injecting input: typing the
+  player's name in the intro, movement, signs, NPCs, CUT, doors, the starter
+  gate and PROF. ASTER's starter (declining a nickname),
   ledges, ROCK SMASH, a won battle whose level-up evolution is stopped with
-  B, a catch (which remembers its orb), a whiteout, MOM's healing (statuses
+  B, a catch (which remembers its orb and gets a nickname), a whiteout, MOM's healing (statuses
   too), poison on the map, an ANTIDOTE from the BAG, three
   trainers (spotted and walked up to, talked to from behind with RUN
   refused, and the rival's counter-pick), prize money and a beaten trainer
@@ -598,13 +614,13 @@ marks the new species as caught in the MONDEX.
   ORBs (and the free GALA ORB), selling, a DIVE ORB from the specialty
   counter, a BOLT STONE from the BAG (on the wrong monster, then on ZAPKIT),
   healing at the MONSTER CENTER, depositing a monster at the PC and
-  withdrawing it again, entering and leaving every building, and FLY
-  (117 checks).
+  withdrawing it again, the NAME RATER clearing a nickname, entering and
+  leaving every building, and FLY (126 checks).
   It uses its own save file.
 - `tests/npc_test.gd` visits every map and talks to every NPC and sign,
   standing where a player could (a reachable neighboring cell, counting CUT,
   ROCK SMASH and SURF, or across a counter), then examines a bookshelf.
-  Trainers count as beaten, so they chat (37 checks).
+  Trainers count as beaten, so they chat (38 checks).
 
 ```sh
 godot --headless --path . --script res://tests/battle_test.gd

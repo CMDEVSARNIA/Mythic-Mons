@@ -60,6 +60,7 @@ const CHARACTERS := {
 	&"nurse": [&"nurse", &"apron", {"H": PINK, "h": PINK_DARK, "A": RED, "B": PINK, "b": PINK_DARK, "C": WHITE, "c": FOG, "P": PINK, "F": WHITE}],
 	&"leader": [&"long", &"jacket", {"H": TEAL, "h": NAVY, "B": SKY, "b": BLUE, "C": WHITE, "c": FOG, "P": NAVY, "F": NIGHT}],
 	&"clerk": [&"cap", &"apron", {"H": GREEN, "h": DEEP, "A": WHITE, "R": HAIR, "r": INK, "B": GREEN, "b": DEEP, "C": WHITE, "c": FOG, "P": NIGHT, "F": INK}],
+	&"rater": [&"elder", &"jacket", {"H": FOG, "h": SLATE, "B": ORANGE, "b": RED, "C": SAND, "c": WOOD, "P": NIGHT, "F": WOOD_DARK}],
 }
 
 ## Item icons: id -> colors for the letters in ItemDesigns.

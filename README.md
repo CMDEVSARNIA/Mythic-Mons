@@ -65,6 +65,11 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
 - **FLY** from the start menu (Enter) to any town you've visited.
 - **TRAINER CARD** (CARD in the start menu): your name, money, MONDEX count,
   play time and badge case.
+- **Names.** A new game opens with PROF. ASTER asking your name on an
+  Emerald-style keyboard (arrows move, A types, B deletes, START jumps to
+  OK). You can nickname your starter and every monster you catch, and the
+  NAME RATER in Tidewater's seaside house renames them later (an empty name
+  goes back to the species name).
 
   ![The TIDEWATER GYM, LEADER MARINA's battle, the TIDE BADGE and the TRAINER CARD](docs/images/gym.png)
 - Emerald-style feel: tap to turn in place, hold to walk, bump into walls,
@@ -222,11 +227,11 @@ from their CC0 sheets in `assets/`.
 godot --headless --path . --script res://tests/battle_test.gd
 # EXP curves, IVs, natures and evolution (20 checks)
 godot --headless --path . --script res://tests/monster_test.gd
-# Party, BOX (withdraw, deposit, release), BAG, money, MONDEX, badges and field moves, play time, flags and save/load round trips (53 checks)
+# Party, BOX (withdraw, deposit, release), BAG, money, MONDEX, badges and field moves, play time, flags and save/load round trips (54 checks)
 godot --headless --path . --script res://tests/game_state_test.gd
-# Plays the whole game by injecting input: starter, battles, trainers, status, evolutions, MONDEX, buildings, shops, the PC, the GYM and badge, the TRAINER CARD (117 checks)
+# Plays the whole game by injecting input: naming, starter, battles, nicknames, trainers, status, evolutions, MONDEX, buildings, shops, the PC, the GYM and badge, the TRAINER CARD, the NAME RATER (126 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
-# Talks to every NPC and reads every sign on every map, from where a player can stand (37 checks)
+# Talks to every NPC and reads every sign on every map, from where a player can stand (38 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/npc_test.gd
 ```
 

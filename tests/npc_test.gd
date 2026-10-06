@@ -31,6 +31,7 @@ func _run() -> void:
 	game_state.save_path = TEST_SAVE
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SAVE))
 	_dialogue = root.get_node(^"Dialogue")
+	game_state.set_flag(game_state.INTRO_FLAG) # Skip the new-game intro.
 	change_scene_to_file(MAIN_SCENE)
 	await _wait(0.6)
 	_main = current_scene

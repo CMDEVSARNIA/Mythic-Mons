@@ -5,7 +5,8 @@ extends Node
 ## into each map's Entities node), battles, the title screen, the start menu
 ## (MONDEX, party, BAG, TRAINER CARD, Fly, save) and the screen fade. Maps never load each other:
 ## anything that wants a map change emits Events.warp_requested and this
-## script does the rest. It also keeps the play-time clock running.
+## script does the rest. It also plays a new game's intro and keeps the
+## play-time clock running.
 
 const FADE_SECONDS := 0.25
 const BATTLE_SCENE := preload("res://scenes/battle/battle_scene.tscn")
@@ -49,6 +50,8 @@ func _ready() -> void:
 		location = await _title_screen()
 	fade.color = Color(0.0, 0.0, 0.0, 1.0)
 	if location.is_empty() or not _load_map_at(location):
+		if not GameState.has_flag(GameState.INTRO_FLAG):
+			await _intro()
 		_load_map(start_map, start_spawn)
 	_playing = true
 	await _fade_to(0.0)
@@ -120,6 +123,35 @@ func _on_arrived() -> void:
 	Audio.play_music(current_map.music)
 	map_banner.show_name(current_map.display_name)
 	Events.map_entered.emit(current_map)
+
+
+## A new game: PROF. ASTER welcomes the player and asks their name, over
+## the title screen's backdrop. Leaves the screen black.
+func _intro() -> void:
+	title_screen.get_node(^"Logo").hide()
+	title_screen.get_node(^"Title").hide()
+	title_screen.show()
+	await _fade_to(0.0)
+	Dialogue.show_picture(GameData.species(&"flamlet").front_texture)
+	await Dialogue.say([
+		"PROF. ASTER: Hello there!\nWelcome to the world\nof MONSTERS!",
+		"My name is ASTER. People\ncall me the MONSTER\nPROF.",
+		"This world is home to\ncreatures called\nMONSTERS.",
+		"People and MONSTERS live\ntogether, battling and\nhelping each other.",
+	])
+	Dialogue.hide_picture()
+	await Dialogue.say(["But enough about me.\nTell me about yourself.", "What's your name?"])
+	var typed: String = await NameEntry.ask("YOUR NAME?", GameState.MAX_NAME_LENGTH, TrainerCard.portrait())
+	GameState.player_name = typed if not typed.is_empty() else GameState.DEFAULT_NAME
+	GameState.set_flag(GameState.INTRO_FLAG)
+	await Dialogue.say([
+		"%s! Your very own\nMONSTER adventure is\nabout to unfold!" % GameState.player_name,
+		"Come see me in my LAB in\nEMBERFALL TOWN. Let's go!",
+	])
+	await _fade_to(1.0)
+	title_screen.hide()
+	title_screen.get_node(^"Logo").show()
+	title_screen.get_node(^"Title").show()
 
 
 ## Shows CONTINUE / NEW GAME. Returns the saved location to resume, or {}.

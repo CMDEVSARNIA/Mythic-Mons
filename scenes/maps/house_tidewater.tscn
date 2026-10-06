@@ -1,46 +1,54 @@
 [gd_scene format=4]
 
-[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_dsl5j"]
-[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_8oy4c"]
-[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="3_sc62e"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_elder.png" id="4_jq2jd"]
-[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="5_qe76w"]
-[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="6_waq2j"]
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_sc62e"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_jq2jd"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="3_qe76w"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_elder.png" id="4_waq2j"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/name_rater.tscn" id="5_bfbe4"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_rater.png" id="6_w84xw"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="7_w1q34"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="8_n2s8k"]
 
-[node name="HouseTidewater" type="Node2D" unique_id=252519429]
-script = ExtResource("1_dsl5j")
+[node name="HouseTidewater" type="Node2D" unique_id=1455176271]
+script = ExtResource("1_sc62e")
 display_name = "SEASIDE HOUSE"
 allow_fly = false
 
-[node name="Ground" type="TileMapLayer" parent="." unique_id=622202588]
+[node name="Ground" type="TileMapLayer" parent="." unique_id=1542013228]
 tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAACAAYAAAADAAAAAAACAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAAAAEAAAAIAAYAAAABAAEAAAAAAAYAAAACAAEAAAAAAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAEAAYAAAAJAAEAAAAAAAYAAAAAAAIAAAAAAAYAAAABAAIAAAAAAAYAAAACAAIAAAAAAAYAAAADAAIAAAAAAAYAAAAEAAIAAAAAAAYAAAAFAAIAAAAAAAYAAAAGAAIAAAAAAAYAAAAHAAIAAAAAAAYAAAAIAAIAAAAAAAYAAAAJAAIAAAAAAAYAAAAAAAMAAAAAAAYAAAABAAMAAAAAAAYAAAACAAMAAAADAAYAAAADAAMAAAAAAAYAAAAEAAMAAAAAAAYAAAAFAAMAAAAAAAYAAAAGAAMAAAAAAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAAAAYAAAAJAAMAAAAAAAYAAAAAAAQAAAAAAAYAAAABAAQAAAAAAAYAAAACAAQAAAADAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAJAAYAAAAAAAUAAAAAAAYAAAABAAUAAAAAAAYAAAACAAUAAAAAAAYAAAADAAUAAAAAAAYAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAAAAYAAAAJAAUAAAAAAAYAAAAAAAYAAAAAAAYAAAABAAYAAAAAAAYAAAACAAYAAAAAAAYAAAADAAYAAAAAAAYAAAAEAAYAAAAFAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAAAAYAAAAJAAYAAAAAAAYAAAA=")
-tile_set = ExtResource("2_8oy4c")
+tile_set = ExtResource("2_jq2jd")
 
-[node name="Entities" type="Node2D" parent="." unique_id=1023463574]
+[node name="Entities" type="Node2D" parent="." unique_id=849998915]
 y_sort_enabled = true
 
-[node name="NPC_Elder1" parent="Entities" unique_id=1704937290 instance=ExtResource("3_sc62e")]
+[node name="NPC_Elder1" parent="Entities" unique_id=1154856458 instance=ExtResource("3_qe76w")]
 position = Vector2(104, 40)
-sprite_sheet = ExtResource("4_jq2jd")
+sprite_sheet = ExtResource("4_waq2j")
 lines = PackedStringArray("I\'ve fished these waters\nfor fifty years.", "Someday I\'ll SURF out\nto that island myself!")
 wander_radius = 1
 
-[node name="Warps" type="Node2D" parent="." unique_id=1340498889]
+[node name="NPC_Rater2" parent="Entities" unique_id=1470972202 instance=ExtResource("5_bfbe4")]
+position = Vector2(24, 72)
+sprite_sheet = ExtResource("6_w84xw")
+lines = PackedStringArray("Hello there!")
+start_facing = 3
 
-[node name="Warp1" parent="Warps" unique_id=1979600585 instance=ExtResource("5_qe76w")]
+[node name="Warps" type="Node2D" parent="." unique_id=1469736512]
+
+[node name="Warp1" parent="Warps" unique_id=1983307801 instance=ExtResource("7_w1q34")]
 position = Vector2(72, 104)
 target_map = "res://scenes/maps/town_tidewater.tscn"
 target_spawn = &"from_house"
 blocked_lines = PackedStringArray()
 
-[node name="Spawns" type="Node2D" parent="." unique_id=687903084]
+[node name="Spawns" type="Node2D" parent="." unique_id=1812738500]
 
-[node name="default" type="Marker2D" parent="Spawns" unique_id=1705684390]
+[node name="default" type="Marker2D" parent="Spawns" unique_id=221018870]
 position = Vector2(72, 88)
-script = ExtResource("6_waq2j")
+script = ExtResource("8_n2s8k")
 facing = 1
 
-[node name="entrance" type="Marker2D" parent="Spawns" unique_id=1003794264]
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=1263319765]
 position = Vector2(72, 88)
-script = ExtResource("6_waq2j")
+script = ExtResource("8_n2s8k")
 facing = 1

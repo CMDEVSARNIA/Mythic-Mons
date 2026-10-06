@@ -131,6 +131,7 @@ func _test_save_and_load() -> void:
 	state.mark_town_visited("res://scenes/maps/town_emberfall.tscn", "EMBERFALL TOWN")
 	state.set_flag(&"tide_badge")
 	state.play_seconds = 4321.5
+	state.player_name = "MAY"
 	var location := {"map": "res://scenes/maps/route_01.tscn", "cell": Vector2i(9, 12), "facing": Vector2i.LEFT, "surfing": true}
 	_check(state.save_game(location) == OK and state.has_save(), "saving writes the save file")
 	state.free()
@@ -147,6 +148,7 @@ func _test_save_and_load() -> void:
 	_check(loaded.has_flag(loaded.STARTER_FLAG) and loaded.visited_towns.has("res://scenes/maps/town_emberfall.tscn"), "flags and Fly destinations are restored")
 	_check(loaded.has_flag(&"tide_badge") and loaded.can_use_field_move(&"surf"), "badges are restored")
 	_check(is_equal_approx(loaded.play_seconds, 4321.5), "play time is restored")
+	_check(loaded.player_name == "MAY", "the player's name is restored")
 	loaded.free()
 
 

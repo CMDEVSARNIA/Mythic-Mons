@@ -43,14 +43,16 @@ func _talk() -> void:
 
 
 func _give(species: MonsterSpecies) -> void:
-	GameState.add_monster(Monster.create(species, starter_level))
+	var monster := Monster.create(species, starter_level)
+	GameState.add_monster(monster)
 	GameState.set_flag(GameState.STARTER_FLAG)
 	GameState.set_flag(StringName("starter_" + GameData.id_of(species))) # The rival counters it.
 	GameState.add_item(gift_item, gift_count)
 	Audio.play_sfx(&"level_up")
 	var player_name := GameState.player_name
+	await Dialogue.say(["%s received\n%s!" % [player_name, species.display_name]])
+	await NameEntry.offer_nickname(monster)
 	await Dialogue.say([
-		"%s received\n%s!" % [player_name, species.display_name],
 		"Take these as well.",
 		"%s received\n%d %ss!" % [player_name, gift_count, GameData.item(gift_item).display_name],
 		"%s received\nthe MONDEX!" % player_name,

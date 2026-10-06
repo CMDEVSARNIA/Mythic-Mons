@@ -1,7 +1,7 @@
 extends SceneTree
 ## Automated walkthrough of the prototype. It plays the real game by injecting
-## input events and checks the results, from the first steps through getting
-## a starter, battling, catching, evolving, trainers, the start menu, saving,
+## input events and checks the results, from naming the player and the first
+## steps through getting a starter, battling, catching, evolving, trainers, the start menu, saving,
 ## continuing and the first GYM.
 ##
 ## Logic only (fast, no window):
@@ -24,6 +24,8 @@ var _main: Node
 var _player: Node2D
 var _dialogue: Node
 var _game_state: Node
+var _naming: CanvasLayer
+var _choices: Control
 var _shots_taken := {}
 
 
@@ -36,7 +38,29 @@ func _run() -> void:
 	_game_state.save_path = TEST_SAVE
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(TEST_SAVE))
 	_dialogue = root.get_node(^"Dialogue")
+	_naming = root.get_node(^"NameEntry")
+	_choices = _dialogue.get_node(^"ChoiceArea/Choices")
 	await _start_game()
+
+	# --- New game: PROF. ASTER asks your name ----------------------------------
+	for i in 30:
+		if _naming.is_open:
+			break
+		await _tap(&"confirm")
+	_check(_naming.is_open, "a new game asks for your name")
+	await _tap(&"move_down")
+	await _tap(&"confirm") # K
+	await _tap(&"move_up")
+	await _tap(&"confirm") # A
+	await _tap(&"move_left") # Wraps around to J...
+	await _tap(&"move_left")
+	await _tap(&"confirm") # ...then I.
+	_shot("00_name_entry")
+	await _tap(&"menu") # START jumps to OK.
+	await _tap(&"confirm")
+	await _close_dialogue()
+	await _wait(0.8)
+	_check(_game_state.player_name == "KAI" and not _naming.is_open, "...and the name you type is yours")
 
 	# --- Grid movement -------------------------------------------------------
 	_check(_map_name() == "EMBERFALL TOWN", "starts in Emberfall")
@@ -107,13 +131,16 @@ func _run() -> void:
 	_check(_map_name() == "MONSTER LAB", "the lab door leads inside")
 	await _place(Vector2i(5, 3), Vector2i.UP)
 	await _tap(&"confirm")
-	for i in 25: # Every A press takes the first option: FLAMLET, then YES.
-		if _game_state.has_flag(&"got_starter") and not _dialogue.is_open:
+	for i in 30: # Every A press takes the first option: FLAMLET, then YES, but no nickname.
+		if _game_state.has_flag(&"got_starter") and not _dialogue.is_open and not _naming.is_open:
 			break
 		if _dialogue.get_node(^"Picture").visible:
 			_shot_once("05_starter")
+		if _choices.visible and "nickname" in _dialogue.get_node(^"Box/Text").text:
+			await _tap(&"move_down") # NO
 		await _tap(&"confirm")
 	_check(_game_state.party.size() == 1 and _game_state.party[0].species.display_name == "FLAMLET", "PROF. ASTER gives you a starter")
+	_check(_game_state.party[0].get_display_name() == "FLAMLET", "...and saying NO to a nickname keeps its name")
 	_check(_game_state.bag.get(&"mon_orb", 0) == 5, "...along with 5 MON ORBs")
 	await _place(Vector2i(5, 6), Vector2i.DOWN)
 	await _tap(&"move_down")
@@ -184,8 +211,22 @@ func _run() -> void:
 	await _tap(&"confirm") # MASTER ORB
 	await _wait(3.2) # Message, throw and landing; the orb is now shaking.
 	_shot_once("11_catch")
+	await _until_choices(_choices)
+	_check("nickname" in _dialogue.get_node(^"Box/Text").text, "a catch offers a nickname")
+	await _tap(&"confirm") # YES
+	_check(_naming.is_open, "...on the naming screen")
+	await _tap(&"move_right")
+	await _tap(&"confirm") # B
+	await _tap(&"move_down")
+	for i in 3:
+		await _tap(&"move_right")
+	await _tap(&"confirm") # O
+	_shot("11_nickname")
+	await _tap(&"menu")
+	await _tap(&"confirm") # OK
 	await _press_through_battle()
 	_check(_game_state.party.size() == 2 and _game_state.party[1].species.display_name == "SPROUTLE", "a caught monster joins the party")
+	_check(_game_state.party[1].get_display_name() == "BO", "...with the nickname you gave it")
 	_check(_game_state.caught.has(&"sproutle") and _game_state.caught.has(&"flamlet"), "the starter and the catch are registered as caught")
 	_check(not _game_state.bag.has(&"master_orb"), "throwing an orb uses it up")
 	_check(_game_state.party[1].orb == &"master_orb", "...and the catch remembers which orb it came in")
@@ -627,7 +668,32 @@ func _run() -> void:
 	await _tap(&"move_down")
 	await _wait(1.0)
 	_check(_map_name() == "TIDEWATER CITY" and _player.get_cell() == Vector2i(19, 12), "the MONSTER CENTER mat leads back outside")
-	await _visit(Vector2i(18, 20), "SEASIDE HOUSE", Vector2i(18, 20))
+
+	# --- NAME RATER --------------------------------------------------------------
+	var renamed: Resource = _game_state.party[0]
+	await _place(Vector2i(18, 20), Vector2i.UP)
+	await _tap(&"move_up")
+	await _wait(1.0)
+	_check(_map_name() == "SEASIDE HOUSE", "the seaside house can be entered")
+	await _place(Vector2i(1, 5), Vector2i.UP)
+	await _tap(&"confirm")
+	await _until_choices(_choices)
+	await _tap(&"confirm") # YES, rate a nickname.
+	await _until_choices(_choices)
+	await _tap(&"confirm") # BO, the first party member.
+	await _until_choices(_choices)
+	await _tap(&"confirm") # YES, give it a nicer one.
+	_check(_naming.is_open and _naming.get_node(^"Screen/Top/Layout/Text/Name").text.begins_with("BO"), "the NAME RATER opens the naming screen with the old name")
+	await _tap(&"cancel") # B deletes a letter at a time.
+	await _tap(&"cancel")
+	await _tap(&"menu")
+	await _tap(&"confirm") # OK with nothing typed...
+	await _close_dialogue()
+	_check(renamed.nickname.is_empty() and renamed.get_display_name() == "GROVETLE", "...and an empty name clears the nickname")
+	await _place(Vector2i(4, 5), Vector2i.DOWN)
+	await _tap(&"move_down")
+	await _wait(1.0)
+	_check(_map_name() == "TIDEWATER CITY" and _player.get_cell() == Vector2i(18, 20), "the seaside house mat leads back outside")
 
 	# --- FLY -----------------------------------------------------------------
 	await _place(Vector2i(11, 15), Vector2i.DOWN)
@@ -769,7 +835,7 @@ func _send(action: StringName, pressed: bool) -> void:
 
 ## Presses A through text until a Dialogue.choose() list shows.
 func _until_choices(choices: Control) -> void:
-	for i in 12:
+	for i in 25:
 		if choices.visible:
 			return
 		await _tap(&"confirm")

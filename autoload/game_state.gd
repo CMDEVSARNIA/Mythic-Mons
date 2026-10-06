@@ -14,6 +14,10 @@ const START_MONEY := 3000
 const MAX_MONEY := 999999
 const SAVE_VERSION := 1
 const STARTER_FLAG := &"got_starter"
+## Set once a new game's intro (PROF. ASTER asking your name) has played.
+const INTRO_FLAG := &"intro_done"
+const DEFAULT_NAME := "KAI"
+const MAX_NAME_LENGTH := 7
 ## Gym badges, in the order they're won: id -> [name, field moves it lets
 ## monsters use outside battle]. A badge is kept as a flag with its id.
 ## Field moves no badge lists (CUT, ROCK SMASH) work from the start.
@@ -21,7 +25,7 @@ const BADGES := {
 	&"tide_badge": ["TIDE BADGE", [&"surf", &"fly"]],
 }
 
-var player_name := "KAI"
+var player_name := DEFAULT_NAME
 ## Seconds played, for the trainer card.
 var play_seconds := 0.0
 ## Fly destinations: town map scene path -> display name, in visit order.

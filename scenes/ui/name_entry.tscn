@@ -1,0 +1,80 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scenes/ui/name_entry.gd" id="1_script"]
+
+[node name="NameEntry" type="CanvasLayer"]
+layer = 12
+script = ExtResource("1_script")
+
+[node name="Screen" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="Screen"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.2, 0.235, 0.341, 1)
+
+[node name="Top" type="PanelContainer" parent="Screen"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 236.0
+offset_bottom = 50.0
+
+[node name="Layout" type="HBoxContainer" parent="Screen/Top"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Picture" type="TextureRect" parent="Screen/Top/Layout"]
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+size_flags_vertical = 4
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Text" type="VBoxContainer" parent="Screen/Top/Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+
+[node name="Prompt" type="Label" parent="Screen/Top/Layout/Text"]
+layout_mode = 2
+text = "YOUR NAME?"
+
+[node name="Name" type="Label" parent="Screen/Top/Layout/Text"]
+layout_mode = 2
+text = "__________"
+
+[node name="Keys" type="PanelContainer" parent="Screen"]
+layout_mode = 0
+offset_left = 4.0
+offset_top = 54.0
+offset_right = 236.0
+offset_bottom = 156.0
+
+[node name="Layout" type="VBoxContainer" parent="Screen/Keys"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+
+[node name="Grid" type="GridContainer" parent="Screen/Keys/Layout"]
+layout_mode = 2
+theme_override_constants/h_separation = 4
+theme_override_constants/v_separation = 3
+columns = 10
+
+[node name="Actions" type="HBoxContainer" parent="Screen/Keys/Layout"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8

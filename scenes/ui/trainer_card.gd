@@ -19,10 +19,15 @@ const MISSING := Color(0.0, 0.0, 0.0, 0.35)
 
 func _ready() -> void:
 	hide()
+	_portrait.texture = portrait()
+
+
+## The player standing, facing down: for the card and the naming screen.
+static func portrait() -> Texture2D:
 	var face := AtlasTexture.new()
 	face.atlas = PLAYER_SHEET
-	face.region = Rect2(0, 0, Grid.TILE_SIZE, Grid.TILE_SIZE) # Standing, facing down.
-	_portrait.texture = face
+	face.region = Rect2(0, 0, Grid.TILE_SIZE, Grid.TILE_SIZE)
+	return face
 
 
 func show_card() -> void:

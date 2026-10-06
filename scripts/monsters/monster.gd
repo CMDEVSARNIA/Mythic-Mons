@@ -10,6 +10,7 @@ extends Resource
 ## (MonsterSpecies.exp_for_level).
 
 const MAX_LEVEL := 100
+const MAX_NICKNAME_LENGTH := 10
 const MAX_MOVES := 4
 const MAX_IV := 31
 const STATS: Array[StringName] = [&"hp", &"attack", &"defense", &"special", &"speed"]
