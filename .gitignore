@@ -10,3 +10,9 @@
 .DS_Store
 Thumbs.db
 .vscode/
+
+# Bitglow's interior pack may not be shared, so the originals stay local
+# (see assets/interiors/source/README.md).
+/assets/interiors/source/*
+!/assets/interiors/source/.gdignore
+!/assets/interiors/source/README.md

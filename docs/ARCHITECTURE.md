@@ -33,6 +33,7 @@ Mythic-Mons/
 │   │                          Copperdale (MONSTER CENTER, MART, GYM, house), Route 3,
 │   │                          Duskhollow (MONSTER CENTER, MART, GYM, old house)
 │   ├── objects/               Warp, SpawnPoint, Signpost, CUT tree, ROCK SMASH rock, Boulder,
+│   │                          Furniture and Rug (pieces from the interior pack),
 │   │                          StoragePC (the MONSTER CENTER's PC), ItemBall
 │   ├── battle/                BattleScene (menus + animation), MoveAnimator (move and
 │   │                          orb effects), BattlerPanel, StatBar, EvolutionScene
@@ -52,7 +53,8 @@ Mythic-Mons/
 │   │                          monster_designs.gd, item_designs.gd (icons and orbs),
 │   │                          effect_designs.gd (battle effects), trainer_designs.gd
 │   │                          (trainer battle sprites and the player's back sprite), and
-│   │                          world_tiles.gd (WorldTiles: the map atlas layout)
+│   │                          world_tiles.gd (WorldTiles: the map atlas layout), and
+│   │                          furniture_pieces.gd (FurniturePieces: the furniture atlas)
 │   └── audio/                 ChipSynth (SFX), Chiptune (sequencer), Songs (music data)
 ├── data/                      Game data as .tres, file name = id
 │   ├── species/               flamlet, blazard, aquapup, tidehound, ... (16, in dex order)
@@ -68,6 +70,8 @@ Mythic-Mons/
 │   ├── placeholder/           Generated PNGs: characters, objects, monsters, items,
 │   │                          effects, trainers (battle sprites)
 │   ├── characters/townsfolk/  NPC sheets converted from a downloaded pack (source/)
+│   ├── interiors/             furniture.png, built from Bitglow's interior pack (kept out of
+│   │                          the repository: source/README.md says how to add it)
 │   ├── world/                 world_tiles.png, signs, CUT tree, boulder, battle backdrop,
 │   │                          source/ (ArMM1998's CC0 overworld sheet)
 │   ├── tilesets/              overworld_tileset.tres (physics, terrain + examine data)
@@ -248,6 +252,32 @@ for an item handed over in conversation. `tools/build_world.gd` names both
 flags after the map and cell (`item_route_02_1_10`), so place them with
 `["item_ball", {"item": &"potion"}]` in a map's `obstacles` or
 `{"scene": "gift", "gift": ..., "count": ..., "offer": [...]}` on an NPC.
+
+## Furniture
+
+House and MONSTER CENTER interiors are furnished from Bitglow's pixel
+interior pack. Its art is drawn for bigger characters, so
+`tools/import_interiors.gd` halves every piece (each 2×2 block becomes its
+most common color, ties going to the darker one so outlines survive) and
+packs them into `assets/interiors/furniture.png`. `FurniturePieces` lists
+the pieces: where each comes from in the pack's sheets (a lamp on a
+nightstand is two parts layered), what it is, and what A says about it. The
+pack's license doesn't allow sharing its files, so the sheets stay out of
+the repository (git-ignored in `assets/interiors/source/`, with a
+`.gdignore` so Godot never imports or exports them). Only the halved atlas
+is committed.
+
+| Kind | Node | Behavior |
+|---|---|---|
+| SOLID (beds, wardrobes, dressers, nightstands, vanities, a bench) | `Furniture` (StaticBody2D on `world`) | Blocks its footprint of cells. Sits on the footprint's bottom-left cell and draws itself centered and bottom-aligned there, so tall pieces lean on the wall and y-sort with whoever stands in front. A reads `lines`, or the piece's description. |
+| WALL (painting, clock, mirrors, string lights) | `Furniture` | Hangs on a wall tile; A from the floor below reads it. `shift` moves it between tiles. |
+| RUG | `Rug` (Node2D) | No body. The node is its top-left corner, so anyone standing on it is drawn on top. |
+
+Both draw from the atlas in `_draw()` (`@tool`, so they show in the editor
+without saving extra state into the maps). The texture is preloaded: a
+texture first loaded inside `_draw()` comes out white. In
+`tools/build_world.gd`, a map's `furniture` list places them:
+`[top-left cell, piece, {lines, shift}]`.
 
 ## Monsters & battles
 
@@ -700,7 +730,8 @@ marks the new species as caught in the MONDEX.
   newer-version saves (58 checks). It uses its own save file.
 - `tests/smoke_test.gd` plays the real game by injecting input: the title
   screen (PRESS START, then NEW GAME or CONTINUE first), typing the
-  player's name in the intro, movement, signs, NPCs, CUT, doors, the starter
+  player's name in the intro, movement, signs, NPCs, CUT, doors, furniture
+  (examined, blocking) and a rug (walked over), the starter
   gate and PROF. ASTER's starter (declining a nickname),
   ledges, ROCK SMASH, a won battle whose level-up evolution is stopped with
   B, a catch (which remembers its orb and gets a nickname), a whiteout, MOM's healing (statuses
@@ -729,12 +760,13 @@ marks the new species as caught in the MONDEX.
   won't go into a tree, the MAX REVIVE prize, and the boulders resetting
   when the route reloads), the OPTION screen, the DEBUG menu's HEAL and
   wild-encounter toggle, a REVIVE and a REPEL from the BAG (and the REPEL
-  wearing off), and FLY (181 checks). It uses its own save and settings
+  wearing off), and FLY (184 checks). It uses its own save and settings
   files.
 - `tests/npc_test.gd` visits every map and talks to every NPC and sign,
   standing where a player could (a reachable neighboring cell, counting CUT,
   ROCK SMASH and SURF, or across a counter), then examines a bookshelf.
-  Trainers count as beaten, so they chat (88 checks).
+  Trainers count as beaten, so they chat. Every piece of furniture counts
+  too: it must be reachable and describe itself (115 checks).
 
 ```sh
 godot --headless --path . --script res://tests/battle_test.gd

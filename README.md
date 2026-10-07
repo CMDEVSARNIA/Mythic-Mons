@@ -16,8 +16,8 @@ TRAINER CARD, and saving.
 The world (towns, routes, interiors, signs and the battle backdrop) is built
 from ArMM1998's CC0 overworld tileset, with matching pieces drawn for this
 project in its colors. The characters, monsters, items, battle effects and
-sound effects are made in code, and five townsfolk come from a CC0 character
-sheet. Six songs supplied by the project owner score the title screen,
+sound effects are made in code, five townsfolk come from a CC0 character
+sheet, and the houses are furnished from Bitglow's pixel interior pack. Six songs supplied by the project owner score the title screen,
 towns, routes, battles and victories (see `assets/audio/README.md`).
 Real assets slot in later without code changes.
 
@@ -100,6 +100,15 @@ on bookshelves, beds, plants, crates and MART shelves to examine them.
 - **Badges unlock field moves**, as in Emerald. CUT and ROCK SMASH work from
   the start, SURF needs the TIDE BADGE, FLY the SPARK BADGE and STRENGTH the
   SHADE BADGE. Until then, the water is just "dyed a deep blue...".
+- **Furnished interiors.** Every house has its own furniture from Bitglow's
+  pixel interior pack, shrunk to suit the cast: beds, wardrobes, dressers,
+  nightstands with lamps, vanities, paintings, clocks, string lights and
+  rugs. Your room has a red bed and a clock; REN and his sister share a
+  room; the seaside house has a sea painting and a bench by the window.
+  Furniture blocks the way like real furniture, rugs can be walked over, and
+  pressing A on a piece describes it.
+
+  ![Furnished rooms: your house, REN's house, the seaside house and the old house in Duskhollow](docs/images/interiors.png)
 - **MONSTER CENTERs** are where you wake up after whiting out, once the
   nurse has healed you there (until then, it's home).
 - **FLY** from the start menu (Enter) to any town you've visited.
@@ -273,7 +282,7 @@ scripts/       core/ (incl. GameData lookups), art/, audio/, items/ (ItemData),
 data/          species/, moves/, abilities/, items/ (.tres files, edit in the inspector)
 assets/        world/ (tiles, signs, battle backdrop + their CC0 source), placeholder/
                (generated PNGs), characters/townsfolk/ (converted pack sprites),
-               tilesets/ (the TileSet), ui/, fonts/, audio/
+               interiors/ (the furniture atlas), tilesets/ (the TileSet), ui/, fonts/, audio/
 tools/         Headless generators for the art, TileSet, maps and monster data, and export.sh
 tests/         Rule tests (battles, monsters, game state/saves) and a smoke test that plays the game
 docs/          ARCHITECTURE.md, ASSETS.md
@@ -301,7 +310,10 @@ matching name to replace a generated sound.
 
 Besides the code-drawn placeholders, the script re-converts the world art
 (`tools/import_world_art.gd`) and the townsfolk (`tools/import_townsfolk.gd`)
-from their CC0 sheets in `assets/`.
+from their CC0 sheets in `assets/`. The furniture atlas
+(`tools/import_interiors.gd`) is only rebuilt if you've put Bitglow's pack in
+`assets/interiors/source/`: its license doesn't allow sharing the original
+files, so they aren't in the repository (see the README there).
 
 ## Exporting the game
 
@@ -336,9 +348,9 @@ godot --headless --path . --script res://tests/battle_test.gd
 godot --headless --path . --script res://tests/monster_test.gd
 # Party, BOX (withdraw, deposit, release), BAG, money, MONDEX, badges and field moves, play time, REPEL steps, flags and save/load round trips (58 checks)
 godot --headless --path . --script res://tests/game_state_test.gd
-# Plays the whole game by injecting input: the title screen, naming, starter, battles, nicknames, trainers, status, evolutions, MONDEX, buildings, shops, the PC, all three GYMs and badges, the TRAINER CARD, the NAME RATER, Route 2 and Copperdale, Route 3 and Duskhollow, the STRENGTH boulder puzzle, OPTION, DEBUG, REVIVE and REPEL (181 checks)
+# Plays the whole game by injecting input: the title screen, naming, starter, battles, nicknames, trainers, status, evolutions, MONDEX, buildings, shops, the PC, all three GYMs and badges, the TRAINER CARD, the NAME RATER, Route 2 and Copperdale, Route 3 and Duskhollow, the STRENGTH boulder puzzle, furniture and rugs, OPTION, DEBUG, REVIVE and REPEL (184 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/smoke_test.gd
-# Talks to every NPC and reads every sign on every map, from where a player can stand (88 checks)
+# Talks to every NPC and reads every sign and piece of furniture on every map, from where a player can stand (115 checks)
 godot --headless --path . --fixed-fps 60 --script res://tests/npc_test.gd
 ```
 
@@ -381,6 +393,9 @@ your real save.
 - Townsfolk (YOUNGSTER, OFFICER, MYSTIC, FIGHTER, GARDENER): recolored from
   [16x16 8-bit RPG character set](https://opengameart.org/content/16x16-8-bit-rpg-character-set)
   by devurandom, CC0 (`assets/characters/townsfolk/source/`).
+- Furniture (`assets/interiors/furniture.png`): Bitglow's pixel interior pack
+  (`pixelinterior_BR_v1.1`), used under the Bitglow Asset License, shrunk to
+  half size and repacked for this game. The original files aren't included.
 - Music (`assets/audio/music/`): Square Wave Title, Beep-Boo, Square Wave
   Adventure, Pixel Battle, Pixel Battle Theme and Triumphant Fanfare,
   supplied by the project owner.

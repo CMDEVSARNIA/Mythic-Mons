@@ -33,6 +33,8 @@ const SCENES := {
 	"gift": "res://scenes/actors/npc/gift_giver.tscn",
 	"item_ball": "res://scenes/objects/item_ball.tscn",
 	"boulder": "res://scenes/objects/boulder.tscn",
+	"furniture": "res://scenes/objects/furniture.tscn",
+	"rug": "res://scenes/objects/rug.tscn",
 }
 
 ## Tile name -> [physics layer index (-1 none, 0 world, 1 water), terrain tag].
@@ -91,13 +93,13 @@ const UP := 1
 const LEFT := 2
 const RIGHT := 3
 
-## Shared by the small houses' interiors.
+## Shared by the small houses' interiors; each house brings its own furniture.
 const HOUSE_LAYOUT := [
 	"wwkkwwwwww",
-	"pbbbbbbbBb",
+	"pbbbbbbbbb",
 	"bbbbbbbbbb",
 	"bbtbbbbbbb",
-	"bbtbbbbbbr",
+	"bbtbbbbbbb",
 	"bbbbbbbbbb",
 	"bbbbmbbbbb",
 ]
@@ -110,6 +112,9 @@ const HOUSE_LAYOUT := [
 #              named after the map and cell, like a gift NPC's
 #   houses:    [top-left cell, roof in WorldTiles.HOUSES]; the door is at
 #              WorldTiles.HOUSE_DOOR from the top-left, so put a warp there
+#   furniture: [top-left cell, piece in FurniturePieces, {lines, shift}];
+#              a WALL piece's cell is the wall tile it hangs on, and a rug's
+#              "shift" moves it off the cell grid in pixels
 const MAPS := [
 	{
 		"file": "town_emberfall.tscn",
@@ -178,6 +183,15 @@ const MAPS := [
 		"node": "HouseEmberfall",
 		"props": {"display_name": "YOUR HOUSE", "allow_fly": false, "music": &"town"},
 		"layout": HOUSE_LAYOUT,
+		"furniture": [
+			[Vector2i(4, 3), "rug_round", {"shift": Vector2i(1, 2)}],
+			[Vector2i(5, 1), "wardrobe_oak"],
+			[Vector2i(8, 1), "bed_red", {"lines": ["Your own bed! It's\nmade up nice and neat."]}],
+			[Vector2i(9, 1), "nightstand_lamp"],
+			[Vector2i(8, 4), "dresser_oak"],
+			[Vector2i(1, 0), "painting", {"shift": Vector2i(-2, 0)}],
+			[Vector2i(4, 0), "clock"],
+		],
 		"spawns": {
 			"default": [Vector2i(4, 5), UP],
 			"entrance": [Vector2i(4, 5), UP],
@@ -219,6 +233,15 @@ const MAPS := [
 		"node": "HouseRival",
 		"props": {"display_name": "REN's HOUSE", "allow_fly": false, "music": &"town"},
 		"layout": HOUSE_LAYOUT,
+		"furniture": [
+			[Vector2i(3, 3), "rug_navy", {"shift": Vector2i(4, 2)}],
+			[Vector2i(5, 1), "wardrobe_white"],
+			[Vector2i(8, 1), "bed_blue", {"lines": ["REN's bed. A MONSTER\nplush sits on the\npillow."]}],
+			[Vector2i(9, 1), "bed_red", {"lines": ["REN's sister's bed.\nIt's covered in\nstickers!"]}],
+			[Vector2i(1, 1), "vanity_white", {"lines": ["A vanity. REN's sister\npractices her battle\nposes here."]}],
+			[Vector2i(4, 0), "painting", {"shift": Vector2i(2, 0)}],
+			[Vector2i(7, 0), "string_lights", {"shift": Vector2i(8, 0)}],
+		],
 		"spawns": {
 			"default": [Vector2i(4, 5), UP],
 			"entrance": [Vector2i(4, 5), UP],
@@ -407,6 +430,9 @@ const MAPS := [
 			"bbbbbbbbbbbb",
 			"bbbbbmbbbbbb",
 		],
+		"furniture": [
+			[Vector2i(4, 3), "rug_navy", {"shift": Vector2i(7, 4)}],
+		],
 		"spawns": {
 			"default": [Vector2i(5, 6), UP],
 			"entrance": [Vector2i(5, 6), UP],
@@ -427,6 +453,14 @@ const MAPS := [
 		"node": "HouseTidewater",
 		"props": {"display_name": "SEASIDE HOUSE", "allow_fly": false, "music": &"town"},
 		"layout": HOUSE_LAYOUT,
+		"furniture": [
+			[Vector2i(4, 3), "rug_navy", {"shift": Vector2i(-2, 2)}],
+			[Vector2i(4, 1), "dresser_white"],
+			[Vector2i(7, 1), "nightstand_white_lamp"],
+			[Vector2i(8, 1), "bed_white_double", {"lines": ["A big bed by the\nwindow. The sheets\nsmell like the sea."]}],
+			[Vector2i(9, 4), "bench", {"lines": ["A bench for watching\nthe waves roll in."]}],
+			[Vector2i(1, 0), "painting", {"shift": Vector2i(-2, 0), "lines": ["A painting of the sun\nrising over the sea.\nThe old man made it!"]}],
+		],
 		"spawns": {
 			"default": [Vector2i(4, 5), UP],
 			"entrance": [Vector2i(4, 5), UP],
@@ -603,6 +637,9 @@ const MAPS := [
 			"bbbbbbbbbbbb",
 			"bbbbbmbbbbbb",
 		],
+		"furniture": [
+			[Vector2i(4, 3), "rug_navy", {"shift": Vector2i(7, 4)}],
+		],
 		"spawns": {
 			"default": [Vector2i(5, 6), UP],
 			"entrance": [Vector2i(5, 6), UP],
@@ -652,6 +689,14 @@ const MAPS := [
 		"node": "HouseCopperdale",
 		"props": {"display_name": "ENGINEER'S HOUSE", "allow_fly": false, "music": &"town"},
 		"layout": HOUSE_LAYOUT,
+		"furniture": [
+			[Vector2i(4, 3), "rug_round", {"shift": Vector2i(1, 2)}],
+			[Vector2i(4, 1), "wardrobe_open", {"lines": ["Work clothes are\nstuffed in every which\nway."]}],
+			[Vector2i(8, 1), "bed_olive"],
+			[Vector2i(9, 1), "nightstand_dark"],
+			[Vector2i(8, 4), "dresser_dark"],
+			[Vector2i(7, 0), "clock", {"lines": ["The clock runs a\nlittle fast. An\nENGINEER's habit?"]}],
+		],
 		"spawns": {
 			"default": [Vector2i(4, 5), UP],
 			"entrance": [Vector2i(4, 5), UP],
@@ -830,6 +875,9 @@ const MAPS := [
 			"bbbbbbbbbbbb",
 			"bbbbbmbbbbbb",
 		],
+		"furniture": [
+			[Vector2i(4, 3), "rug_navy", {"shift": Vector2i(7, 4)}],
+		],
 		"spawns": {
 			"default": [Vector2i(5, 6), UP],
 			"entrance": [Vector2i(5, 6), UP],
@@ -879,6 +927,14 @@ const MAPS := [
 		"node": "HouseDuskhollow",
 		"props": {"display_name": "OLD HOUSE", "allow_fly": false, "music": &"town"},
 		"layout": HOUSE_LAYOUT,
+		"furniture": [
+			[Vector2i(3, 3), "rug_navy", {"shift": Vector2i(4, 2)}],
+			[Vector2i(1, 1), "vanity_dark", {"lines": ["An old vanity. The\nmirror is a little\nfoggy."]}],
+			[Vector2i(4, 1), "wardrobe_dark"],
+			[Vector2i(7, 1), "nightstand_lamp", {"lines": ["A lamp with a warm,\nsteady glow. It keeps\nthe dusk away."]}],
+			[Vector2i(8, 1), "bed_dark_double"],
+			[Vector2i(6, 0), "string_lights", {"shift": Vector2i(8, 0)}],
+		],
 		"spawns": {
 			"default": [Vector2i(4, 5), UP],
 			"entrance": [Vector2i(4, 5), UP],
@@ -1049,6 +1105,23 @@ func _build_map(map: Dictionary, tile_set: TileSet) -> Node2D:
 		_apply(obstacle, def[2] if def.size() > 2 else {})
 		if def[1] == "item_ball":
 			obstacle.set(&"flag", _flag("item", map, def[0]))
+
+	for i in map.get("furniture", []).size():
+		var def: Array = map.furniture[i]
+		var piece: StringName = def[1]
+		var props: Dictionary = def[2] if def.size() > 2 else {}
+		var node_name := "%s%d" % [String(piece).to_pascal_case(), i + 1]
+		match FurniturePieces.kind_of(piece):
+			FurniturePieces.Kind.RUG:
+				var rug := _instance("rug", def[0], entities, root, node_name)
+				rug.position = Vector2(def[0] * Grid.TILE_SIZE + props.get("shift", Vector2i.ZERO))
+				rug.set(&"piece", piece)
+			FurniturePieces.Kind.WALL:
+				_apply(_instance("furniture", def[0], entities, root, node_name), props.merged({"piece": piece}))
+			_:
+				# The node goes on the footprint's bottom-left cell, where it y-sorts.
+				var bottom_left: Vector2i = def[0] + Vector2i(0, FurniturePieces.footprint_of(piece).y - 1)
+				_apply(_instance("furniture", bottom_left, entities, root, node_name), props.merged({"piece": piece}))
 
 	var warps := _add(root, root, Node2D.new(), "Warps")
 	for i in map.get("warps", []).size():

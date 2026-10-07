@@ -1,47 +1,82 @@
 [gd_scene format=4]
 
-[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_hrei7"]
-[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_b0nca"]
-[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="3_3msva"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_mom.png" id="4_ku54w"]
-[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="5_bs8na"]
-[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="6_5m2f2"]
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_3msva"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_ku54w"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="3_bs8na"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_mom.png" id="4_5m2f2"]
+[ext_resource type="PackedScene" path="res://scenes/objects/rug.tscn" id="5_6sqh5"]
+[ext_resource type="PackedScene" path="res://scenes/objects/furniture.tscn" id="6_4jbef"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="7_unvvx"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="8_2b788"]
 
-[node name="HouseEmberfall" type="Node2D" unique_id=1169316490]
-script = ExtResource("1_hrei7")
+[node name="HouseEmberfall" type="Node2D" unique_id=1512881647]
+script = ExtResource("1_3msva")
 display_name = "YOUR HOUSE"
 allow_fly = false
 
-[node name="Ground" type="TileMapLayer" parent="." unique_id=649771209]
-tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAACAAYAAAADAAAAAAACAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAAAAEAAAAIAAYAAAABAAEAAAAAAAYAAAACAAEAAAAAAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAEAAYAAAAJAAEAAAAAAAYAAAAAAAIAAAAAAAYAAAABAAIAAAAAAAYAAAACAAIAAAAAAAYAAAADAAIAAAAAAAYAAAAEAAIAAAAAAAYAAAAFAAIAAAAAAAYAAAAGAAIAAAAAAAYAAAAHAAIAAAAAAAYAAAAIAAIAAAAAAAYAAAAJAAIAAAAAAAYAAAAAAAMAAAAAAAYAAAABAAMAAAAAAAYAAAACAAMAAAADAAYAAAADAAMAAAAAAAYAAAAEAAMAAAAAAAYAAAAFAAMAAAAAAAYAAAAGAAMAAAAAAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAAAAYAAAAJAAMAAAAAAAYAAAAAAAQAAAAAAAYAAAABAAQAAAAAAAYAAAACAAQAAAADAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAJAAYAAAAAAAUAAAAAAAYAAAABAAUAAAAAAAYAAAACAAUAAAAAAAYAAAADAAUAAAAAAAYAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAAAAYAAAAJAAUAAAAAAAYAAAAAAAYAAAAAAAYAAAABAAYAAAAAAAYAAAACAAYAAAAAAAYAAAADAAYAAAAAAAYAAAAEAAYAAAAFAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAAAAYAAAAJAAYAAAAAAAYAAAA=")
-tile_set = ExtResource("2_b0nca")
+[node name="Ground" type="TileMapLayer" parent="." unique_id=1269713434]
+tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAACAAYAAAADAAAAAAACAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAAAAEAAAAIAAYAAAABAAEAAAAAAAYAAAACAAEAAAAAAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAAAAYAAAAJAAEAAAAAAAYAAAAAAAIAAAAAAAYAAAABAAIAAAAAAAYAAAACAAIAAAAAAAYAAAADAAIAAAAAAAYAAAAEAAIAAAAAAAYAAAAFAAIAAAAAAAYAAAAGAAIAAAAAAAYAAAAHAAIAAAAAAAYAAAAIAAIAAAAAAAYAAAAJAAIAAAAAAAYAAAAAAAMAAAAAAAYAAAABAAMAAAAAAAYAAAACAAMAAAADAAYAAAADAAMAAAAAAAYAAAAEAAMAAAAAAAYAAAAFAAMAAAAAAAYAAAAGAAMAAAAAAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAAAAYAAAAJAAMAAAAAAAYAAAAAAAQAAAAAAAYAAAABAAQAAAAAAAYAAAACAAQAAAADAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAAAAYAAAAAAAUAAAAAAAYAAAABAAUAAAAAAAYAAAACAAUAAAAAAAYAAAADAAUAAAAAAAYAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAAAAYAAAAJAAUAAAAAAAYAAAAAAAYAAAAAAAYAAAABAAYAAAAAAAYAAAACAAYAAAAAAAYAAAADAAYAAAAAAAYAAAAEAAYAAAAFAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAAAAYAAAAJAAYAAAAAAAYAAAA=")
+tile_set = ExtResource("2_ku54w")
 
-[node name="Entities" type="Node2D" parent="." unique_id=326526246]
+[node name="Entities" type="Node2D" parent="." unique_id=1935323007]
 y_sort_enabled = true
 
-[node name="NPC_Mom1" parent="Entities" unique_id=864631811 instance=ExtResource("3_3msva")]
+[node name="NPC_Mom1" parent="Entities" unique_id=135147356 instance=ExtResource("3_bs8na")]
 position = Vector2(104, 56)
-sprite_sheet = ExtResource("4_ku54w")
+sprite_sheet = ExtResource("4_5m2f2")
 lines = PackedStringArray("MOM: Welcome home! Rest\nhere whenever you need.")
 wander_radius = 1
 heals_party = true
 
-[node name="Warps" type="Node2D" parent="." unique_id=1875229294]
+[node name="RugRound1" parent="Entities" unique_id=2058787635 instance=ExtResource("5_6sqh5")]
+position = Vector2(65, 50)
 
-[node name="Warp1" parent="Warps" unique_id=1615009548 instance=ExtResource("5_bs8na")]
+[node name="WardrobeOak2" parent="Entities" unique_id=876199228 instance=ExtResource("6_4jbef")]
+position = Vector2(88, 24)
+piece = &"wardrobe_oak"
+lines = PackedStringArray()
+
+[node name="BedRed3" parent="Entities" unique_id=567688016 instance=ExtResource("6_4jbef")]
+position = Vector2(136, 40)
+lines = PackedStringArray("Your own bed! It\'s\nmade up nice and neat.")
+
+[node name="NightstandLamp4" parent="Entities" unique_id=906983517 instance=ExtResource("6_4jbef")]
+position = Vector2(152, 24)
+piece = &"nightstand_lamp"
+lines = PackedStringArray()
+
+[node name="DresserOak5" parent="Entities" unique_id=80196348 instance=ExtResource("6_4jbef")]
+position = Vector2(136, 72)
+piece = &"dresser_oak"
+lines = PackedStringArray()
+
+[node name="Painting6" parent="Entities" unique_id=1543471763 instance=ExtResource("6_4jbef")]
+position = Vector2(24, 8)
+piece = &"painting"
+lines = PackedStringArray()
+shift = Vector2i(-2, 0)
+
+[node name="Clock7" parent="Entities" unique_id=1257338767 instance=ExtResource("6_4jbef")]
+position = Vector2(72, 8)
+piece = &"clock"
+lines = PackedStringArray()
+
+[node name="Warps" type="Node2D" parent="." unique_id=461761825]
+
+[node name="Warp1" parent="Warps" unique_id=682403548 instance=ExtResource("7_unvvx")]
 position = Vector2(72, 104)
 target_map = "res://scenes/maps/town_emberfall.tscn"
 target_spawn = &"from_house"
 blocked_lines = PackedStringArray()
 
-[node name="Spawns" type="Node2D" parent="." unique_id=705860612]
+[node name="Spawns" type="Node2D" parent="." unique_id=2095611760]
 
-[node name="default" type="Marker2D" parent="Spawns" unique_id=1227791325]
+[node name="default" type="Marker2D" parent="Spawns" unique_id=1792910111]
 position = Vector2(72, 88)
-script = ExtResource("6_5m2f2")
+script = ExtResource("8_2b788")
 facing = 1
 
-[node name="entrance" type="Marker2D" parent="Spawns" unique_id=63478131]
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=340625098]
 position = Vector2(72, 88)
-script = ExtResource("6_5m2f2")
+script = ExtResource("8_2b788")
 facing = 1

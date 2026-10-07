@@ -92,6 +92,20 @@ trees), add tiles to the tool's `CUTS` and to `WorldTiles`. If you download
 the pack's `Inner.png`, put it in `source/` and swap it in for the drawn
 interiors.
 
+## Furniture
+
+The houses' furniture comes from Bitglow's pixel interior pack
+(`pixelinterior_BR_v1.1`: beds, wardrobes, dressers, nightstands, vanities,
+lamps, wall decorations and rugs), used under the Bitglow Asset License. That
+license allows use and modification in the game but not sharing the
+original files, so they aren't in the repository: put the pack's three PNGs
+in `assets/interiors/source/` to rebuild `assets/interiors/furniture.png`
+with `tools/import_interiors.gd`. The pieces are drawn for taller characters,
+so the tool shrinks them to half size; see "Furniture" in
+[ARCHITECTURE.md](ARCHITECTURE.md). To use another piece from the pack, add
+its rectangle to `FurniturePieces.PIECES`, rerun the tool, and name it in a
+map's `furniture` list.
+
 ## Townsfolk
 
 ![YOUNGSTER, OFFICER, MYSTIC, FIGHTER and GARDENER facing down, up, left and right](images/townsfolk.png)

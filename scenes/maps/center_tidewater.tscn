@@ -1,58 +1,63 @@
 [gd_scene format=4]
 
-[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_27i2h"]
-[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_17r6u"]
-[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="3_yax75"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_nurse.png" id="4_mo4gy"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_lass.png" id="5_8jo7j"]
-[ext_resource type="PackedScene" path="res://scenes/objects/storage_pc.tscn" id="6_8n8my"]
-[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="7_ik575"]
-[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="8_i1dtp"]
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_17r6u"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_yax75"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/npc.tscn" id="3_mo4gy"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_nurse.png" id="4_8jo7j"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_lass.png" id="5_8n8my"]
+[ext_resource type="PackedScene" path="res://scenes/objects/storage_pc.tscn" id="6_ik575"]
+[ext_resource type="PackedScene" path="res://scenes/objects/rug.tscn" id="7_i1dtp"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="8_fjyt0"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="9_qhmvf"]
 
-[node name="CenterTidewater" type="Node2D" unique_id=1858806520]
-script = ExtResource("1_27i2h")
+[node name="CenterTidewater" type="Node2D" unique_id=998815908]
+script = ExtResource("1_17r6u")
 display_name = "MONSTER CENTER"
 allow_fly = false
 
-[node name="Ground" type="TileMapLayer" parent="." unique_id=1543486563]
+[node name="Ground" type="TileMapLayer" parent="." unique_id=1391299034]
 tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAABAAYAAAADAAAAAAABAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAKAAAAAAABAAYAAAALAAAAAAABAAYAAAAAAAEAAAAAAAYAAAABAAEAAAAAAAYAAAACAAEAAAAAAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAAAAYAAAAJAAEAAAAAAAYAAAAKAAEAAAAAAAYAAAALAAEAAAAAAAYAAAAAAAIAAAACAAYAAAABAAIAAAACAAYAAAACAAIAAAAGAAYAAAADAAIAAAAGAAYAAAAEAAIAAAAGAAYAAAAFAAIAAAAGAAYAAAAGAAIAAAAGAAYAAAAHAAIAAAAGAAYAAAAIAAIAAAAGAAYAAAAJAAIAAAAGAAYAAAAKAAIAAAACAAYAAAALAAIAAAACAAYAAAAAAAMAAAAAAAYAAAABAAMAAAAAAAYAAAACAAMAAAAAAAYAAAADAAMAAAAAAAYAAAAEAAMAAAAAAAYAAAAFAAMAAAAAAAYAAAAGAAMAAAAAAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAAAAYAAAAJAAMAAAAAAAYAAAAKAAMAAAAAAAYAAAALAAMAAAAAAAYAAAAAAAQAAAAIAAYAAAABAAQAAAAAAAYAAAACAAQAAAAAAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAAAAYAAAAKAAQAAAAAAAYAAAALAAQAAAAIAAYAAAAAAAUAAAAAAAYAAAABAAUAAAADAAYAAAACAAUAAAAAAAYAAAADAAUAAAAAAAYAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAAAAYAAAAJAAUAAAAAAAYAAAAKAAUAAAADAAYAAAALAAUAAAAAAAYAAAAAAAYAAAAAAAYAAAABAAYAAAAAAAYAAAACAAYAAAAAAAYAAAADAAYAAAAAAAYAAAAEAAYAAAAAAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAAAAYAAAAJAAYAAAAAAAYAAAAKAAYAAAAAAAYAAAALAAYAAAAAAAYAAAAAAAcAAAAAAAYAAAABAAcAAAAAAAYAAAACAAcAAAAAAAYAAAADAAcAAAAAAAYAAAAEAAcAAAAAAAYAAAAFAAcAAAAFAAYAAAAGAAcAAAAAAAYAAAAHAAcAAAAAAAYAAAAIAAcAAAAAAAYAAAAJAAcAAAAAAAYAAAAKAAcAAAAAAAYAAAALAAcAAAAAAAYAAAA=")
-tile_set = ExtResource("2_17r6u")
+tile_set = ExtResource("2_yax75")
 
-[node name="Entities" type="Node2D" parent="." unique_id=1179191914]
+[node name="Entities" type="Node2D" parent="." unique_id=263655714]
 y_sort_enabled = true
 
-[node name="NPC_Nurse1" parent="Entities" unique_id=1368195685 instance=ExtResource("3_yax75")]
+[node name="NPC_Nurse1" parent="Entities" unique_id=131827093 instance=ExtResource("3_mo4gy")]
 position = Vector2(88, 24)
-sprite_sheet = ExtResource("4_mo4gy")
+sprite_sheet = ExtResource("4_8jo7j")
 lines = PackedStringArray("Welcome to the MONSTER\nCENTER!", "We\'ll restore your\nMONSTERS to full health.")
 wander_radius = 0
 heals_party = true
 
-[node name="NPC_Lass2" parent="Entities" unique_id=436735632 instance=ExtResource("3_yax75")]
+[node name="NPC_Lass2" parent="Entities" unique_id=451934527 instance=ExtResource("3_mo4gy")]
 position = Vector2(152, 72)
-sprite_sheet = ExtResource("5_8jo7j")
+sprite_sheet = ExtResource("5_8n8my")
 lines = PackedStringArray("MONSTER CENTERs heal\nyour team for free.", "The PC in the corner\nstores MONSTERS your\nparty can\'t hold.")
 wander_radius = 1
 
-[node name="Pc1" parent="Entities" unique_id=1929849054 instance=ExtResource("6_8n8my")]
+[node name="Pc1" parent="Entities" unique_id=173323296 instance=ExtResource("6_ik575")]
 position = Vector2(184, 56)
 
-[node name="Warps" type="Node2D" parent="." unique_id=1928513243]
+[node name="RugNavy1" parent="Entities" unique_id=1769584494 instance=ExtResource("7_i1dtp")]
+position = Vector2(71, 52)
+piece = &"rug_navy"
 
-[node name="Warp1" parent="Warps" unique_id=120837566 instance=ExtResource("7_ik575")]
+[node name="Warps" type="Node2D" parent="." unique_id=310038914]
+
+[node name="Warp1" parent="Warps" unique_id=1397792397 instance=ExtResource("8_fjyt0")]
 position = Vector2(88, 120)
 target_map = "res://scenes/maps/town_tidewater.tscn"
 target_spawn = &"from_center"
 blocked_lines = PackedStringArray()
 
-[node name="Spawns" type="Node2D" parent="." unique_id=1856340047]
+[node name="Spawns" type="Node2D" parent="." unique_id=1633612934]
 
-[node name="default" type="Marker2D" parent="Spawns" unique_id=1560953494]
+[node name="default" type="Marker2D" parent="Spawns" unique_id=1157863371]
 position = Vector2(88, 104)
-script = ExtResource("8_i1dtp")
+script = ExtResource("9_qhmvf")
 facing = 1
 
-[node name="entrance" type="Marker2D" parent="Spawns" unique_id=948024933]
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=1706179004]
 position = Vector2(88, 104)
-script = ExtResource("8_i1dtp")
+script = ExtResource("9_qhmvf")
 facing = 1

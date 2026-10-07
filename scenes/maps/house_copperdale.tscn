@@ -1,49 +1,79 @@
 [gd_scene format=4]
 
-[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_mev7a"]
-[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_7ybvr"]
-[ext_resource type="PackedScene" path="res://scenes/actors/npc/gift_giver.tscn" id="3_4kj3w"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_engineer.png" id="4_sj4ta"]
-[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="5_t831m"]
-[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="6_3pyl0"]
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_4kj3w"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_sj4ta"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/gift_giver.tscn" id="3_t831m"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_engineer.png" id="4_3pyl0"]
+[ext_resource type="PackedScene" path="res://scenes/objects/rug.tscn" id="5_obx3p"]
+[ext_resource type="PackedScene" path="res://scenes/objects/furniture.tscn" id="6_qaw2y"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="7_iem5k"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="8_rv7vk"]
 
-[node name="HouseCopperdale" type="Node2D" unique_id=557430710]
-script = ExtResource("1_mev7a")
+[node name="HouseCopperdale" type="Node2D" unique_id=317685802]
+script = ExtResource("1_4kj3w")
 display_name = "ENGINEER'S HOUSE"
 allow_fly = false
 
-[node name="Ground" type="TileMapLayer" parent="." unique_id=1282852262]
-tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAACAAYAAAADAAAAAAACAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAAAAEAAAAIAAYAAAABAAEAAAAAAAYAAAACAAEAAAAAAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAEAAYAAAAJAAEAAAAAAAYAAAAAAAIAAAAAAAYAAAABAAIAAAAAAAYAAAACAAIAAAAAAAYAAAADAAIAAAAAAAYAAAAEAAIAAAAAAAYAAAAFAAIAAAAAAAYAAAAGAAIAAAAAAAYAAAAHAAIAAAAAAAYAAAAIAAIAAAAAAAYAAAAJAAIAAAAAAAYAAAAAAAMAAAAAAAYAAAABAAMAAAAAAAYAAAACAAMAAAADAAYAAAADAAMAAAAAAAYAAAAEAAMAAAAAAAYAAAAFAAMAAAAAAAYAAAAGAAMAAAAAAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAAAAYAAAAJAAMAAAAAAAYAAAAAAAQAAAAAAAYAAAABAAQAAAAAAAYAAAACAAQAAAADAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAJAAYAAAAAAAUAAAAAAAYAAAABAAUAAAAAAAYAAAACAAUAAAAAAAYAAAADAAUAAAAAAAYAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAAAAYAAAAJAAUAAAAAAAYAAAAAAAYAAAAAAAYAAAABAAYAAAAAAAYAAAACAAYAAAAAAAYAAAADAAYAAAAAAAYAAAAEAAYAAAAFAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAAAAYAAAAJAAYAAAAAAAYAAAA=")
-tile_set = ExtResource("2_7ybvr")
+[node name="Ground" type="TileMapLayer" parent="." unique_id=590080929]
+tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAACAAYAAAADAAAAAAACAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAAAAEAAAAIAAYAAAABAAEAAAAAAAYAAAACAAEAAAAAAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAAAAYAAAAJAAEAAAAAAAYAAAAAAAIAAAAAAAYAAAABAAIAAAAAAAYAAAACAAIAAAAAAAYAAAADAAIAAAAAAAYAAAAEAAIAAAAAAAYAAAAFAAIAAAAAAAYAAAAGAAIAAAAAAAYAAAAHAAIAAAAAAAYAAAAIAAIAAAAAAAYAAAAJAAIAAAAAAAYAAAAAAAMAAAAAAAYAAAABAAMAAAAAAAYAAAACAAMAAAADAAYAAAADAAMAAAAAAAYAAAAEAAMAAAAAAAYAAAAFAAMAAAAAAAYAAAAGAAMAAAAAAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAAAAYAAAAJAAMAAAAAAAYAAAAAAAQAAAAAAAYAAAABAAQAAAAAAAYAAAACAAQAAAADAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAAAAYAAAAAAAUAAAAAAAYAAAABAAUAAAAAAAYAAAACAAUAAAAAAAYAAAADAAUAAAAAAAYAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAAAAYAAAAJAAUAAAAAAAYAAAAAAAYAAAAAAAYAAAABAAYAAAAAAAYAAAACAAYAAAAAAAYAAAADAAYAAAAAAAYAAAAEAAYAAAAFAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAAAAYAAAAJAAYAAAAAAAYAAAA=")
+tile_set = ExtResource("2_sj4ta")
 
-[node name="Entities" type="Node2D" parent="." unique_id=380994101]
+[node name="Entities" type="Node2D" parent="." unique_id=1291912503]
 y_sort_enabled = true
 
-[node name="NPC_Engineer1" parent="Entities" unique_id=1312971541 instance=ExtResource("3_4kj3w")]
+[node name="NPC_Engineer1" parent="Entities" unique_id=2017903139 instance=ExtResource("3_t831m")]
 position = Vector2(104, 40)
 gift = &"super_orb"
 count = 3
 flag = &"gift_house_copperdale_6_2"
 offer = PackedStringArray("You\'re a trainer? Then\ntake these. Every\ntrainer needs ORBs!")
-sprite_sheet = ExtResource("4_sj4ta")
+sprite_sheet = ExtResource("4_3pyl0")
 lines = PackedStringArray("My daughter CORA runs\nthe GYM. She gets her\nspark from me!")
 
-[node name="Warps" type="Node2D" parent="." unique_id=2049770809]
+[node name="RugRound1" parent="Entities" unique_id=523382490 instance=ExtResource("5_obx3p")]
+position = Vector2(65, 50)
 
-[node name="Warp1" parent="Warps" unique_id=1781593636 instance=ExtResource("5_t831m")]
+[node name="WardrobeOpen2" parent="Entities" unique_id=593399630 instance=ExtResource("6_qaw2y")]
+position = Vector2(72, 24)
+piece = &"wardrobe_open"
+lines = PackedStringArray("Work clothes are\nstuffed in every which\nway.")
+
+[node name="BedOlive3" parent="Entities" unique_id=171926383 instance=ExtResource("6_qaw2y")]
+position = Vector2(136, 40)
+piece = &"bed_olive"
+lines = PackedStringArray()
+
+[node name="NightstandDark4" parent="Entities" unique_id=2053403482 instance=ExtResource("6_qaw2y")]
+position = Vector2(152, 24)
+piece = &"nightstand_dark"
+lines = PackedStringArray()
+
+[node name="DresserDark5" parent="Entities" unique_id=1936431587 instance=ExtResource("6_qaw2y")]
+position = Vector2(136, 72)
+piece = &"dresser_dark"
+lines = PackedStringArray()
+
+[node name="Clock6" parent="Entities" unique_id=732054993 instance=ExtResource("6_qaw2y")]
+position = Vector2(120, 8)
+piece = &"clock"
+lines = PackedStringArray("The clock runs a\nlittle fast. An\nENGINEER\'s habit?")
+
+[node name="Warps" type="Node2D" parent="." unique_id=1756397700]
+
+[node name="Warp1" parent="Warps" unique_id=859384180 instance=ExtResource("7_iem5k")]
 position = Vector2(72, 104)
 target_map = "res://scenes/maps/town_copperdale.tscn"
 target_spawn = &"from_house"
 blocked_lines = PackedStringArray()
 
-[node name="Spawns" type="Node2D" parent="." unique_id=567483752]
+[node name="Spawns" type="Node2D" parent="." unique_id=1267942369]
 
-[node name="default" type="Marker2D" parent="Spawns" unique_id=2027737095]
+[node name="default" type="Marker2D" parent="Spawns" unique_id=722556522]
 position = Vector2(72, 88)
-script = ExtResource("6_3pyl0")
+script = ExtResource("8_rv7vk")
 facing = 1
 
-[node name="entrance" type="Marker2D" parent="Spawns" unique_id=1950336062]
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=115308091]
 position = Vector2(72, 88)
-script = ExtResource("6_3pyl0")
+script = ExtResource("8_rv7vk")
 facing = 1

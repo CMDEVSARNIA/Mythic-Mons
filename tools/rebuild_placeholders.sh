@@ -18,6 +18,11 @@ echo "== 2/6 Generate placeholder PNGs"
 echo "== 3/6 Convert the world tiles and townsfolk from their CC0 sheets"
 "$GODOT" --headless --path . --script res://tools/import_world_art.gd
 "$GODOT" --headless --path . --script res://tools/import_townsfolk.gd
+# Bitglow's interior pack isn't in the repository (its license forbids sharing
+# the files), so the furniture atlas is only rebuilt if you've added the pack.
+if [ -f assets/interiors/source/beds_BR.png ]; then
+	"$GODOT" --headless --path . --script res://tools/import_interiors.gd
+fi
 echo "== 4/6 Import the new PNGs"
 "$GODOT" --headless --path . --import
 echo "== 5/6 Build game data (moves, abilities, species, items)"

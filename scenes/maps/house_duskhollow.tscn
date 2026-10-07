@@ -1,49 +1,81 @@
 [gd_scene format=4]
 
-[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_a7fl6"]
-[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_eeeb0"]
-[ext_resource type="PackedScene" path="res://scenes/actors/npc/gift_giver.tscn" id="3_2ycj8"]
-[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_elder.png" id="4_rr5w1"]
-[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="5_7wtlp"]
-[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="6_6u1le"]
+[ext_resource type="Script" path="res://scenes/maps/world_map.gd" id="1_2ycj8"]
+[ext_resource type="TileSet" path="res://assets/tilesets/overworld_tileset.tres" id="2_rr5w1"]
+[ext_resource type="PackedScene" path="res://scenes/actors/npc/gift_giver.tscn" id="3_7wtlp"]
+[ext_resource type="Texture2D" path="res://assets/placeholder/characters/npc_elder.png" id="4_6u1le"]
+[ext_resource type="PackedScene" path="res://scenes/objects/rug.tscn" id="5_jqtrs"]
+[ext_resource type="PackedScene" path="res://scenes/objects/furniture.tscn" id="6_weaox"]
+[ext_resource type="PackedScene" path="res://scenes/objects/warp.tscn" id="7_kv14j"]
+[ext_resource type="Script" path="res://scenes/objects/spawn_point.gd" id="8_hy4q6"]
 
-[node name="HouseDuskhollow" type="Node2D" unique_id=1114924614]
-script = ExtResource("1_a7fl6")
+[node name="HouseDuskhollow" type="Node2D" unique_id=66768687]
+script = ExtResource("1_2ycj8")
 display_name = "OLD HOUSE"
 allow_fly = false
 
-[node name="Ground" type="TileMapLayer" parent="." unique_id=1249678649]
-tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAACAAYAAAADAAAAAAACAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAAAAEAAAAIAAYAAAABAAEAAAAAAAYAAAACAAEAAAAAAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAEAAYAAAAJAAEAAAAAAAYAAAAAAAIAAAAAAAYAAAABAAIAAAAAAAYAAAACAAIAAAAAAAYAAAADAAIAAAAAAAYAAAAEAAIAAAAAAAYAAAAFAAIAAAAAAAYAAAAGAAIAAAAAAAYAAAAHAAIAAAAAAAYAAAAIAAIAAAAAAAYAAAAJAAIAAAAAAAYAAAAAAAMAAAAAAAYAAAABAAMAAAAAAAYAAAACAAMAAAADAAYAAAADAAMAAAAAAAYAAAAEAAMAAAAAAAYAAAAFAAMAAAAAAAYAAAAGAAMAAAAAAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAAAAYAAAAJAAMAAAAAAAYAAAAAAAQAAAAAAAYAAAABAAQAAAAAAAYAAAACAAQAAAADAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAJAAYAAAAAAAUAAAAAAAYAAAABAAUAAAAAAAYAAAACAAUAAAAAAAYAAAADAAUAAAAAAAYAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAAAAYAAAAJAAUAAAAAAAYAAAAAAAYAAAAAAAYAAAABAAYAAAAAAAYAAAACAAYAAAAAAAYAAAADAAYAAAAAAAYAAAAEAAYAAAAFAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAAAAYAAAAJAAYAAAAAAAYAAAA=")
-tile_set = ExtResource("2_eeeb0")
+[node name="Ground" type="TileMapLayer" parent="." unique_id=1072867010]
+tile_map_data = PackedByteArray("AAAAAAAAAAABAAYAAAABAAAAAAABAAYAAAACAAAAAAACAAYAAAADAAAAAAACAAYAAAAEAAAAAAABAAYAAAAFAAAAAAABAAYAAAAGAAAAAAABAAYAAAAHAAAAAAABAAYAAAAIAAAAAAABAAYAAAAJAAAAAAABAAYAAAAAAAEAAAAIAAYAAAABAAEAAAAAAAYAAAACAAEAAAAAAAYAAAADAAEAAAAAAAYAAAAEAAEAAAAAAAYAAAAFAAEAAAAAAAYAAAAGAAEAAAAAAAYAAAAHAAEAAAAAAAYAAAAIAAEAAAAAAAYAAAAJAAEAAAAAAAYAAAAAAAIAAAAAAAYAAAABAAIAAAAAAAYAAAACAAIAAAAAAAYAAAADAAIAAAAAAAYAAAAEAAIAAAAAAAYAAAAFAAIAAAAAAAYAAAAGAAIAAAAAAAYAAAAHAAIAAAAAAAYAAAAIAAIAAAAAAAYAAAAJAAIAAAAAAAYAAAAAAAMAAAAAAAYAAAABAAMAAAAAAAYAAAACAAMAAAADAAYAAAADAAMAAAAAAAYAAAAEAAMAAAAAAAYAAAAFAAMAAAAAAAYAAAAGAAMAAAAAAAYAAAAHAAMAAAAAAAYAAAAIAAMAAAAAAAYAAAAJAAMAAAAAAAYAAAAAAAQAAAAAAAYAAAABAAQAAAAAAAYAAAACAAQAAAADAAYAAAADAAQAAAAAAAYAAAAEAAQAAAAAAAYAAAAFAAQAAAAAAAYAAAAGAAQAAAAAAAYAAAAHAAQAAAAAAAYAAAAIAAQAAAAAAAYAAAAJAAQAAAAAAAYAAAAAAAUAAAAAAAYAAAABAAUAAAAAAAYAAAACAAUAAAAAAAYAAAADAAUAAAAAAAYAAAAEAAUAAAAAAAYAAAAFAAUAAAAAAAYAAAAGAAUAAAAAAAYAAAAHAAUAAAAAAAYAAAAIAAUAAAAAAAYAAAAJAAUAAAAAAAYAAAAAAAYAAAAAAAYAAAABAAYAAAAAAAYAAAACAAYAAAAAAAYAAAADAAYAAAAAAAYAAAAEAAYAAAAFAAYAAAAFAAYAAAAAAAYAAAAGAAYAAAAAAAYAAAAHAAYAAAAAAAYAAAAIAAYAAAAAAAYAAAAJAAYAAAAAAAYAAAA=")
+tile_set = ExtResource("2_rr5w1")
 
-[node name="Entities" type="Node2D" parent="." unique_id=1089917594]
+[node name="Entities" type="Node2D" parent="." unique_id=1605714347]
 y_sort_enabled = true
 
-[node name="NPC_Elder1" parent="Entities" unique_id=1508841691 instance=ExtResource("3_2ycj8")]
+[node name="NPC_Elder1" parent="Entities" unique_id=1138964259 instance=ExtResource("3_7wtlp")]
 position = Vector2(104, 40)
 gift = &"dusk_stone"
 count = 1
 flag = &"gift_house_duskhollow_6_2"
 offer = PackedStringArray("This stone is as cold\nas a winter night.", "A SHADELING would love\nit. Please, take it.")
-sprite_sheet = ExtResource("4_rr5w1")
+sprite_sheet = ExtResource("4_6u1le")
 lines = PackedStringArray("Long ago, a lantern lit\nthe way through the\nfog to this town.", "Folks say it still\nfloats out there... a\nGLOOMLAMP, perhaps?")
 
-[node name="Warps" type="Node2D" parent="." unique_id=1382584760]
+[node name="RugNavy1" parent="Entities" unique_id=400863918 instance=ExtResource("5_jqtrs")]
+position = Vector2(52, 50)
+piece = &"rug_navy"
 
-[node name="Warp1" parent="Warps" unique_id=278371982 instance=ExtResource("5_7wtlp")]
+[node name="VanityDark2" parent="Entities" unique_id=1857739110 instance=ExtResource("6_weaox")]
+position = Vector2(24, 24)
+piece = &"vanity_dark"
+lines = PackedStringArray("An old vanity. The\nmirror is a little\nfoggy.")
+
+[node name="WardrobeDark3" parent="Entities" unique_id=613854551 instance=ExtResource("6_weaox")]
+position = Vector2(72, 24)
+piece = &"wardrobe_dark"
+lines = PackedStringArray()
+
+[node name="NightstandLamp4" parent="Entities" unique_id=350225923 instance=ExtResource("6_weaox")]
+position = Vector2(120, 24)
+piece = &"nightstand_lamp"
+lines = PackedStringArray("A lamp with a warm,\nsteady glow. It keeps\nthe dusk away.")
+
+[node name="BedDarkDouble5" parent="Entities" unique_id=1759157924 instance=ExtResource("6_weaox")]
+position = Vector2(136, 40)
+piece = &"bed_dark_double"
+lines = PackedStringArray()
+
+[node name="StringLights6" parent="Entities" unique_id=1771922720 instance=ExtResource("6_weaox")]
+position = Vector2(104, 8)
+piece = &"string_lights"
+lines = PackedStringArray()
+shift = Vector2i(8, 0)
+
+[node name="Warps" type="Node2D" parent="." unique_id=1016509594]
+
+[node name="Warp1" parent="Warps" unique_id=1077706688 instance=ExtResource("7_kv14j")]
 position = Vector2(72, 104)
 target_map = "res://scenes/maps/town_duskhollow.tscn"
 target_spawn = &"from_house"
 blocked_lines = PackedStringArray()
 
-[node name="Spawns" type="Node2D" parent="." unique_id=1631950618]
+[node name="Spawns" type="Node2D" parent="." unique_id=1024500875]
 
-[node name="default" type="Marker2D" parent="Spawns" unique_id=1322865744]
+[node name="default" type="Marker2D" parent="Spawns" unique_id=1754954033]
 position = Vector2(72, 88)
-script = ExtResource("6_6u1le")
+script = ExtResource("8_hy4q6")
 facing = 1
 
-[node name="entrance" type="Marker2D" parent="Spawns" unique_id=1012066120]
+[node name="entrance" type="Marker2D" parent="Spawns" unique_id=2006763262]
 position = Vector2(72, 88)
-script = ExtResource("6_6u1le")
+script = ExtResource("8_hy4q6")
 facing = 1
